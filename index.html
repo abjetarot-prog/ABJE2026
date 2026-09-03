@@ -4,41 +4,434 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ABJE Tarot</title>
-  <!-- Ajout du style pour le QR code -->
   <style>
-    /* Vos styles existants */
     :root {
       --bg: #0f172a;
+      --bg2: #1a1a2e;
+      --bg3: #16213e;
       --card-bg: #1e293b;
       --accent1: #f59e0b;
       --accent2: #ef4444;
+      --accent3: #8b5cf6;
       --accent4: #10b981;
+      --accent5: #3b82f6;
       --text: #f8fafc;
       --text-muted: #94a3b8;
       --border: #334155;
+      --error: #ef4444;
+      --success: #10b981;
+      --warn: #f59e0b;
     }
-    /* Ajout pour le QR code */
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, var(--bg) 0%, var(--bg2) 50%, var(--bg3) 100%);
+      color: var(--text);
+      font-family: system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--card-bg);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 800;
+      color: white;
+    }
+    .logo-text div:first-child {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .logo-text div:last-child {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    nav {
+      display: flex;
+      justify-content: space-around;
+      padding: 6px 4px;
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 60px;
+      z-index: 99;
+      max-width: 600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .nav-tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 6px 10px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+    .nav-tab.active {
+      color: var(--accent1);
+    }
+    .nav-tab.active span:first-child {
+      transform: scale(1.1);
+    }
+    main {
+      flex: 1;
+      padding: 16px;
+      max-width: 600px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    h1, h2, h3 {
+      margin: 0 0 16px 0;
+      font-weight: 700;
+    }
+    h2 {
+      font-size: 22px;
+    }
+    h3 {
+      font-size: 16px;
+    }
+    button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 5px;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    button:not(:disabled):active {
+      transform: scale(0.97);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      color: white;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+    .btn-success {
+      background: linear-gradient(135deg, var(--accent4), #059669);
+      color: white;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+    .btn-danger {
+      background: var(--error);
+      color: white;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-info {
+      background: linear-gradient(135deg, var(--accent5), #2563eb);
+      color: white;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+    .btn-purple {
+      background: linear-gradient(135deg, var(--accent3), #7c3aed);
+      color: white;
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+    input, select {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 15px;
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+      box-sizing: border-box;
+      margin-bottom: 12px;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus {
+      border-color: var(--accent3);
+    }
+    .error {
+      color: var(--error);
+      font-size: 14px;
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .player-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 12px;
+    }
+    .player-card {
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .player-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+    .player-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .player-name {
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .player-score {
+      font-size: 18px;
+      font-weight: 800;
+    }
+    .positive {
+      color: var(--accent4);
+    }
+    .negative {
+      color: var(--error);
+    }
+    .player-status {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
     .qr-code img {
       border-radius: 12px;
       border: 4px solid var(--border);
-      margin: 20px 0;
+      margin: 20px auto;
+      display: block;
     }
-    /* Vos autres styles restent inchangés */
+    .form-group {
+      margin-bottom: 12px;
+    }
+    .form-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .form-row > div {
+      flex: 1;
+      min-width: 150px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      font-weight: 600;
+      color: var(--text-muted);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal.active {
+      display: flex;
+    }
+    .modal-content {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 20px;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+    }
+    .table-container {
+      overflow-x: auto;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
   </style>
 </head>
 <body>
-  <div id="root"></div>
+  <header>
+    <div class="logo">
+      <div class="logo-icon">A</div>
+      <div>
+        <div>ABJE</div>
+        <div id="user-role">Tarot</div>
+      </div>
+    </div>
+    <button id="logout-btn" class="btn-ghost" style="font-size: 13px; padding: 8px 14px;">Déconnexion</button>
+  </header>
 
-  <!-- Votre code React existant -->
-  <script type="text/babel">
-    // ========== IMPORTS ==========
-    const { useState, useEffect, useMemo, useCallback } = React;
-    const { v4: uuidv4 } = { v4: () => Math.random().toString(36).substring(2, 11) }; // Simulation de uuidv4
+  <nav id="nav-tabs">
+    <button class="nav-tab active" data-tab="accueil">
+      <span>🏠</span>
+      <span>Accueil</span>
+    </button>
+    <button class="nav-tab" data-tab="joueurs">
+      <span>👥</span>
+      <span>Joueurs</span>
+    </button>
+    <button class="nav-tab" data-tab="tables">
+      <span>🎲</span>
+      <span>Tables</span>
+    </button>
+    <button class="nav-tab" data-tab="saisies">
+      <span>✏️</span>
+      <span>Saisies</span>
+    </button>
+    <button class="nav-tab" data-tab="resultats">
+      <span>🏆</span>
+      <span>Résultats</span>
+    </button>
+  </nav>
 
+  <main id="main-content">
+    <!-- Le contenu sera chargé dynamiquement ici -->
+  </main>
+
+  <!-- Modals -->
+  <div id="login-modal" class="modal active">
+    <div class="modal-content">
+      <div style="text-align: center; margin-bottom: 28px;">
+        <div style="display: inline-flex; align-items: center; justify-content: center; width: 72px; height: 72px; border-radius: 20px; background: linear-gradient(135deg, var(--accent1), var(--accent2)); margin-bottom: 16px; box-shadow: 0 8px 24px rgba(245, 158, 11, 0.4);">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2C12 2 8 6 8 10C8 12 9.5 13 12 13C14.5 13 16 12 16 10C16 6 12 2 12 2Z" fill="white" opacity="0.95" />
+            <path d="M5 14C5 14 2 16 2 19C2 21 3.5 22 5 22C7 22 8 21 8 19C8 16 5 14 5 14Z" fill="white" opacity="0.8" />
+            <path d="M19 14C19 14 16 16 16 19C16 21 17.5 22 19 22C21 22 22 21 22 19C22 16 19 14 19 14Z" fill="white" opacity="0.8" />
+            <rect x="10.5" y="12" width="3" height="9" rx="1.5" fill="white" />
+          </svg>
+        </div>
+        <h1 style="font-size: 42px; font-weight: 800; margin: 0; letter-spacing: 4px; background: linear-gradient(90deg, var(--accent1), var(--accent2), var(--accent3)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">ABJE</h1>
+        <div style="margin-top: 10px; padding: 8px 16px; border-radius: 12px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); display: inline-flex; align-items: center; gap: 8px;">
+          <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--accent4); animation: pulse 2s infinite;"></span>
+          <span id="login-date" style="font-size: 14px; color: var(--text-muted); font-weight: 500; text-transform: capitalize;"></span>
+        </div>
+      </div>
+      <form id="login-form">
+        <div class="form-group">
+          <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; margin-left: 4px;">Login</label>
+          <input type="text" id="login" placeholder="Entrez votre identifiant" autocomplete="username" required />
+        </div>
+        <div class="form-group">
+          <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; margin-left: 4px;">Mot de passe</label>
+          <div style="position: relative;">
+            <input type="password" id="password" placeholder="Entrez votre mot de passe" autocomplete="current-password" required />
+            <button type="button" id="toggle-password" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 4px; color: var(--text-muted);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div id="login-error" class="error"></div>
+        <button type="submit" class="btn-primary" style="width: 100%; margin-top: 4px;">Se connecter</button>
+      </form>
+      <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); padding: 6px 12px; border-radius: 20px; background: rgba(139, 92, 246, 0.15);">
+          <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--accent3);"></span>
+          Admin · contrôle total
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); padding: 6px 12px; border-radius: 20px; background: rgba(16, 185, 129, 0.15);">
+          <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--accent4);"></span>
+          ABJE · ajout & modification
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="create-table-modal" class="modal">
+    <div class="modal-content">
+      <h2>Créer une nouvelle table</h2>
+      <div class="form-group">
+        <label>Nombre de joueurs</label>
+        <select id="new-table-nb-joueurs">
+          <option value="4">4 joueurs</option>
+          <option value="5">5 joueurs</option>
+          <option value="6">6 joueurs</option>
+          <option value="7">7 joueurs</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Sélectionnez les joueurs disponibles</label>
+        <div id="new-table-joueurs-select" style="display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto;"></div>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 16px;">
+        <button class="btn-primary" onclick="createTable()">Créer la table</button>
+        <button class="btn-ghost" onclick="hideCreateTableModal()">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
     // ========== CONSTANTES ==========
     const ADMIN_PASSWORD = "Tass6gny";
     const ABJE_PASSWORD = "0309";
-    const APP_URL = "https://abjetarot-prog.github.io/ABJE2026/"; // URL pour le QR code
+    const APP_URL = "https://abjetarot-prog.github.io/ABJE2026/";
 
     const COLORS = {
       bg: "#0f172a",
@@ -58,6 +451,29 @@
       warn: "#f59e0b",
     };
 
+    // ========== DONNÉES ==========
+    let user = JSON.parse(localStorage.getItem("abje_user")) || null;
+    let joueurs = JSON.parse(localStorage.getItem("abje_joueurs")) || [
+      { id: "j1", nom: "Tarot ABJE", disponible: false },
+      { id: "j2", nom: "Joueur 2", disponible: false },
+      { id: "j3", nom: "Joueur 3", disponible: false },
+      { id: "j4", nom: "Joueur 4", disponible: false }
+    ];
+    let tables = JSON.parse(localStorage.getItem("abje_tables")) || [];
+    let menes = JSON.parse(localStorage.getItem("abje_menes")) || {};
+    let tableCounter = JSON.parse(localStorage.getItem("abje_tableCounter")) || 0;
+    let partiesValidees = JSON.parse(localStorage.getItem("abje_partiesValidees")) || {};
+
+    // ========== SAUVEGARDE ==========
+    function saveData() {
+      localStorage.setItem("abje_user", JSON.stringify(user));
+      localStorage.setItem("abje_joueurs", JSON.stringify(joueurs));
+      localStorage.setItem("abje_tables", JSON.stringify(tables));
+      localStorage.setItem("abje_menes", JSON.stringify(menes));
+      localStorage.setItem("abje_tableCounter", JSON.stringify(tableCounter));
+      localStorage.setItem("abje_partiesValidees", JSON.stringify(partiesValidees));
+    }
+
     // ========== FONCTIONS UTILITAIRES ==========
     function formatDateFR(d) {
       if (typeof d === "string") d = new Date(d);
@@ -73,704 +489,3 @@
     function monthKey(d) {
       if (typeof d === "string") d = new Date(d);
       const m = (d.getMonth() + 1).toString().padStart(2, "0");
-      return d.getFullYear() + "-" + m;
-    }
-
-    // ========== FONCTIONS DE CALCUL (votre code existant) ==========
-    const CONTRATS = {
-      "Petite": { mult: 1, label: "Petite" },
-      "Garde": { mult: 2, label: "Garde" },
-      "Garde sans": { mult: 4, label: "Garde sans" },
-      "Garde contre": { mult: 6, label: "Garde contre" },
-    };
-
-    function getContratsForTable(nbJoueurs) {
-      if (nbJoueurs === 4) return ["Petite", "Garde", "Garde sans", "Garde contre"];
-      return ["Garde", "Garde sans", "Garde contre"];
-    }
-
-    const POIGNEES = {
-      "Aucune": 0,
-      "Simple": 20,
-      "Double": 30,
-      "Triple": 40,
-    };
-
-    function calculerScore(mene) {
-      const contrat = CONTRATS[mene.contrat];
-      if (!contrat) return { preneur: 0, defense: 0, details: "Contrat invalide" };
-
-      const seuils = { 0: 56, 1: 51, 2: 41, 3: 36 };
-      const nbBouts = mene.nbBouts || 0;
-      const seuil = seuils[nbBouts] || 56;
-      const diff = (mene.pointsRealises || 0) - seuil;
-
-      let base = 25 + diff;
-
-      let petitAuBoutPts = 0;
-      if (mene.petitAuBout === "preneur") {
-        petitAuBoutPts = 10;
-        base += petitAuBoutPts;
-      } else if (mene.petitAuBout === "defense") {
-        petitAuBoutPts = 10;
-        base -= petitAuBoutPts;
-      }
-
-      let scoreContrat = base * contrat.mult;
-      scoreContrat = Math.round(scoreContrat / 10) * 10;
-
-      const poigneePts = POIGNEES[mene.poignee] || 0;
-      let bonusPoignee = 0;
-      if (poigneePts > 0) {
-        if (mene.poigneeSide === "preneur") {
-          bonusPoignee = poigneePts;
-        } else if (mene.poigneeSide === "defense") {
-          bonusPoignee = -poigneePts;
-        }
-      }
-
-      let bonusChelem = 0;
-      if (mene.chelem === "non_demande") bonusChelem = 200;
-      else if (mene.chelem === "demande_reussi") bonusChelem = 400;
-      else if (mene.chelem === "demande_perdu") bonusChelem = -400;
-
-      let scoreTotal = scoreContrat + bonusPoignee + bonusChelem;
-      const gagne = diff >= 0;
-      let preneurScore, defenseScore;
-
-      if (gagne) {
-        preneurScore = scoreTotal;
-        defenseScore = -scoreTotal;
-      } else {
-        preneurScore = -scoreTotal;
-        defenseScore = scoreTotal;
-      }
-
-      const detailParts = [
-        `25 + (${mene.pointsRealises || 0} - ${seuil}) = ${base}`,
-        `x ${contrat.mult} -> ${scoreContrat}`,
-      ];
-      if (petitAuBoutPts) detailParts.push(`Petit bout: ${mene.petitAuBout === "preneur" ? "+" : "-"}${petitAuBoutPts}`);
-      if (poigneePts) detailParts.push(`Poignee: ${mene.poignee} (${mene.poigneeSide || "preneur"}) ${bonusPoignee > 0 ? "+" : ""}${bonusPoignee}`);
-      if (bonusChelem) detailParts.push(`Chelem: ${bonusChelem > 0 ? "+" : ""}${bonusChelem}`);
-      detailParts.push(`= ${gagne ? "+" : "-"}${Math.abs(scoreTotal)} (${gagne ? "gagne" : "perdu"})`);
-
-      return {
-        preneur: preneurScore,
-        defense: defenseScore,
-        gagne,
-        scoreContrat,
-        details: detailParts.join(" - "),
-      };
-    }
-
-    function getScoresParJoueur(mene, nbJoueurs) {
-      const result = calculerScore(mene);
-      const score = result.preneur;
-      const hasAppele = mene.appele && mene.appele !== "aucun";
-
-      const scores = {};
-
-      if (nbJoueurs === 4) {
-        if (mene.preneur) scores[mene.preneur] = Math.round(score * 3);
-        scores._defense = -Math.round(score);
-        scores._nbDefense = 3;
-      } else if (hasAppele) {
-        if (mene.preneur) scores[mene.preneur] = Math.round(score * 2);
-        if (mene.appele) scores[mene.appele] = Math.round(score * 1);
-        const nbDefense = nbJoueurs - 2;
-        scores._defense = -Math.round(score);
-        scores._nbDefense = nbDefense;
-      } else {
-        if (mene.preneur) scores[mene.preneur] = Math.round(score * 4);
-        const nbDefense = nbJoueurs - 1;
-        scores._defense = -Math.round(score);
-        scores._nbDefense = nbDefense;
-      }
-
-      return { scores, gagne: result.gagne, details: result.details };
-    }
-
-    // ========== ÉCRAN LOGIN (votre code existant) ==========
-    function LoginScreen({ onLogin }) {
-      const [login, setLogin] = React.useState("");
-      const [password, setPassword] = React.useState("");
-      const [error, setError] = React.useState("");
-      const [showPassword, setShowPassword] = React.useState(false);
-      const [dateDuJour, setDateDuJour] = React.useState("");
-      const [shake, setShake] = React.useState(false);
-
-      React.useEffect(() => {
-        setDateDuJour(formatDateFR(new Date()));
-      }, []);
-
-      const handleSubmit = (e) => {
-        e.preventDefault();
-        setError("");
-        const loginNorm = login.trim().toLowerCase();
-        if (loginNorm === "admin" && password === ADMIN_PASSWORD) {
-          onLogin({ role: "admin", login: "admin" });
-        } else if (loginNorm === "abje" && password === ABJE_PASSWORD) {
-          onLogin({ role: "abje", login: "abje" });
-        } else {
-          setError("Login ou mot de passe incorrect");
-          setShake(true);
-          setTimeout(() => setShake(false), 500);
-        }
-      };
-
-      return (
-        <div
-          style={{
-            minHeight: "100vh",
-            background: `linear-gradient(135deg, ${COLORS.bg} 0%, ${COLORS.bg2} 50%, ${COLORS.bg3} 100%)`,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "20px",
-            fontFamily: "system-ui, -apple-system, sans-serif",
-            position: "relative",
-            overflow: "hidden",
-          }}
-        >
-          <div style={{ position: "absolute", top: "-100px", right: "-80px", width: "300px", height: "300px", borderRadius: "50%", background: `${COLORS.accent3}30`, filter: "blur(80px)" }} />
-          <div style={{ position: "absolute", bottom: "-120px", left: "-100px", width: "350px", height: "350px", borderRadius: "50%", background: `${COLORS.accent1}25`, filter: "blur(90px)" }} />
-
-          <div
-            style={{
-              width: "100%",
-              maxWidth: "400px",
-              background: COLORS.cardBg,
-              borderRadius: "24px",
-              padding: "36px 28px",
-              boxShadow: "0 25px 60px rgba(0,0,0,0.5)",
-              border: `1px solid ${COLORS.border}`,
-              position: "relative",
-              zIndex: 1,
-              animation: shake ? "shake 0.5s" : "fadeUp 0.6s ease-out",
-            }}
-          >
-            <style>{`
-              @keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-10px)} 40%,80%{transform:translateX(10px)} }
-              @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-              @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
-            `}</style>
-
-            <div style={{ textAlign: "center", marginBottom: "28px" }}>
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: "72px",
-                  height: "72px",
-                  borderRadius: "20px",
-                  background: `linear-gradient(135deg, ${COLORS.accent1}, ${COLORS.accent2})`,
-                  marginBottom: "16px",
-                  boxShadow: `0 8px 24px ${COLORS.accent1}40`,
-                }}
-              >
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 2C12 2 8 6 8 10C8 12 9.5 13 12 13C14.5 13 16 12 16 10C16 6 12 2 12 2Z" fill="white" opacity="0.95" />
-                  <path d="M5 14C5 14 2 16 2 19C2 21 3.5 22 5 22C7 22 8 21 8 19C8 16 5 14 5 14Z" fill="white" opacity="0.8" />
-                  <path d="M19 14C19 14 16 16 16 19C16 21 17.5 22 19 22C21 22 22 21 22 19C22 16 19 14 19 14Z" fill="white" opacity="0.8" />
-                  <rect x="10.5" y="12" width="3" height="9" rx="1.5" fill="white" />
-                </svg>
-              </div>
-              <h1
-                style={{
-                  fontSize: "42px",
-                  fontWeight: 800,
-                  margin: 0,
-                  letterSpacing: "4px",
-                  background: `linear-gradient(90deg, ${COLORS.accent1}, ${COLORS.accent2}, ${COLORS.accent3})`,
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                ABJE
-              </h1>
-              <div
-                style={{
-                  marginTop: "10px",
-                  padding: "8px 16px",
-                  borderRadius: "12px",
-                  background: `${COLORS.accent4}15`,
-                  border: `1px solid ${COLORS.accent4}30`,
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "8px",
-                }}
-              >
-                <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: COLORS.accent4, animation: "pulse 2s infinite" }} />
-                <span style={{ fontSize: "14px", color: COLORS.textMuted, fontWeight: 500, textTransform: "capitalize" }}>
-                  {dateDuJour}
-                </span>
-              </div>
-            </div>
-
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-              <div>
-                <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: COLORS.textMuted, marginBottom: "6px", marginLeft: "4px" }}>Login</label>
-                <input
-                  type="text"
-                  value={login}
-                  onChange={(e) => setLogin(e.target.value)}
-                  placeholder="Entrez votre identifiant"
-                  autoComplete="username"
-                  style={{
-                    width: "100%",
-                    padding: "14px 16px",
-                    fontSize: "16px",
-                    borderRadius: "12px",
-                    border: `2px solid ${COLORS.border}`,
-                    background: COLORS.bg,
-                    color: COLORS.text,
-                    outline: "none",
-                    boxSizing: "border-box",
-                    transition: "border-color 0.2s",
-                  }}
-                  onFocus={(e) => (e.target.style.borderColor = COLORS.accent3)}
-                  onBlur={(e) => (e.target.style.borderColor = COLORS.border)}
-                />
-              </div>
-              <div>
-                <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: COLORS.textMuted, marginBottom: "6px", marginLeft: "4px" }}>Mot de passe</label>
-                <div style={{ position: "relative" }}>
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Entrez votre mot de passe"
-                    autoComplete="current-password"
-                    style={{
-                      width: "100%",
-                      padding: "14px 48px 14px 16px",
-                      fontSize: "16px",
-                      borderRadius: "12px",
-                      border: `2px solid ${COLORS.border}`,
-                      background: COLORS.bg,
-                      color: COLORS.text,
-                      outline: "none",
-                      boxSizing: "border-box",
-                      transition: "border-color 0.2s",
-                    }}
-                    onFocus={(e) => (e.target.style.borderColor = COLORS.accent3)}
-                    onBlur={(e) => (e.target.style.borderColor = COLORS.border)}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", padding: "4px", color: COLORS.textMuted }}
-                  >
-                    {showPassword ? (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" /><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" /><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" /><line x1="2" y1="2" x2="22" y2="22" /></svg>
-                    ) : (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
-                    )}
-                  </button>
-                </div>
-              </div>
-              {error && (
-                <div style={{ padding: "12px 16px", borderRadius: "10px", background: `${COLORS.error}15`, border: `1px solid ${COLORS.error}40`, color: COLORS.error, fontSize: "14px", fontWeight: 500, display: "flex", alignItems: "center", gap: "8px" }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
-                  {error}
-                </div>
-              )}
-              <button
-                type="submit"
-                style={{
-                  width: "100%",
-                  padding: "16px",
-                  fontSize: "16px",
-                  fontWeight: 700,
-                  borderRadius: "12px",
-                  border: "none",
-                  cursor: "pointer",
-                  background: `linear-gradient(135deg, ${COLORS.accent1}, ${COLORS.accent2})`,
-                  color: "white",
-                  boxShadow: `0 8px 20px ${COLORS.accent1}30`,
-                  transition: "transform 0.15s, box-shadow 0.15s",
-                  marginTop: "4px",
-                }}
-                onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.97)")}
-                onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
-                onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-              >
-                Se connecter
-              </button>
-            </form>
-            <div style={{ marginTop: "24px", paddingTop: "20px", borderTop: `1px solid ${COLORS.border}`, display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: COLORS.textMuted, padding: "6px 12px", borderRadius: "20px", background: `${COLORS.accent3}15` }}>
-                <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: COLORS.accent3 }} />
-                Admin · contrôle total
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: COLORS.textMuted, padding: "6px 12px", borderRadius: "20px", background: `${COLORS.accent4}15` }}>
-                <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: COLORS.accent4 }} />
-                ABJE · ajout & modification
-              </div>
-            </div>
-          </div>
-          <p style={{ marginTop: "24px", fontSize: "12px", color: COLORS.textMuted, opacity: 0.6, textAlign: "center" }}>
-            © 2026 ABJE · Gestion de Club de Tarot
-          </p>
-        </div>
-      );
-    }
-
-    // ========== COMPOSANTS UI (votre code existant) ==========
-    function Card({ children, style }) {
-      return (
-        <div style={{ background: COLORS.cardBg, borderRadius: "16px", padding: "20px", border: `1px solid ${COLORS.border}`, ...(style || {}) }}>
-          {children}
-        </div>
-      );
-    }
-
-    function Btn({ children, onClick, variant, disabled, style }) {
-      const variants = {
-        primary: { background: `linear-gradient(135deg, ${COLORS.accent1}, ${COLORS.accent2})`, color: "white" },
-        success: { background: `linear-gradient(135deg, ${COLORS.accent4}, #059669)`, color: "white" },
-        danger: { background: COLORS.error, color: "white" },
-        info: { background: `linear-gradient(135deg, ${COLORS.accent5}, #2563eb)`, color: "white" },
-        ghost: { background: "transparent", color: COLORS.text, border: `1px solid ${COLORS.border}` },
-        purple: { background: `linear-gradient(135deg, ${COLORS.accent3}, #7c3aed)`, color: "white" },
-      };
-      const v = variants[variant] || variants.primary;
-      return (
-        <button
-          onClick={onClick}
-          disabled={disabled}
-          style={{
-            padding: "12px 20px",
-            fontSize: "14px",
-            fontWeight: 700,
-            borderRadius: "12px",
-            border: "none",
-            cursor: disabled ? "not-allowed" : "pointer",
-            opacity: disabled ? 0.5 : 1,
-            ...v,
-            ...(style || {}),
-          }}
-        >
-          {children}
-        </button>
-      );
-    }
-
-    // ========== ONGLET ACCUEIL (MODIFIÉ AVEC QR CODE) ==========
-    function AccueilTab({ onNavigate }) {
-      const [dateDuJour, setDateDuJour] = React.useState("");
-
-      React.useEffect(() => {
-        setDateDuJour(formatDateFR(new Date()));
-      }, []);
-
-      // NOUVEAU : Fonction pour copier le lien
-      const copyLink = () => {
-        navigator.clipboard.writeText(APP_URL).then(() => alert("Lien copié !"));
-      };
-
-      return (
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          <Card style={{ textAlign: "center", padding: "32px 20px" }}>
-            <div style={{ fontSize: "48px", marginBottom: "12px" }}>🃏</div>
-            <h2 style={{ fontSize: "24px", fontWeight: 700, margin: 0, marginBottom: "16px" }}>
-              Merci de saisir les scores aujourd'hui
-            </h2>
-            {/* NOUVEAU : QR Code et lien */}
-            <div style={{ margin: "20px 0" }}>
-              <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(APP_URL)}&bgcolor=1e293b&color=f8fafc`}
-                alt="QR Code ABJE Tarot"
-                style={{ width: "200px", height: "200px", borderRadius: "12px", border: `4px solid ${COLORS.border}` }}
-              />
-            </div>
-            <p><a href={APP_URL} target="_blank" style={{ color: COLORS.accent4 }}>{APP_URL}</a></p>
-            <Btn onClick={copyLink} variant="ghost" style={{ marginTop: "10px" }}>Copier le lien</Btn>
-            {/* FIN NOUVEAU */}
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                padding: "10px 20px",
-                borderRadius: "16px",
-                background: `${COLORS.accent4}15`,
-                border: `1px solid ${COLORS.accent4}30`,
-                marginTop: "16px",
-              }}
-            >
-              <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: COLORS.accent4, animation: "pulse 2s infinite" }} />
-              <span style={{ fontSize: "16px", fontWeight: 600, textTransform: "capitalize" }}>
-                {dateDuJour}
-              </span>
-            </div>
-          </Card>
-
-          <Card>
-            <h3 style={{ fontSize: "16px", margin: "0 0 12px 0", fontWeight: 700 }}>📌 Navigation</h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              {[
-                { icon: "👥", label: "Joueurs", desc: "Gérer les joueurs du club", tab: "joueurs" },
-                { icon: "🃏", label: "Tables", desc: "Créer les tables et affecter les joueurs", tab: "tables" },
-                { icon: "✏️", label: "Saisies", desc: "Saisir les scores des mènes", tab: "saisies" },
-                { icon: "🏆", label: "Résultats", desc: "Consulter les cumuls et classements", tab: "resultats" },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  onClick={() => onNavigate(item.tab)}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "14px",
-                    padding: "12px 14px",
-                    borderRadius: "12px",
-                    background: COLORS.bg,
-                    border: `1px solid ${COLORS.border}`,
-                    cursor: "pointer",
-                    transition: "border-color 0.2s, background 0.2s",
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = COLORS.accent1; e.currentTarget.style.background = `${COLORS.accent1}10`; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = COLORS.border; e.currentTarget.style.background = COLORS.bg; }}
-                >
-                  <span style={{ fontSize: "24px" }}>{item.icon}</span>
-                  <div>
-                    <div style={{ fontSize: "15px", fontWeight: 600 }}>{item.label}</div>
-                    <div style={{ fontSize: "12px", color: COLORS.textMuted }}>{item.desc}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </div>
-      );
-    }
-
-    // ========== APP PRINCIPALE (votre code existant) ==========
-    function App() {
-      const [session, setSession] = React.useState(null);
-
-      // Chargement de l'état depuis localStorage
-      const loadState = () => {
-        try {
-          const raw = localStorage.getItem("abje_tarot_data");
-          if (raw) {
-            const data = JSON.parse(raw);
-            return {
-              joueurs: data.joueurs || [],
-              tables: data.tables || [],
-              menes: data.menes || {},
-              tableCounter: data.tableCounter || 0,
-              partiesValidees: data.partiesValidees || {},
-            };
-          }
-        } catch (e) { /* ignore */ }
-        return { joueurs: [], tables: [], menes: {}, tableCounter: 0, partiesValidees: {} };
-      };
-
-      const initial = loadState();
-      const [joueurs, setJoueurs] = React.useState(initial.joueurs);
-      const [tables, setTables] = React.useState(initial.tables);
-      const [menes, setMenes] = React.useState(initial.menes);
-      const [tableCounter, setTableCounter] = React.useState(initial.tableCounter);
-      const [partiesValidees, setPartiesValidees] = React.useState(initial.partiesValidees);
-
-      // Sauvegarde automatique
-      React.useEffect(() => {
-        try {
-          localStorage.setItem("abje_tarot_data", JSON.stringify({ joueurs, tables, menes, tableCounter, partiesValidees }));
-        } catch (e) { /* ignore */ }
-      }, [joueurs, tables, menes, tableCounter, partiesValidees]);
-
-      if (!session) {
-        return <LoginScreen onLogin={setSession} />;
-      }
-
-      return (
-        <MainApp
-          session={session}
-          onLogout={() => setSession(null)}
-          joueurs={joueurs}
-          setJoueurs={setJoueurs}
-          tables={tables}
-          setTables={setTables}
-          menes={menes}
-          setMenes={setMenes}
-          tableCounter={tableCounter}
-          setTableCounter={setTableCounter}
-          partiesValidees={partiesValidees}
-          setPartiesValidees={setPartiesValidees}
-        />
-      );
-    }
-
-    // ========== MAIN APP (votre code existant) ==========
-    function MainApp({
-      session, onLogout,
-      joueurs, setJoueurs,
-      tables, setTables,
-      menes, setMenes,
-      tableCounter, setTableCounter,
-      partiesValidees, setPartiesValidees,
-    }) {
-      const [tab, setTab] = React.useState("accueil");
-      const isAdmin = session.role === "admin";
-      const todayKey = dateKey(new Date());
-
-      const tabs = [
-        { id: "accueil", label: "Accueil", icon: "🏠" },
-        { id: "joueurs", label: "Joueurs", icon: "👥" },
-        { id: "tables", label: "Tables", icon: "🃏" },
-        { id: "saisies", label: "Saisies", icon: "✏️" },
-        { id: "resultats", label: "Résultats", icon: "🏆" },
-      ];
-
-      return (
-        <div
-          style={{
-            minHeight: "100vh",
-            background: `linear-gradient(135deg, ${COLORS.bg} 0%, ${COLORS.bg2} 50%, ${COLORS.bg3} 100%)`,
-            fontFamily: "system-ui, -apple-system, sans-serif",
-            color: COLORS.text,
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <style>{`
-            @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
-            @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-            .scroll-y { -webkit-overflow-scrolling: touch; }
-          `}</style>
-
-          {/* En-tête */}
-          <header
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "16px 20px",
-              borderBottom: `1px solid ${COLORS.border}`,
-              background: COLORS.cardBg,
-              position: "sticky",
-              top: 0,
-              zIndex: 100,
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              <div
-                style={{
-                  width: "40px",
-                  height: "40px",
-                  borderRadius: "10px",
-                  background: `linear-gradient(135deg, ${COLORS.accent1}, ${COLORS.accent2})`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "18px",
-                  fontWeight: 800,
-                  color: "white",
-                }}
-              >
-                A
-              </div>
-              <div>
-                <div style={{ fontSize: "18px", fontWeight: 700 }}>ABJE</div>
-                <div style={{ fontSize: "11px", color: COLORS.textMuted }}>
-                  {isAdmin ? "Admin" : "ABJE"} · {formatDateFR(new Date())}
-                </div>
-              </div>
-            </div>
-            <button
-              onClick={onLogout}
-              style={{
-                padding: "8px 14px",
-                borderRadius: "8px",
-                border: `1px solid ${COLORS.border}`,
-                background: "transparent",
-                color: COLORS.textMuted,
-                fontSize: "13px",
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
-              Déconnexion
-            </button>
-          </header>
-
-          {/* Barre d'onglets */}
-          <nav
-            style={{
-              display: "flex",
-              justifyContent: "space-around",
-              padding: "6px 4px",
-              background: COLORS.cardBg,
-              borderBottom: `1px solid ${COLORS.border}`,
-              position: "sticky",
-              top: 0,
-              zIndex: 99,
-              maxWidth: "600px",
-              margin: "0 auto",
-              width: "100%",
-            }}
-          >
-            {tabs.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: "2px",
-                  padding: "6px 10px",
-                  background: "transparent",
-                  border: "none",
-                  cursor: "pointer",
-                  fontSize: "10px",
-                  fontWeight: 600,
-                  color: tab === t.id ? COLORS.accent1 : COLORS.textMuted,
-                  transition: "color 0.2s",
-                }}
-              >
-                <span style={{ fontSize: "20px" }}>{t.icon}</span>
-                {t.label}
-              </button>
-            ))}
-          </nav>
-
-          {/* Contenu */}
-          <div style={{ flex: 1, padding: "16px", maxWidth: "600px", width: "100%", margin: "0 auto" }}>
-            {tab === "accueil" && <AccueilTab onNavigate={setTab} />}
-            {tab === "joueurs" && (
-              <JoueursTab
-                joueurs={joueurs}
-                setJoueurs={setJoueurs}
-                isAdmin={isAdmin}
-              />
-            )}
-            {tab === "tables" && (
-              <TablesTab
-                joueurs={joueurs}
-                setJoueurs={setJoueurs}
-                tables={tables}
-                setTables={setTables}
-                tableCounter={tableCounter}
-                setTableCounter={setTableCounter}
-                todayKey={todayKey}
-                isAdmin={isAdmin}
-              />
-            )}
-            {tab === "saisies" && (
-              <SaisiesTab
-                tables={tables}
-                menes={menes}
-                setMenes={setMenes}
-                joueurs={joueurs}
-                partiesValidees={partiesValidees}
-                setPartiesValidees={setPartiesValidees}
-                isAdmin={isAdmin}
-              />
-            )}
