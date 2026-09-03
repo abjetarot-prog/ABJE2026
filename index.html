@@ -299,20 +299,20 @@
         // 1 preneur contre 3 défenseurs
         const preneurId = mene.preneur;
         scores[preneurId] = gagne ? score * 3 : -score * 3;
-        joueurs.filter(j => j.id !== preneurId).forEach(j => {
-          scores[j.id] = gagne ? -score : score;
+        joueurs.forEach(j => {
+          if (j.id !== preneurId) scores[j.id] = gagne ? -score : score;
         });
       } else if (nbJoueurs === 5) {
         // 1 preneur + 1 appelé contre 3 défenseurs
         const preneurId = mene.preneur;
-        const appeleId = mene.appele || joueursPresents.find(j => j.id !== preneurId).id;
+        const appeleId = mene.appele || joueursPresents.find(j => j.id !== preneurId)?.id;
         scores[preneurId] = gagne ? score * 2 : -score * 2;
-        scores[appeleId] = gagne ? score : -score;
-        joueurs.filter(j => j.id !== preneurId && j.id !== appeleId).forEach(j => {
-          scores[j.id] = gagne ? -score : score;
+        if (appeleId) scores[appeleId] = gagne ? score : -score;
+        joueurs.forEach(j => {
+          if (j.id !== preneurId && j.id !== appeleId) scores[j.id] = gagne ? -score : score;
         });
       } else if (nbJoueurs === 6 || nbJoueurs === 7) {
-        // 2 preneurs (ou 3 pour 7 joueurs) contre les autres
+        // 2 ou 3 preneurs contre les autres
         const preneurs = [mene.preneur];
         if (mene.appele) preneurs.push(mene.appele);
         if (nbJoueurs === 7 && mene.appele2) preneurs.push(mene.appele2);
@@ -324,8 +324,10 @@
           scores[id] = gagne ? Math.round(score * nbDefenseurs / nbPreneurs) : -Math.round(score * nbDefenseurs / nbPreneurs);
         });
 
-        joueurs.filter(j => !preneurs.includes(j.id)).forEach(j => {
-          scores[j.id] = gagne ? -Math.round(score * nbPreneurs / nbDefenseurs) : Math.round(score * nbPreneurs / nbDefenseurs);
+        joueurs.forEach(j => {
+          if (!preneurs.includes(j.id)) {
+            scores[j.id] = gagne ? -Math.round(score * nbPreneurs / nbDefenseurs) : Math.round(score * nbPreneurs / nbDefenseurs);
+          }
         });
       }
 
@@ -597,14 +599,12 @@
                     <th>Contrat</th>
                     <th>Points</th>
                     <th>Résultat</th>
-                    <th>Score</th>
                   </tr>
                 </thead>
                 <tbody>
                   ${resultats.map(r => {
                     const table = tables.find(t => t.id === r.tableId);
                     const preneur = joueurs.find(j => j.id === r.preneur);
-                    const score = calculerScore(r, table?.nbJoueurs || 4);
                     return `
                       <tr>
                         <td>${formatDateFR(r.date)}</td>
@@ -612,8 +612,7 @@
                         <td>${preneur ? preneur.nom : "Inconnu"}</td>
                         <td>${r.contrat}</td>
                         <td>${r.points}</td>
-                        <td>${score.gagne ? "✅ Gagné" : "❌ Perdu"}</td>
-                        <td>${score.preneur >= 0 ? "+" : ""}${score.preneur}</td>
+                        <td>${r.gagne ? "✅ Gagné" : "❌ Perdu"}</td>
                       </tr>
                     `;
                   }).join('')}
@@ -796,21 +795,18 @@
                     <th>Contrat</th>
                     <th>Points</th>
                     <th>Résultat</th>
-                    <th>Score</th>
                   </tr>
                 </thead>
                 <tbody>
                   ${menes.map(m => {
                     const preneur = joueurs.find(j => j.id === m.preneur);
-                    const score = calculerScore(m, table.nbJoueurs);
                     return `
                       <tr>
                         <td>${formatDateFR(m.date)}</td>
                         <td>${preneur ? preneur.nom : "Inconnu"}</td>
                         <td>${m.contrat}</td>
                         <td>${m.points}</td>
-                        <td>${score.gagne ? "✅ Gagné" : "❌ Perdu"}</td>
-                        <td>${score.preneur >= 0 ? "+" : ""}${score.preneur}</td>
+                        <td>${m.gagne ? "✅ Gagné" : "❌ Perdu"}</td>
                       </tr>
                     `;
                   }).join('')}
@@ -818,7 +814,7 @@
               </table>
             </div>
           ` : '<p style="color: var(--text-muted);">Aucune mène enregistrée pour cette table.</p>'}
-          <button class="btn-ghost" onclick="renderApp()" style="margin-top: 16px;">Retour</button>
+          <button class="btn-ghost" onclick="renderContent('tables')" style="margin-top: 16px;">Retour</button>
         </div>
       `;
 
@@ -838,21 +834,6 @@
       const form = document.getElementById("saisie-mene-form");
       if (tableId) {
         form.style.display = "block";
-        // Réinitialiser les champs
-        document.getElementById("saisie-preneur").value = "";
-        document.getElementById("saisie-contrat").value = "Petite";
-        document.getElementById("saisie-points").value = "";
-        document.getElementById("saisie-petit").value = "aucun";
-        document.getElementById("saisie-poignee").value = "Aucune";
-        document.getElementById("saisie-poignee-side").value = "preneur";
-        document.getElementById("saisie-chelem").value = "Aucun";
-        document.getElementById("saisie-nb-bouts").value = "0";
-        if (joueursPresents.length >= 5) {
-          document.getElementById("saisie-appele").value = "";
-        }
-        if (joueursPresents.length >= 7) {
-          document.getElementById("saisie-appele2").value = "";
-        }
         document.getElementById("mene-result").style.display = "none";
       } else {
         form.style.display = "none";
@@ -900,19 +881,22 @@
       };
 
       const score = calculerScore(meneData, table.nbJoueurs);
+      meneData.gagne = score.gagne;
 
-      resultats.push({
-        ...meneData,
-        ...score
-      });
+      resultats.push(meneData);
 
       // Mettre à jour les scores UNIQUEMENT pour les joueurs de la table
       const tableJoueursIds = table.joueurs;
-      Object.keys(score.scoresParJoueur).forEach(joueurId => {
+      Object.entries(score.scoresParJoueur).forEach(([joueurId, scoreJoueur]) => {
         if (tableJoueursIds.includes(joueurId)) {
           const joueurIndex = joueurs.findIndex(j => j.id === joueurId);
           if (joueurIndex >= 0) {
-            joueurs[joueurIndex].scoreTotal += score.scoresParJoueur[joueurId];
+            joueurs[joueurIndex].scoreTotal += scoreJoueur;
+          }
+          // Mettre à jour le joueur présent s'il existe
+          const presentIndex = joueursPresents.findIndex(j => j.id === joueurId);
+          if (presentIndex >= 0) {
+            joueursPresents[presentIndex].scoreTotal = joueurs[joueurIndex].scoreTotal;
           }
         }
       });
@@ -924,7 +908,6 @@
       resultDiv.style.display = "block";
       resultDiv.innerHTML = `
         <p><strong>Résultat:</strong> ${score.gagne ? "✅ Gagné" : "❌ Perdu"}</p>
-        <p><strong>Score preneur:</strong> ${score.preneur >= 0 ? "+" : ""}${score.preneur}</p>
         <p><strong>Détails:</strong> ${score.details}</p>
         <p><strong>Scores par joueur:</strong></p>
         <div style="margin-top: 8px; padding: 8px; background: var(--bg); border-radius: 8px;">
@@ -972,35 +955,12 @@
       const saison = saisons.find(s => s.id === saisonId);
       if (!saison) return;
 
-      const saisonTables = tables.filter(t => saison.tables?.includes(t.id) || false);
-      const saisonResultats = resultats.filter(r => saisonTables.some(t => t.id === r.tableId));
-
       let content = `
         <div class="card" style="text-align: left;">
           <h2>${saison.nom}</h2>
           <p><strong>Date de début:</strong> ${formatDateFR(saison.dateDebut)}</p>
-          <p><strong>Nombre de tables:</strong> ${saisonTables.length}</p>
-          <p><strong>Nombre de résultats:</strong> ${saisonResultats.length}</p>
-
-          <h3 style="margin-top: 20px;">Tables de la saison</h3>
-          ${saisonTables.length > 0 ? `
-            <div style="margin-top: 12px;">
-              ${saisonTables.map(t => `
-                <div style="margin-top: 10px; padding: 12px; background: var(--bg); border-radius: 8px; border: 1px solid var(--border);">
-                  <p style="margin: 0; font-weight: 600;">Table du ${formatDateFR(t.date)} (${t.nbJoueurs} joueurs)</p>
-                  <p style="margin: 5px 0 0 0; font-size: 14px; color: var(--text-muted);">
-                    ${t.joueurs?.map(jId => {
-                      const j = joueurs.find(j => j.id === jId);
-                      return j ? getInitials(j.nom) : '';
-                    }).join(" ")} -
-                    ${t.menes?.length || 0} ménes
-                  </p>
-                </div>
-              `).join('')}
-            </div>
-          ` : '<p style="color: var(--text-muted);">Aucune table dans cette saison.</p>'}
-
-          <button class="btn-ghost" onclick="renderApp()" style="margin-top: 16px;">Retour</button>
+          <p><strong>Nombre de tables:</strong> ${saison.tables?.length || 0}</p>
+          <button class="btn-ghost" onclick="renderContent('saisons')" style="margin-top: 16px;">Retour</button>
         </div>
       `;
 
