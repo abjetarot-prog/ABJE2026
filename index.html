@@ -32,17 +32,21 @@
       padding: 20px;
       border: 1px solid var(--border);
       margin-bottom: 20px;
+      text-align: center;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
     }
     h1, h2, h3 {
       margin: 0 0 16px 0;
     }
     button {
-      padding: 12px 20px;
+      padding: 12px 24px;
       border: none;
       border-radius: 8px;
       font-weight: 600;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 16px;
       margin: 5px;
     }
     .btn-primary {
@@ -70,12 +74,54 @@
       color: var(--text);
       width: 100%;
       margin-bottom: 12px;
-      font-size: 14px;
+      font-size: 16px;
+      box-sizing: border-box;
     }
     .error {
       color: var(--accent2);
       margin: 10px 0;
       font-size: 14px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .user-badge {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(139, 92, 246, 0.2);
+      color: var(--accent1);
+      font-weight: 600;
+    }
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+    .nav-tab {
+      padding: 10px 16px;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      border: none;
+      font-weight: 600;
+    }
+    .nav-tab.active {
+      background: rgba(139, 92, 246, 0.2);
+      color: white;
+    }
+    .qr-code img {
+      border-radius: 12px;
+      border: 4px solid var(--border);
+      margin: 20px 0;
     }
     .player-grid {
       display: grid;
@@ -112,51 +158,6 @@
     .negative {
       color: var(--accent2);
     }
-    .qr-code {
-      display: flex;
-      justify-content: center;
-      margin: 20px 0;
-    }
-    .qr-code img {
-      border-radius: 12px;
-      border: 4px solid var(--border);
-    }
-    .nav-tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 12px;
-    }
-    .nav-tab {
-      padding: 10px 16px;
-      border-radius: 8px;
-      background: transparent;
-      color: var(--text-muted);
-      cursor: pointer;
-      border: none;
-      font-weight: 600;
-    }
-    .nav-tab.active {
-      background: rgba(139, 92, 246, 0.2);
-      color: white;
-    }
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--border);
-    }
-    .user-badge {
-      font-size: 12px;
-      padding: 4px 10px;
-      border-radius: 20px;
-      background: rgba(139, 92, 246, 0.2);
-      color: var(--accent1);
-      font-weight: 600;
-    }
   </style>
 </head>
 <body>
@@ -176,30 +177,12 @@
   </div>
 
   <script>
-    // ========== CONSTANTES (mots de passe masqués) ==========
-    const PASSWORDS = {
-      admin: "5f4dcc3b5aa765d61d8327deb882cf99", // Tass6gny (hashé en MD5)
-      abje: "d5b6d3a9b5ac3b9af7c17d062f7d77d2"   // 0309 (hashé en MD5)
+    // ========== DONNÉES ==========
+    const VALID_USERS = {
+      admin: "Tass6gny",
+      abje: "0309"
     };
 
-    // Fonction pour hasher le mot de passe (simplifiée pour l'exemple)
-    function hashPassword(password) {
-      // En réalité, utilisez une librairie comme CryptoJS pour un vrai hachage
-      // Ici, on utilise une simulation pour l'exemple
-      const md5 = (str) => {
-        // Simulation ultra-simplifiée (NE PAS UTILISER EN PRODUCTION)
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) {
-          const char = str.charCodeAt(i);
-          hash = ((hash << 5) - hash) + char;
-          hash = hash & hash; // Conversion en 32 bits
-        }
-        return hash.toString(16);
-      };
-      return md5(password);
-    }
-
-    // ========== DONNÉES ==========
     let user = JSON.parse(localStorage.getItem("abje_user")) || null;
     let joueurs = JSON.parse(localStorage.getItem("abje_joueurs")) || [
       { id: "j1", nom: "Tarot ABJE", present: true, scoreTotal: 0 },
@@ -235,7 +218,7 @@
     // ========== RENDU DES ONGLETS ==========
     function renderLoginScreen() {
       return `
-        <div class="card" style="text-align: center; max-width: 400px; margin: 0 auto;">
+        <div class="card">
           <div style="display: inline-flex; align-items: center; justify-content: center; width: 72px; height: 72px; border-radius: 20px; background: linear-gradient(135deg, var(--accent1), var(--accent2)); margin-bottom: 16px;">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
               <path d="M12 2C12 2 8 6 8 10C8 12 9.5 13 12 13C14.5 13 16 12 16 10C16 6 12 2 12 2Z" fill="white" opacity="0.95" />
@@ -264,7 +247,7 @@
 
     function renderAccueil() {
       return `
-        <div class="card" style="text-align: center;">
+        <div class="card">
           <h2>Bienvenue sur ABJE Tarot !</h2>
           <p>Scannez le QR code pour accéder à l'application depuis votre mobile :</p>
           <div class="qr-code">
@@ -279,7 +262,7 @@
     function renderJoueurs() {
       const joueursPresent = joueurs.filter(j => j.present).length;
       return `
-        <div class="card">
+        <div class="card" style="text-align: left;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
             <h2>Joueurs (${joueursPresent}/${joueurs.length})</h2>
             ${user?.role === "admin" ? `
@@ -314,7 +297,7 @@
 
     function renderTables() {
       return `
-        <div class="card">
+        <div class="card" style="text-align: left;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
             <h2>Tables (${tables.length})</h2>
             ${user?.role === "admin" ? `
@@ -344,19 +327,20 @@
     // ========== LOGIQUE ==========
     function login(e) {
       e.preventDefault();
-      const login = document.getElementById("login").value.toLowerCase().trim();
-      const password = document.getElementById("password").value;
+      const loginInput = document.getElementById("login").value.trim();
+      const passwordInput = document.getElementById("password").value;
       const errorElement = document.getElementById("login-error");
 
-      // Hash du mot de passe saisi
-      const hashedPassword = hashPassword(password);
+      // Vérification stricte (login en minuscules, mot de passe exact)
+      const login = loginInput.toLowerCase();
+      const password = passwordInput;
 
-      if (login === "admin" && hashedPassword === PASSWORDS.admin) {
+      if (login === "admin" && password === VALID_USERS.admin) {
         user = { role: "admin", login: "admin" };
         errorElement.textContent = "";
         saveData();
         renderApp();
-      } else if (login === "abje" && hashedPassword === PASSWORDS.abje) {
+      } else if (login === "abje" && password === VALID_USERS.abje) {
         user = { role: "abje", login: "abje" };
         errorElement.textContent = "";
         saveData();
