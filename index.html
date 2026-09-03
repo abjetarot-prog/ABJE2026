@@ -131,12 +131,39 @@
     }
     th { font-weight: 600; color: var(--text-muted); }
     .table-container { overflow-x: auto; }
-    .mene-row {
-      background: var(--bg);
-      border-radius: 12px;
-      padding: 16px;
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 20px;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
       border: 1px solid var(--border);
-      margin-top: 10px;
+    }
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -159,6 +186,49 @@
     <main id="main-content"></main>
   </div>
 
+  <!-- Modal pour créer une table -->
+  <div id="create-table-modal" class="modal">
+    <div class="modal-content">
+      <h2>Créer une nouvelle table</h2>
+      <div class="form-group">
+        <label>Nombre de joueurs</label>
+        <select id="new-table-nb-joueurs">
+          <option value="4">4 joueurs</option>
+          <option value="5">5 joueurs</option>
+          <option value="6">6 joueurs</option>
+          <option value="7">7 joueurs</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Sélectionnez les joueurs présents aujourd'hui</label>
+        <div id="new-table-joueurs-select" class="checkbox-group"></div>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 16px;">
+        <button class="btn-primary" onclick="createTable()">Créer la table</button>
+        <button class="btn-ghost" onclick="hideCreateTableModal()">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal pour créer une saison -->
+  <div id="create-saison-modal" class="modal">
+    <div class="modal-content">
+      <h2>Créer une nouvelle saison</h2>
+      <div class="form-group">
+        <label>Nom de la saison</label>
+        <input type="text" id="new-saison-nom" placeholder="Ex: Saison 2026-2027" required />
+      </div>
+      <div class="form-group">
+        <label>Date de début</label>
+        <input type="date" id="new-saison-date" required />
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 16px;">
+        <button class="btn-primary" onclick="createSaison()">Créer la saison</button>
+        <button class="btn-ghost" onclick="hideCreateSaisonModal()">Annuler</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ========== CONSTANTES ==========
     const VALID_USERS = {
@@ -169,14 +239,15 @@
     // ========== DONNÉES ==========
     let user = JSON.parse(localStorage.getItem("abje_user")) || null;
     let joueurs = JSON.parse(localStorage.getItem("abje_joueurs")) || [
-      { id: "j1", nom: "Tarot ABJE", present: true, scoreTotal: 0 },
-      { id: "j2", nom: "Joueur 2", present: true, scoreTotal: 0 },
-      { id: "j3", nom: "Joueur 3", present: true, scoreTotal: 0 },
-      { id: "j4", nom: "Joueur 4", present: true, scoreTotal: 0 }
+      { id: "j1", nom: "Tarot ABJE", scoreTotal: 0 },
+      { id: "j2", nom: "Joueur 2", scoreTotal: 0 },
+      { id: "j3", nom: "Joueur 3", scoreTotal: 0 },
+      { id: "j4", nom: "Joueur 4", scoreTotal: 0 }
     ];
     let tables = JSON.parse(localStorage.getItem("abje_tables")) || [];
     let saisons = JSON.parse(localStorage.getItem("abje_saisons")) || [];
     let resultats = JSON.parse(localStorage.getItem("abje_resultats")) || [];
+    let joueursPresents = JSON.parse(localStorage.getItem("abje_joueurs_presents")) || [];
 
     const APP_URL = "https://abjetarot-prog.github.io/ABJE2026/";
 
@@ -187,6 +258,7 @@
       localStorage.setItem("abje_tables", JSON.stringify(tables));
       localStorage.setItem("abje_saisons", JSON.stringify(saisons));
       localStorage.setItem("abje_resultats", JSON.stringify(resultats));
+      localStorage.setItem("abje_joueurs_presents", JSON.stringify(joueursPresents));
     }
 
     // ========== FONCTIONS UTILITAIRES ==========
@@ -204,12 +276,12 @@
     }
 
     // ========== FONCTIONS DE CALCUL (Règles FFTarot) ==========
-    function calculerScore(mene) {
+    function calculerScore(mene, nbJoueurs) {
       const contrats = { "Petite": 1, "Garde": 2, "Garde sans": 4, "Garde contre": 6 };
       const seuils = { 0: 56, 1: 51, 2: 41, 3: 36 };
       const mult = contrats[mene.contrat] || 1;
       const seuil = seuils[mene.nbBouts || 0] || 56;
-      const diff = (mene.pointsRealises || 0) - seuil;
+      const diff = (mene.points || 0) - seuil;
 
       let base = 25 + diff;
       if (mene.petitAuBout === "preneur") base += 10;
@@ -221,11 +293,48 @@
       score += { "Aucun": 0, "Non demandé": 200, "Demandé réussi": 400, "Demandé perdu": -400 }[mene.chelem] || 0;
       const gagne = diff >= 0;
 
+      // Répartition des scores selon le nombre de joueurs
+      const scores = {};
+      if (nbJoueurs === 4) {
+        // 1 preneur contre 3 défenseurs
+        const preneurId = mene.preneur;
+        scores[preneurId] = gagne ? score * 3 : -score * 3;
+        joueurs.filter(j => j.id !== preneurId).forEach(j => {
+          scores[j.id] = gagne ? -score : score;
+        });
+      } else if (nbJoueurs === 5) {
+        // 1 preneur + 1 appelé contre 3 défenseurs
+        const preneurId = mene.preneur;
+        const appeleId = mene.appele || joueursPresents.find(j => j.id !== preneurId).id;
+        scores[preneurId] = gagne ? score * 2 : -score * 2;
+        scores[appeleId] = gagne ? score : -score;
+        joueurs.filter(j => j.id !== preneurId && j.id !== appeleId).forEach(j => {
+          scores[j.id] = gagne ? -score : score;
+        });
+      } else if (nbJoueurs === 6 || nbJoueurs === 7) {
+        // 2 preneurs (ou 3 pour 7 joueurs) contre les autres
+        const preneurs = [mene.preneur];
+        if (mene.appele) preneurs.push(mene.appele);
+        if (nbJoueurs === 7 && mene.appele2) preneurs.push(mene.appele2);
+
+        const nbPreneurs = preneurs.length;
+        const nbDefenseurs = nbJoueurs - nbPreneurs;
+
+        preneurs.forEach(id => {
+          scores[id] = gagne ? Math.round(score * nbDefenseurs / nbPreneurs) : -Math.round(score * nbDefenseurs / nbPreneurs);
+        });
+
+        joueurs.filter(j => !preneurs.includes(j.id)).forEach(j => {
+          scores[j.id] = gagne ? -Math.round(score * nbPreneurs / nbDefenseurs) : Math.round(score * nbPreneurs / nbDefenseurs);
+        });
+      }
+
       return {
         preneur: gagne ? score : -score,
         defense: gagne ? -score : score,
         gagne,
-        details: `${base} x ${mult} = ${score}${poigneePts ? ` + Poignée (${poigneePts})` : ""}${gagne ? " ✅" : " ❌"}`
+        details: `${base} x ${mult} = ${score}${poigneePts ? ` + Poignée (${poigneePts})` : ""}${gagne ? " ✅" : " ❌"}`,
+        scoresParJoueur: scores
       };
     }
 
@@ -274,11 +383,10 @@
     }
 
     function renderJoueurs() {
-      const joueursPresent = joueurs.filter(j => j.present).length;
       return `
         <div class="card" style="text-align: left;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h2>Joueurs (${joueursPresent}/${joueurs.length})</h2>
+            <h2>Joueurs (${joueurs.length})</h2>
             ${(user?.role === "admin" || user?.role === "abje") ? `
               <form onsubmit="addJoueur(event)" style="display: flex; gap: 8px;">
                 <input name="nom" type="text" placeholder="Nouveau joueur" style="width: 200px;" required />
@@ -286,24 +394,46 @@
               </form>
             ` : ''}
           </div>
-          <div class="player-grid">
-            ${joueurs.map(j => `
-              <div class="player-card">
-                <div class="player-info">
-                  <div class="player-name">${j.nom}</div>
-                  <div class="player-status">${j.present ? "✅ Présent" : "❌ Absent"}</div>
+          <div style="margin-bottom: 16px;">
+            <h3>Présents aujourd'hui (${joueursPresents.length})</h3>
+            <div class="player-grid">
+              ${joueursPresents.map(j => `
+                <div class="player-card">
+                  <div class="player-info">
+                    <div class="player-name">${j.nom}</div>
+                    <div class="player-status">✅ Présent</div>
+                  </div>
+                  <div>
+                    <span class="player-score ${j.scoreTotal >= 0 ? 'positive' : 'negative'}">${formatScore(j.scoreTotal)}</span>
+                    ${(user?.role === "admin" || user?.role === "abje") ? `
+                      <button class="btn-danger" onclick="removePresent('${j.id}')" style="padding: 4px 8px; margin-left: 8px;">Retirer</button>
+                    ` : ''}
+                  </div>
                 </div>
-                <div>
-                  <span class="player-score ${j.scoreTotal >= 0 ? 'positive' : 'negative'}">${formatScore(j.scoreTotal)}</span>
-                  ${(user?.role === "admin" || user?.role === "abje") ? `
-                    <button class="btn-ghost" onclick="togglePresence('${j.id}')" style="padding: 4px 8px; margin-left: 8px;">
-                      ${j.present ? "✅" : "❌"}
-                    </button>
-                    <button class="btn-danger" onclick="deleteJoueur('${j.id}')" style="padding: 4px 8px; margin-left: 4px;">🗑️</button>
-                  ` : ''}
+              `).join('')}
+            </div>
+          </div>
+          <div>
+            <h3>Tous les joueurs</h3>
+            <div class="player-grid">
+              ${joueurs.map(j => `
+                <div class="player-card">
+                  <div class="player-info">
+                    <div class="player-name">${j.nom}</div>
+                    <div class="player-status">${joueursPresents.some(p => p.id === j.id) ? "✅ Présent" : "❌ Absent"}</div>
+                  </div>
+                  <div>
+                    <span class="player-score ${j.scoreTotal >= 0 ? 'positive' : 'negative'}">${formatScore(j.scoreTotal)}</span>
+                    ${(user?.role === "admin" || user?.role === "abje") ? `
+                      <button class="btn-ghost" onclick="togglePresence('${j.id}')" style="padding: 4px 8px; margin-left: 8px;">
+                        ${joueursPresents.some(p => p.id === j.id) ? "Retirer" : "Ajouter"}
+                      </button>
+                      <button class="btn-danger" onclick="deleteJoueur('${j.id}')" style="padding: 4px 8px; margin-left: 4px;">🗑️</button>
+                    ` : ''}
+                  </div>
                 </div>
-              </div>
-            `).join('')}
+              `).join('')}
+            </div>
           </div>
         </div>
       `;
@@ -322,8 +452,8 @@
             ${tables.map(t => `
               <div style="margin-top: 10px; padding: 16px; background: var(--bg); border-radius: 12px; border: 1px solid var(--border);">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                  <p style="margin: 0; font-weight: 600;">Table du ${formatDateFR(t.date)}</p>
-                  <span style="font-size: 14px; color: var(--text-muted);">${t.joueurs?.length || 0} joueurs · ${t.menes?.length || 0} ménes</span>
+                  <p style="margin: 0; font-weight: 600;">Table du ${formatDateFR(t.date)} (${t.nbJoueurs} joueurs)</p>
+                  <span style="font-size: 14px; color: var(--text-muted);">${t.menes?.length || 0} ménes</span>
                 </div>
                 <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
                   ${t.joueurs?.map(jId => {
@@ -341,124 +471,113 @@
             `).join('')}
           `}
         </div>
-
-        <!-- Modal pour créer une table -->
-        <div id="create-table-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
-          <div class="card" style="max-width: 500px; margin: 20px;">
-            <h2>Créer une nouvelle table</h2>
-            <div class="form-group">
-              <label>Nombre de joueurs</label>
-              <select id="new-table-nb-joueurs">
-                <option value="4">4 joueurs</option>
-                <option value="5">5 joueurs</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Sélectionnez les joueurs</label>
-              <div id="new-table-joueurs-select" style="display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto;">
-                ${joueurs.map(j => `
-                  <label style="display: flex; align-items: center; gap: 8px;">
-                    <input type="checkbox" value="${j.id}" checked />
-                    <span>${j.nom}</span>
-                  </label>
-                `).join('')}
-              </div>
-            </div>
-            <div style="display: flex; gap: 8px; margin-top: 16px;">
-              <button class="btn-primary" onclick="createTable()">Créer la table</button>
-              <button class="btn-ghost" onclick="hideCreateTableModal()">Annuler</button>
-            </div>
-          </div>
-        </div>
       `;
     }
 
     function renderSaisie() {
       if (!user) return `<div class="card">Veuillez vous connecter.</div>`;
+      if (joueursPresents.length < 4) return `<div class="card">Veuillez sélectionner au moins 4 joueurs présents pour créer une table.</div>`;
 
       return `
         <div class="card" style="text-align: left;">
           <h2>Saisie des résultats</h2>
-          ${tables.length === 0 ? '<p style="color: var(--text-muted);">Aucune table disponible. Créez-en une d\'abord.</p>' : `
+          <div class="form-group">
+            <label>Sélectionnez une table</label>
+            <select id="saisie-table-select" onchange="loadTableMenes(this.value)">
+              <option value="">-- Sélectionnez une table --</option>
+              ${tables.map(t => `<option value="${t.id}">Table du ${formatDateFR(t.date)} (${t.nbJoueurs} joueurs)</option>`).join('')}
+            </select>
+          </div>
+          <div id="saisie-mene-form" style="display: none;">
             <div class="form-group">
-              <label>Sélectionnez une table</label>
-              <select id="saisie-table-select" onchange="loadTableMenes(this.value)">
-                <option value="">-- Sélectionnez une table --</option>
-                ${tables.map(t => `<option value="${t.id}">Table du ${formatDateFR(t.date)}</option>`).join('')}
+              <label>Preneur</label>
+              <select id="saisie-preneur">
+                <option value="">-- Sélectionnez le preneur --</option>
+                ${joueursPresents.map(j => `<option value="${j.id}">${j.nom}</option>`).join('')}
               </select>
             </div>
-            <div id="saisie-mene-form" style="display: none;">
+            <div class="form-row">
               <div class="form-group">
-                <label>Preneur</label>
-                <select id="saisie-preneur">
-                  ${joueurs.map(j => `<option value="${j.id}">${j.nom}</option>`).join('')}
+                <label>Contrat</label>
+                <select id="saisie-contrat">
+                  <option value="Petite">Petite</option>
+                  <option value="Garde">Garde</option>
+                  <option value="Garde sans">Garde sans le chien</option>
+                  <option value="Garde contre">Garde contre le chien</option>
                 </select>
               </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Contrat</label>
-                  <select id="saisie-contrat">
-                    <option value="Petite">Petite</option>
-                    <option value="Garde">Garde</option>
-                    <option value="Garde sans">Garde sans le chien</option>
-                    <option value="Garde contre">Garde contre le chien</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>Points réalisés</label>
-                  <input type="number" id="saisie-points" placeholder="Points" min="0" />
-                </div>
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Petit au bout</label>
-                  <select id="saisie-petit">
-                    <option value="aucun">Aucun</option>
-                    <option value="preneur">Preneur</option>
-                    <option value="defense">Défense</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>Poignée</label>
-                  <select id="saisie-poignee">
-                    <option value="Aucune">Aucune</option>
-                    <option value="Simple">Simple</option>
-                    <option value="Double">Double</option>
-                    <option value="Triple">Triple</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Côté poignée</label>
-                  <select id="saisie-poignee-side">
-                    <option value="preneur">Preneur</option>
-                    <option value="defense">Défense</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>Chelem</label>
-                  <select id="saisie-chelem">
-                    <option value="Aucun">Aucun</option>
-                    <option value="Non demandé">Non demandé</option>
-                    <option value="Demandé réussi">Demandé réussi</option>
-                    <option value="Demandé perdu">Demandé perdu</option>
-                  </select>
-                </div>
-              </div>
               <div class="form-group">
-                <label>Nombre de bouts</label>
-                <select id="saisie-nb-bouts">
-                  <option value="0">0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                </select>
+                <label>Points réalisés</label>
+                <input type="number" id="saisie-points" placeholder="Points" min="0" />
               </div>
-              <button class="btn-success" onclick="saveMene()">Enregistrer la mène</button>
-              <div id="mene-result" style="margin-top: 16px; padding: 12px; background: var(--bg); border-radius: 8px; display: none;"></div>
             </div>
-          `}
+            <div class="form-row">
+              <div class="form-group">
+                <label>Petit au bout</label>
+                <select id="saisie-petit">
+                  <option value="aucun">Aucun</option>
+                  <option value="preneur">Preneur</option>
+                  <option value="defense">Défense</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Poignée</label>
+                <select id="saisie-poignee">
+                  <option value="Aucune">Aucune</option>
+                  <option value="Simple">Simple</option>
+                  <option value="Double">Double</option>
+                  <option value="Triple">Triple</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Côté poignée</label>
+                <select id="saisie-poignee-side">
+                  <option value="preneur">Preneur</option>
+                  <option value="defense">Défense</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Chelem</label>
+                <select id="saisie-chelem">
+                  <option value="Aucun">Aucun</option>
+                  <option value="Non demandé">Non demandé</option>
+                  <option value="Demandé réussi">Demandé réussi</option>
+                  <option value="Demandé perdu">Demandé perdu</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Nombre de bouts</label>
+              <select id="saisie-nb-bouts">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+              </select>
+            </div>
+            ${joueursPresents.length >= 5 ? `
+              <div class="form-group">
+                <label>Appelé</label>
+                <select id="saisie-appele">
+                  <option value="">Aucun</option>
+                  ${joueursPresents.map(j => `<option value="${j.id}">${j.nom}</option>`).join('')}
+                </select>
+              </div>
+            ` : ''}
+            ${joueursPresents.length >= 7 ? `
+              <div class="form-group">
+                <label>2ème Appelé</label>
+                <select id="saisie-appele2">
+                  <option value="">Aucun</option>
+                  ${joueursPresents.map(j => `<option value="${j.id}">${j.nom}</option>`).join('')}
+                </select>
+              </div>
+            ` : ''}
+            <button class="btn-success" onclick="saveMene()">Enregistrer la mène</button>
+            <div id="mene-result" style="margin-top: 16px; padding: 12px; background: var(--bg); border-radius: 8px; display: none;"></div>
+          </div>
         </div>
       `;
     }
@@ -485,7 +604,7 @@
                   ${resultats.map(r => {
                     const table = tables.find(t => t.id === r.tableId);
                     const preneur = joueurs.find(j => j.id === r.preneur);
-                    const score = calculerScore(r);
+                    const score = calculerScore(r, table?.nbJoueurs || 4);
                     return `
                       <tr>
                         <td>${formatDateFR(r.date)}</td>
@@ -531,31 +650,99 @@
             `).join('')}
           `}
         </div>
-
-        <!-- Modal pour créer une saison -->
-        <div id="create-saison-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
-          <div class="card" style="max-width: 500px; margin: 20px;">
-            <h2>Créer une nouvelle saison</h2>
-            <div class="form-group">
-              <label>Nom de la saison</label>
-              <input type="text" id="new-saison-nom" placeholder="Ex: Saison 2026-2027" required />
-            </div>
-            <div class="form-group">
-              <label>Date de début</label>
-              <input type="date" id="new-saison-date" required />
-            </div>
-            <div style="display: flex; gap: 8px; margin-top: 16px;">
-              <button class="btn-primary" onclick="createSaison()">Créer la saison</button>
-              <button class="btn-ghost" onclick="hideCreateSaisonModal()">Annuler</button>
-            </div>
-          </div>
-        </div>
       `;
     }
 
-    // ========== NOUVELLES FONCTIONS ==========
+    // ========== FONCTIONS ==========
+    function login(e) {
+      e.preventDefault();
+      const loginInput = document.getElementById("login").value.trim();
+      const passwordInput = document.getElementById("password").value;
+      const errorElement = document.getElementById("login-error");
+
+      const login = loginInput.toLowerCase();
+      const password = passwordInput;
+
+      if (login === "admin" && password === VALID_USERS.admin) {
+        user = { role: "admin", login: "admin" };
+        errorElement.textContent = "";
+        saveData();
+        renderApp();
+      } else if (login === "abje" && password === VALID_USERS.abje) {
+        user = { role: "abje", login: "abje" };
+        errorElement.textContent = "";
+        saveData();
+        renderApp();
+      } else {
+        errorElement.textContent = "Login ou mot de passe incorrect";
+      }
+    }
+
+    function logout() {
+      user = null;
+      saveData();
+      renderApp();
+    }
+
+    function addJoueur(e) {
+      e.preventDefault();
+      const nom = e.target.nom.value.trim();
+      if (nom) {
+        joueurs.push({ id: Date.now().toString(), nom, scoreTotal: 0 });
+        saveData();
+        renderApp();
+        e.target.reset();
+      }
+    }
+
+    function deleteJoueur(id) {
+      if (confirm("Êtes-vous sûr de vouloir supprimer ce joueur ?")) {
+        joueurs = joueurs.filter(j => j.id !== id);
+        joueursPresents = joueursPresents.filter(j => j.id !== id);
+        saveData();
+        renderApp();
+      }
+    }
+
+    function togglePresence(id) {
+      const joueur = joueurs.find(j => j.id === id);
+      if (!joueur) return;
+
+      const index = joueursPresents.findIndex(j => j.id === id);
+      if (index >= 0) {
+        joueursPresents.splice(index, 1);
+      } else {
+        joueursPresents.push({ ...joueur });
+      }
+      saveData();
+      renderApp();
+    }
+
+    function removePresent(id) {
+      joueursPresents = joueursPresents.filter(j => j.id !== id);
+      saveData();
+      renderApp();
+    }
+
     function showCreateTableModal() {
-      document.getElementById("create-table-modal").style.display = "flex";
+      if (joueursPresents.length < 4) {
+        alert("Veuillez sélectionner au moins 4 joueurs présents pour créer une table.");
+        return;
+      }
+
+      const modal = document.getElementById("create-table-modal");
+      const select = document.getElementById("new-table-nb-joueurs");
+      const checkboxGroup = document.getElementById("new-table-joueurs-select");
+
+      // Remplir les checkboxes avec les joueurs présents
+      checkboxGroup.innerHTML = joueursPresents.map(j => `
+        <label style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" value="${j.id}" checked />
+          <span>${j.nom}</span>
+        </label>
+      `).join('');
+
+      modal.style.display = "flex";
     }
 
     function hideCreateTableModal() {
@@ -615,7 +802,7 @@
                 <tbody>
                   ${menes.map(m => {
                     const preneur = joueurs.find(j => j.id === m.preneur);
-                    const score = calculerScore(m);
+                    const score = calculerScore(m, table.nbJoueurs);
                     return `
                       <tr>
                         <td>${formatDateFR(m.date)}</td>
@@ -641,7 +828,6 @@
     function deleteTable(tableId) {
       if (confirm("Êtes-vous sûr de vouloir supprimer cette table ?")) {
         tables = tables.filter(t => t.id !== tableId);
-        // Supprimer aussi les résultats liés à cette table
         resultats = resultats.filter(r => r.tableId !== tableId);
         saveData();
         renderApp();
@@ -652,6 +838,22 @@
       const form = document.getElementById("saisie-mene-form");
       if (tableId) {
         form.style.display = "block";
+        // Réinitialiser les champs
+        document.getElementById("saisie-preneur").value = "";
+        document.getElementById("saisie-contrat").value = "Petite";
+        document.getElementById("saisie-points").value = "";
+        document.getElementById("saisie-petit").value = "aucun";
+        document.getElementById("saisie-poignee").value = "Aucune";
+        document.getElementById("saisie-poignee-side").value = "preneur";
+        document.getElementById("saisie-chelem").value = "Aucun";
+        document.getElementById("saisie-nb-bouts").value = "0";
+        if (joueursPresents.length >= 5) {
+          document.getElementById("saisie-appele").value = "";
+        }
+        if (joueursPresents.length >= 7) {
+          document.getElementById("saisie-appele2").value = "";
+        }
+        document.getElementById("mene-result").style.display = "none";
       } else {
         form.style.display = "none";
       }
@@ -667,9 +869,17 @@
       const poigneeSide = document.getElementById("saisie-poignee-side").value;
       const chelem = document.getElementById("saisie-chelem").value;
       const nbBouts = parseInt(document.getElementById("saisie-nb-bouts").value);
+      const appele = document.getElementById("saisie-appele")?.value || null;
+      const appele2 = document.getElementById("saisie-appele2")?.value || null;
 
       if (!tableId || !preneur || !contrat || isNaN(points)) {
         alert("Veuillez remplir tous les champs obligatoires.");
+        return;
+      }
+
+      const table = tables.find(t => t.id === tableId);
+      if (!table) {
+        alert("Table introuvable.");
         return;
       }
 
@@ -684,43 +894,28 @@
         poigneeSide,
         chelem,
         nbBouts,
+        appele,
+        appele2,
         date: new Date().toISOString().split('T')[0]
       };
 
-      const score = calculerScore(meneData);
-      const result = {
+      const score = calculerScore(meneData, table.nbJoueurs);
+
+      resultats.push({
         ...meneData,
         ...score
-      };
+      });
 
-      resultats.push(result);
-
-      // Mettre à jour les scores des joueurs
-      const table = tables.find(t => t.id === tableId);
-      if (table) {
-        const preneurJoueur = joueurs.find(j => j.id === preneur);
-        if (preneurJoueur) {
-          // En 4 joueurs: preneur contre 3 défenseurs
-          if (table.nbJoueurs === 4) {
-            preneurJoueur.scoreTotal += score.preneur * 3; // Le preneur gagne 3x son score
-            joueurs.filter(j => j.id !== preneur).forEach(j => {
-              j.scoreTotal += score.defense;
-            });
-          }
-          // En 5 joueurs: preneur + appelé contre 3 défenseurs
-          else if (table.nbJoueurs === 5) {
-            preneurJoueur.scoreTotal += score.preneur * 2;
-            // Trouver l'appelé (simplifié: on suppose que c'est le joueur suivant)
-            const appele = joueurs.find(j => j.id !== preneur && table.joueurs.includes(j.id));
-            if (appele) {
-              appele.scoreTotal += score.preneur;
-            }
-            joueurs.filter(j => j.id !== preneur && j.id !== appele?.id).forEach(j => {
-              j.scoreTotal += score.defense;
-            });
+      // Mettre à jour les scores UNIQUEMENT pour les joueurs de la table
+      const tableJoueursIds = table.joueurs;
+      Object.keys(score.scoresParJoueur).forEach(joueurId => {
+        if (tableJoueursIds.includes(joueurId)) {
+          const joueurIndex = joueurs.findIndex(j => j.id === joueurId);
+          if (joueurIndex >= 0) {
+            joueurs[joueurIndex].scoreTotal += score.scoresParJoueur[joueurId];
           }
         }
-      }
+      });
 
       saveData();
 
@@ -730,11 +925,17 @@
       resultDiv.innerHTML = `
         <p><strong>Résultat:</strong> ${score.gagne ? "✅ Gagné" : "❌ Perdu"}</p>
         <p><strong>Score preneur:</strong> ${score.preneur >= 0 ? "+" : ""}${score.preneur}</p>
-        <p><strong>Score défense:</strong> ${score.defense >= 0 ? "+" : ""}${score.defense}</p>
         <p><strong>Détails:</strong> ${score.details}</p>
+        <p><strong>Scores par joueur:</strong></p>
+        <div style="margin-top: 8px; padding: 8px; background: var(--bg); border-radius: 8px;">
+          ${Object.entries(score.scoresParJoueur).map(([joueurId, scoreJoueur]) => {
+            const joueur = joueurs.find(j => j.id === joueurId);
+            return `<p style="margin: 4px 0;">${joueur ? joueur.nom : "Inconnu"}: ${scoreJoueur >= 0 ? "+" : ""}${scoreJoueur}</p>`;
+          }).join('')}
+        </div>
       `;
 
-      alert("Mène enregistrée avec succès ! Les scores des joueurs ont été mis à jour.");
+      alert("Mène enregistrée avec succès ! Les scores des joueurs de la table ont été mis à jour.");
     }
 
     function showCreateSaisonModal() {
@@ -786,7 +987,7 @@
             <div style="margin-top: 12px;">
               ${saisonTables.map(t => `
                 <div style="margin-top: 10px; padding: 12px; background: var(--bg); border-radius: 8px; border: 1px solid var(--border);">
-                  <p style="margin: 0; font-weight: 600;">Table du ${formatDateFR(t.date)}</p>
+                  <p style="margin: 0; font-weight: 600;">Table du ${formatDateFR(t.date)} (${t.nbJoueurs} joueurs)</p>
                   <p style="margin: 5px 0 0 0; font-size: 14px; color: var(--text-muted);">
                     ${t.joueurs?.map(jId => {
                       const j = joueurs.find(j => j.id === jId);
@@ -812,76 +1013,6 @@
         saveData();
         renderApp();
       }
-    }
-
-    // ========== LOGIQUE EXISTANTE ==========
-    function login(e) {
-      e.preventDefault();
-      const loginInput = document.getElementById("login").value.trim();
-      const passwordInput = document.getElementById("password").value;
-      const errorElement = document.getElementById("login-error");
-
-      const login = loginInput.toLowerCase();
-      const password = passwordInput;
-
-      if (login === "admin" && password === VALID_USERS.admin) {
-        user = { role: "admin", login: "admin" };
-        errorElement.textContent = "";
-        saveData();
-        renderApp();
-      } else if (login === "abje" && password === VALID_USERS.abje) {
-        user = { role: "abje", login: "abje" };
-        errorElement.textContent = "";
-        saveData();
-        renderApp();
-      } else {
-        errorElement.textContent = "Login ou mot de passe incorrect";
-      }
-    }
-
-    function logout() {
-      user = null;
-      saveData();
-      renderApp();
-    }
-
-    function addJoueur(e) {
-      e.preventDefault();
-      const nom = e.target.nom.value.trim();
-      if (nom) {
-        joueurs.push({ id: Date.now().toString(), nom, present: true, scoreTotal: 0 });
-        saveData();
-        renderApp();
-        e.target.reset();
-      }
-    }
-
-    function deleteJoueur(id) {
-      joueurs = joueurs.filter(j => j.id !== id);
-      saveData();
-      renderApp();
-    }
-
-    function togglePresence(id) {
-      joueurs = joueurs.map(j => j.id === id ? { ...j, present: !j.present } : j);
-      saveData();
-      renderApp();
-    }
-
-    function addTable() {
-      tables.push({
-        id: Date.now().toString(),
-        date: new Date().toISOString().split('T')[0],
-        nbJoueurs: 4,
-        menes: [],
-        joueurs: joueurs.slice(0, 4).map(j => j.id)
-      });
-      saveData();
-      renderApp();
-    }
-
-    function copyLink() {
-      navigator.clipboard.writeText(APP_URL).then(() => alert("Lien copié !"));
     }
 
     function setActiveTab(tab) {
