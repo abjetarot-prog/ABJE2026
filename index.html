@@ -45,18 +45,9 @@
       font-size: 14px;
       margin: 5px;
     }
-    .btn-primary {
-      background: var(--accent1);
-      color: white;
-    }
-    .btn-success {
-      background: var(--accent4);
-      color: white;
-    }
-    .btn-danger {
-      background: var(--accent2);
-      color: white;
-    }
+    .btn-primary { background: var(--accent1); color: white; }
+    .btn-success { background: var(--accent4); color: white; }
+    .btn-danger { background: var(--accent2); color: white; }
     .btn-ghost {
       background: transparent;
       border: 1px solid var(--border);
@@ -73,16 +64,8 @@
       font-size: 14px;
       box-sizing: border-box;
     }
-    .error {
-      color: var(--accent2);
-      margin: 10px 0;
-      font-size: 14px;
-    }
-    .player-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 12px;
-    }
+    .error { color: var(--accent2); margin: 10px 0; font-size: 14px; }
+    .player-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
     .player-card {
       background: var(--bg);
       border-radius: 12px;
@@ -92,32 +75,13 @@
       justify-content: space-between;
       align-items: center;
     }
-    .player-info {
-      flex: 1;
-    }
-    .player-name {
-      font-weight: 600;
-      font-size: 16px;
-    }
-    .player-status {
-      font-size: 14px;
-      color: var(--text-muted);
-    }
-    .player-score {
-      font-weight: 600;
-      font-size: 18px;
-    }
-    .positive {
-      color: var(--accent4);
-    }
-    .negative {
-      color: var(--accent2);
-    }
-    .qr-code img {
-      border-radius: 12px;
-      border: 4px solid var(--border);
-      margin: 20px 0;
-    }
+    .player-info { flex: 1; }
+    .player-name { font-weight: 600; font-size: 16px; }
+    .player-status { font-size: 14px; color: var(--text-muted); }
+    .player-score { font-weight: 600; font-size: 18px; }
+    .positive { color: var(--accent4); }
+    .negative { color: var(--accent2); }
+    .qr-code img { border-radius: 12px; border: 4px solid var(--border); margin: 20px 0; }
     header {
       display: flex;
       justify-content: space-between;
@@ -151,22 +115,10 @@
       border: none;
       font-weight: 600;
     }
-    .nav-tab.active {
-      background: rgba(139, 92, 246, 0.2);
-      color: white;
-    }
-    .form-group {
-      margin-bottom: 12px;
-    }
-    .form-row {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .form-row > div {
-      flex: 1;
-      min-width: 150px;
-    }
+    .nav-tab.active { background: rgba(139, 92, 246, 0.2); color: white; }
+    .form-group { margin-bottom: 12px; }
+    .form-row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .form-row > div { flex: 1; min-width: 150px; }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -177,12 +129,14 @@
       text-align: left;
       border-bottom: 1px solid var(--border);
     }
-    th {
-      font-weight: 600;
-      color: var(--text-muted);
-    }
-    .table-container {
-      overflow-x: auto;
+    th { font-weight: 600; color: var(--text-muted); }
+    .table-container { overflow-x: auto; }
+    .mene-row {
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -197,7 +151,7 @@
       <button class="nav-tab active" data-tab="accueil">🏠 Accueil</button>
       <button class="nav-tab" data-tab="joueurs">👥 Joueurs</button>
       <button class="nav-tab" data-tab="tables">🎲 Tables</button>
-      <button class="nav-tab" data-tab="saisie" id="saisie-tab">📝 Saisie</button>
+      <button class="nav-tab" data-tab="saisie">📝 Saisie</button>
       <button class="nav-tab" data-tab="resultats">🏆 Résultats</button>
       <button class="nav-tab" data-tab="saisons" id="saisons-tab">📅 Saisons</button>
     </nav>
@@ -247,6 +201,32 @@
 
     function formatScore(score) {
       return score >= 0 ? `+${score}` : score;
+    }
+
+    // ========== FONCTIONS DE CALCUL (Règles FFTarot) ==========
+    function calculerScore(mene) {
+      const contrats = { "Petite": 1, "Garde": 2, "Garde sans": 4, "Garde contre": 6 };
+      const seuils = { 0: 56, 1: 51, 2: 41, 3: 36 };
+      const mult = contrats[mene.contrat] || 1;
+      const seuil = seuils[mene.nbBouts || 0] || 56;
+      const diff = (mene.pointsRealises || 0) - seuil;
+
+      let base = 25 + diff;
+      if (mene.petitAuBout === "preneur") base += 10;
+      else if (mene.petitAuBout === "defense") base -= 10;
+
+      let score = Math.round((base * mult) / 10) * 10;
+      const poigneePts = { "Aucune": 0, "Simple": 20, "Double": 30, "Triple": 40 }[mene.poignee] || 0;
+      score += (mene.poigneeSide === "preneur" ? poigneePts : -poigneePts);
+      score += { "Aucun": 0, "Non demandé": 200, "Demandé réussi": 400, "Demandé perdu": -400 }[mene.chelem] || 0;
+      const gagne = diff >= 0;
+
+      return {
+        preneur: gagne ? score : -score,
+        defense: gagne ? -score : score,
+        gagne,
+        details: `${base} x ${mult} = ${score}${poigneePts ? ` + Poignée (${poigneePts})` : ""}${gagne ? " ✅" : " ❌"}`
+      };
     }
 
     // ========== RENDU DES ONGLETS ==========
@@ -299,7 +279,7 @@
         <div class="card" style="text-align: left;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
             <h2>Joueurs (${joueursPresent}/${joueurs.length})</h2>
-            ${user?.role === "admin" || user?.role === "abje" ? `
+            ${(user?.role === "admin" || user?.role === "abje") ? `
               <form onsubmit="addJoueur(event)" style="display: flex; gap: 8px;">
                 <input name="nom" type="text" placeholder="Nouveau joueur" style="width: 200px;" required />
                 <button type="submit" class="btn-success">+ Ajouter</button>
@@ -334,8 +314,8 @@
         <div class="card" style="text-align: left;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
             <h2>Tables (${tables.length})</h2>
-            ${user?.role === "admin" || user?.role === "abje" ? `
-              <button class="btn-primary" onclick="addTable()">+ Nouvelle table</button>
+            ${(user?.role === "admin" || user?.role === "abje") ? `
+              <button class="btn-primary" onclick="showCreateTableModal()">+ Nouvelle table</button>
             ` : ''}
           </div>
           ${tables.length === 0 ? '<p style="color: var(--text-muted); text-align: center;">Aucune table créée.</p>' : `
@@ -343,22 +323,52 @@
               <div style="margin-top: 10px; padding: 16px; background: var(--bg); border-radius: 12px; border: 1px solid var(--border);">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                   <p style="margin: 0; font-weight: 600;">Table du ${formatDateFR(t.date)}</p>
-                  <span style="font-size: 14px; color: var(--text-muted);">${t.nbJoueurs} joueurs · ${t.menes?.length || 0} ménes</span>
+                  <span style="font-size: 14px; color: var(--text-muted);">${t.joueurs?.length || 0} joueurs · ${t.menes?.length || 0} ménes</span>
                 </div>
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
                   ${t.joueurs?.map(jId => {
                     const j = joueurs.find(j => j.id === jId);
                     return j ? `<span style="padding: 6px 12px; background: var(--card-bg); border-radius: 20px; font-size: 12px; color: var(--text-muted);">${getInitials(j.nom)}</span>` : '';
                   }).join('')}
                 </div>
-                ${user?.role === "admin" || user?.role === "abje" ? `
-                  <div style="margin-top: 12px;">
+                ${(user?.role === "admin" || user?.role === "abje") ? `
+                  <div style="display: flex; gap: 8px;">
                     <button class="btn-ghost" onclick="viewTable('${t.id}')" style="padding: 6px 12px; font-size: 12px;">Voir les ménes</button>
+                    <button class="btn-danger" onclick="deleteTable('${t.id}')" style="padding: 6px 12px; font-size: 12px;">Supprimer</button>
                   </div>
                 ` : ''}
               </div>
             `).join('')}
           `}
+        </div>
+
+        <!-- Modal pour créer une table -->
+        <div id="create-table-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
+          <div class="card" style="max-width: 500px; margin: 20px;">
+            <h2>Créer une nouvelle table</h2>
+            <div class="form-group">
+              <label>Nombre de joueurs</label>
+              <select id="new-table-nb-joueurs">
+                <option value="4">4 joueurs</option>
+                <option value="5">5 joueurs</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Sélectionnez les joueurs</label>
+              <div id="new-table-joueurs-select" style="display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto;">
+                ${joueurs.map(j => `
+                  <label style="display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" value="${j.id}" checked />
+                    <span>${j.nom}</span>
+                  </label>
+                `).join('')}
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 16px;">
+              <button class="btn-primary" onclick="createTable()">Créer la table</button>
+              <button class="btn-ghost" onclick="hideCreateTableModal()">Annuler</button>
+            </div>
+          </div>
         </div>
       `;
     }
@@ -369,34 +379,86 @@
       return `
         <div class="card" style="text-align: left;">
           <h2>Saisie des résultats</h2>
-          <div class="form-group">
-            <label>Sélectionnez une table</label>
-            <select id="saisie-table-select">
-              ${tables.map(t => `<option value="${t.id}">Table du ${formatDateFR(t.date)}</option>`).join('')}
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Preneur</label>
-            <select id="saisie-preneur">
-              ${joueurs.map(j => `<option value="${j.id}">${j.nom}</option>`).join('')}
-            </select>
-          </div>
-          <div class="form-row">
+          ${tables.length === 0 ? '<p style="color: var(--text-muted);">Aucune table disponible. Créez-en une d\'abord.</p>' : `
             <div class="form-group">
-              <label>Contrat</label>
-              <select id="saisie-contrat">
-                <option value="Petite">Petite</option>
-                <option value="Garde">Garde</option>
-                <option value="Garde sans">Garde sans</option>
-                <option value="Garde contre">Garde contre</option>
+              <label>Sélectionnez une table</label>
+              <select id="saisie-table-select" onchange="loadTableMenes(this.value)">
+                <option value="">-- Sélectionnez une table --</option>
+                ${tables.map(t => `<option value="${t.id}">Table du ${formatDateFR(t.date)}</option>`).join('')}
               </select>
             </div>
-            <div class="form-group">
-              <label>Points réalisés</label>
-              <input type="number" id="saisie-points" placeholder="Points" />
+            <div id="saisie-mene-form" style="display: none;">
+              <div class="form-group">
+                <label>Preneur</label>
+                <select id="saisie-preneur">
+                  ${joueurs.map(j => `<option value="${j.id}">${j.nom}</option>`).join('')}
+                </select>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Contrat</label>
+                  <select id="saisie-contrat">
+                    <option value="Petite">Petite</option>
+                    <option value="Garde">Garde</option>
+                    <option value="Garde sans">Garde sans le chien</option>
+                    <option value="Garde contre">Garde contre le chien</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Points réalisés</label>
+                  <input type="number" id="saisie-points" placeholder="Points" min="0" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Petit au bout</label>
+                  <select id="saisie-petit">
+                    <option value="aucun">Aucun</option>
+                    <option value="preneur">Preneur</option>
+                    <option value="defense">Défense</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Poignée</label>
+                  <select id="saisie-poignee">
+                    <option value="Aucune">Aucune</option>
+                    <option value="Simple">Simple</option>
+                    <option value="Double">Double</option>
+                    <option value="Triple">Triple</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Côté poignée</label>
+                  <select id="saisie-poignee-side">
+                    <option value="preneur">Preneur</option>
+                    <option value="defense">Défense</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Chelem</label>
+                  <select id="saisie-chelem">
+                    <option value="Aucun">Aucun</option>
+                    <option value="Non demandé">Non demandé</option>
+                    <option value="Demandé réussi">Demandé réussi</option>
+                    <option value="Demandé perdu">Demandé perdu</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Nombre de bouts</label>
+                <select id="saisie-nb-bouts">
+                  <option value="0">0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                </select>
+              </div>
+              <button class="btn-success" onclick="saveMene()">Enregistrer la mène</button>
+              <div id="mene-result" style="margin-top: 16px; padding: 12px; background: var(--bg); border-radius: 8px; display: none;"></div>
             </div>
-          </div>
-          <button class="btn-success" onclick="saveMene()">Enregistrer la mène</button>
+          `}
         </div>
       `;
     }
@@ -411,22 +473,28 @@
                 <thead>
                   <tr>
                     <th>Date</th>
+                    <th>Table</th>
                     <th>Preneur</th>
                     <th>Contrat</th>
                     <th>Points</th>
                     <th>Résultat</th>
+                    <th>Score</th>
                   </tr>
                 </thead>
                 <tbody>
                   ${resultats.map(r => {
+                    const table = tables.find(t => t.id === r.tableId);
                     const preneur = joueurs.find(j => j.id === r.preneur);
+                    const score = calculerScore(r);
                     return `
                       <tr>
                         <td>${formatDateFR(r.date)}</td>
+                        <td>${table ? formatDateFR(table.date) : "Inconnu"}</td>
                         <td>${preneur ? preneur.nom : "Inconnu"}</td>
                         <td>${r.contrat}</td>
                         <td>${r.points}</td>
-                        <td>${r.gagne ? "✅ Gagné" : "❌ Perdu"}</td>
+                        <td>${score.gagne ? "✅ Gagné" : "❌ Perdu"}</td>
+                        <td>${score.preneur >= 0 ? "+" : ""}${score.preneur}</td>
                       </tr>
                     `;
                   }).join('')}
@@ -445,7 +513,7 @@
         <div class="card" style="text-align: left;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
             <h2>Saisons (${saisons.length})</h2>
-            <button class="btn-primary" onclick="addSaison()">+ Nouvelle saison</button>
+            <button class="btn-primary" onclick="showCreateSaisonModal()">+ Nouvelle saison</button>
           </div>
           ${saisons.length === 0 ? '<p style="color: var(--text-muted); text-align: center;">Aucune saison créée.</p>' : `
             ${saisons.map(s => `
@@ -455,36 +523,137 @@
                   <span style="font-size: 14px; color: var(--text-muted);">Début: ${formatDateFR(s.dateDebut)}</span>
                 </div>
                 <p>Tables: ${s.tables?.length || 0}</p>
-                <button class="btn-ghost" onclick="viewSaison('${s.id}')" style="padding: 6px 12px; font-size: 12px;">Voir les détails</button>
+                <div style="display: flex; gap: 8px;">
+                  <button class="btn-ghost" onclick="viewSaison('${s.id}')" style="padding: 6px 12px; font-size: 12px;">Voir les détails</button>
+                  <button class="btn-danger" onclick="deleteSaison('${s.id}')" style="padding: 6px 12px; font-size: 12px;">Supprimer</button>
+                </div>
               </div>
             `).join('')}
           `}
+        </div>
+
+        <!-- Modal pour créer une saison -->
+        <div id="create-saison-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
+          <div class="card" style="max-width: 500px; margin: 20px;">
+            <h2>Créer une nouvelle saison</h2>
+            <div class="form-group">
+              <label>Nom de la saison</label>
+              <input type="text" id="new-saison-nom" placeholder="Ex: Saison 2026-2027" required />
+            </div>
+            <div class="form-group">
+              <label>Date de début</label>
+              <input type="date" id="new-saison-date" required />
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 16px;">
+              <button class="btn-primary" onclick="createSaison()">Créer la saison</button>
+              <button class="btn-ghost" onclick="hideCreateSaisonModal()">Annuler</button>
+            </div>
+          </div>
         </div>
       `;
     }
 
     // ========== NOUVELLES FONCTIONS ==========
+    function showCreateTableModal() {
+      document.getElementById("create-table-modal").style.display = "flex";
+    }
+
+    function hideCreateTableModal() {
+      document.getElementById("create-table-modal").style.display = "none";
+    }
+
+    function createTable() {
+      const nbJoueurs = parseInt(document.getElementById("new-table-nb-joueurs").value);
+      const selectedJoueurs = [];
+      document.querySelectorAll("#new-table-joueurs-select input[type='checkbox']:checked").forEach(cb => {
+        selectedJoueurs.push(cb.value);
+      });
+
+      if (selectedJoueurs.length !== nbJoueurs) {
+        alert(`Veuillez sélectionner exactement ${nbJoueurs} joueurs.`);
+        return;
+      }
+
+      tables.push({
+        id: Date.now().toString(),
+        date: new Date().toISOString().split('T')[0],
+        nbJoueurs,
+        menes: [],
+        joueurs: selectedJoueurs
+      });
+
+      saveData();
+      hideCreateTableModal();
+      renderApp();
+    }
+
     function viewTable(tableId) {
-      // À implémenter plus tard
-      alert("Fonctionnalité 'Voir les ménes' à développer.");
+      const table = tables.find(t => t.id === tableId);
+      if (!table) return;
+
+      const menes = resultats.filter(r => r.tableId === tableId);
+      const tableJoueurs = joueurs.filter(j => table.joueurs.includes(j.id));
+
+      let content = `
+        <div class="card" style="text-align: left;">
+          <h2>Mènes pour la table du ${formatDateFR(table.date)}</h2>
+          <p>Joueurs: ${tableJoueurs.map(j => j.nom).join(", ")}</p>
+          <p>Nombre de ménes: ${menes.length}</p>
+          ${menes.length > 0 ? `
+            <div class="table-container" style="margin-top: 16px;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Preneur</th>
+                    <th>Contrat</th>
+                    <th>Points</th>
+                    <th>Résultat</th>
+                    <th>Score</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${menes.map(m => {
+                    const preneur = joueurs.find(j => j.id === m.preneur);
+                    const score = calculerScore(m);
+                    return `
+                      <tr>
+                        <td>${formatDateFR(m.date)}</td>
+                        <td>${preneur ? preneur.nom : "Inconnu"}</td>
+                        <td>${m.contrat}</td>
+                        <td>${m.points}</td>
+                        <td>${score.gagne ? "✅ Gagné" : "❌ Perdu"}</td>
+                        <td>${score.preneur >= 0 ? "+" : ""}${score.preneur}</td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          ` : '<p style="color: var(--text-muted);">Aucune mène enregistrée pour cette table.</p>'}
+          <button class="btn-ghost" onclick="renderApp()" style="margin-top: 16px;">Retour</button>
+        </div>
+      `;
+
+      document.getElementById("main-content").innerHTML = content;
     }
 
-    function viewSaison(saisonId) {
-      // À implémenter plus tard
-      alert("Fonctionnalité 'Voir les détails de la saison' à développer.");
-    }
-
-    function addSaison() {
-      const nom = prompt("Nom de la nouvelle saison:");
-      if (nom) {
-        saisons.push({
-          id: Date.now().toString(),
-          nom,
-          dateDebut: new Date().toISOString().split('T')[0],
-          tables: []
-        });
+    function deleteTable(tableId) {
+      if (confirm("Êtes-vous sûr de vouloir supprimer cette table ?")) {
+        tables = tables.filter(t => t.id !== tableId);
+        // Supprimer aussi les résultats liés à cette table
+        resultats = resultats.filter(r => r.tableId !== tableId);
         saveData();
         renderApp();
+      }
+    }
+
+    function loadTableMenes(tableId) {
+      const form = document.getElementById("saisie-mene-form");
+      if (tableId) {
+        form.style.display = "block";
+      } else {
+        form.style.display = "none";
       }
     }
 
@@ -493,29 +662,156 @@
       const preneur = document.getElementById("saisie-preneur").value;
       const contrat = document.getElementById("saisie-contrat").value;
       const points = parseInt(document.getElementById("saisie-points").value);
+      const petit = document.getElementById("saisie-petit").value;
+      const poignee = document.getElementById("saisie-poignee").value;
+      const poigneeSide = document.getElementById("saisie-poignee-side").value;
+      const chelem = document.getElementById("saisie-chelem").value;
+      const nbBouts = parseInt(document.getElementById("saisie-nb-bouts").value);
 
       if (!tableId || !preneur || !contrat || isNaN(points)) {
-        alert("Veuillez remplir tous les champs.");
+        alert("Veuillez remplir tous les champs obligatoires.");
         return;
       }
 
-      // Calcul du résultat (simplifié)
-      const seuil = { "Petite": 56, "Garde": 51, "Garde sans": 41, "Garde contre": 36 }[contrat] || 56;
-      const gagne = points >= seuil;
-
-      resultats.push({
+      const meneData = {
         id: Date.now().toString(),
         tableId,
         preneur,
         contrat,
         points,
-        gagne,
+        petitAuBout: petit,
+        poignee,
+        poigneeSide,
+        chelem,
+        nbBouts,
         date: new Date().toISOString().split('T')[0]
+      };
+
+      const score = calculerScore(meneData);
+      const result = {
+        ...meneData,
+        ...score
+      };
+
+      resultats.push(result);
+
+      // Mettre à jour les scores des joueurs
+      const table = tables.find(t => t.id === tableId);
+      if (table) {
+        const preneurJoueur = joueurs.find(j => j.id === preneur);
+        if (preneurJoueur) {
+          // En 4 joueurs: preneur contre 3 défenseurs
+          if (table.nbJoueurs === 4) {
+            preneurJoueur.scoreTotal += score.preneur * 3; // Le preneur gagne 3x son score
+            joueurs.filter(j => j.id !== preneur).forEach(j => {
+              j.scoreTotal += score.defense;
+            });
+          }
+          // En 5 joueurs: preneur + appelé contre 3 défenseurs
+          else if (table.nbJoueurs === 5) {
+            preneurJoueur.scoreTotal += score.preneur * 2;
+            // Trouver l'appelé (simplifié: on suppose que c'est le joueur suivant)
+            const appele = joueurs.find(j => j.id !== preneur && table.joueurs.includes(j.id));
+            if (appele) {
+              appele.scoreTotal += score.preneur;
+            }
+            joueurs.filter(j => j.id !== preneur && j.id !== appele?.id).forEach(j => {
+              j.scoreTotal += score.defense;
+            });
+          }
+        }
+      }
+
+      saveData();
+
+      // Afficher le résultat du calcul
+      const resultDiv = document.getElementById("mene-result");
+      resultDiv.style.display = "block";
+      resultDiv.innerHTML = `
+        <p><strong>Résultat:</strong> ${score.gagne ? "✅ Gagné" : "❌ Perdu"}</p>
+        <p><strong>Score preneur:</strong> ${score.preneur >= 0 ? "+" : ""}${score.preneur}</p>
+        <p><strong>Score défense:</strong> ${score.defense >= 0 ? "+" : ""}${score.defense}</p>
+        <p><strong>Détails:</strong> ${score.details}</p>
+      `;
+
+      alert("Mène enregistrée avec succès ! Les scores des joueurs ont été mis à jour.");
+    }
+
+    function showCreateSaisonModal() {
+      document.getElementById("create-saison-modal").style.display = "flex";
+      document.getElementById("new-saison-date").value = new Date().toISOString().split('T')[0];
+    }
+
+    function hideCreateSaisonModal() {
+      document.getElementById("create-saison-modal").style.display = "none";
+    }
+
+    function createSaison() {
+      const nom = document.getElementById("new-saison-nom").value.trim();
+      const dateDebut = document.getElementById("new-saison-date").value;
+
+      if (!nom || !dateDebut) {
+        alert("Veuillez remplir tous les champs.");
+        return;
+      }
+
+      saisons.push({
+        id: Date.now().toString(),
+        nom,
+        dateDebut,
+        tables: []
       });
 
       saveData();
-      alert("Mène enregistrée !");
+      hideCreateSaisonModal();
       renderApp();
+    }
+
+    function viewSaison(saisonId) {
+      const saison = saisons.find(s => s.id === saisonId);
+      if (!saison) return;
+
+      const saisonTables = tables.filter(t => saison.tables?.includes(t.id) || false);
+      const saisonResultats = resultats.filter(r => saisonTables.some(t => t.id === r.tableId));
+
+      let content = `
+        <div class="card" style="text-align: left;">
+          <h2>${saison.nom}</h2>
+          <p><strong>Date de début:</strong> ${formatDateFR(saison.dateDebut)}</p>
+          <p><strong>Nombre de tables:</strong> ${saisonTables.length}</p>
+          <p><strong>Nombre de résultats:</strong> ${saisonResultats.length}</p>
+
+          <h3 style="margin-top: 20px;">Tables de la saison</h3>
+          ${saisonTables.length > 0 ? `
+            <div style="margin-top: 12px;">
+              ${saisonTables.map(t => `
+                <div style="margin-top: 10px; padding: 12px; background: var(--bg); border-radius: 8px; border: 1px solid var(--border);">
+                  <p style="margin: 0; font-weight: 600;">Table du ${formatDateFR(t.date)}</p>
+                  <p style="margin: 5px 0 0 0; font-size: 14px; color: var(--text-muted);">
+                    ${t.joueurs?.map(jId => {
+                      const j = joueurs.find(j => j.id === jId);
+                      return j ? getInitials(j.nom) : '';
+                    }).join(" ")} -
+                    ${t.menes?.length || 0} ménes
+                  </p>
+                </div>
+              `).join('')}
+            </div>
+          ` : '<p style="color: var(--text-muted);">Aucune table dans cette saison.</p>'}
+
+          <button class="btn-ghost" onclick="renderApp()" style="margin-top: 16px;">Retour</button>
+        </div>
+      `;
+
+      document.getElementById("main-content").innerHTML = content;
+    }
+
+    function deleteSaison(saisonId) {
+      if (confirm("Êtes-vous sûr de vouloir supprimer cette saison ?")) {
+        saisons = saisons.filter(s => s.id !== saisonId);
+        saveData();
+        renderApp();
+      }
     }
 
     // ========== LOGIQUE EXISTANTE ==========
