@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABJE Tarot</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      body { margin: 0; font-family: system-ui, -apple-system, sans-serif; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+      // Ce code sera remplacé par votre CANVAS.md
+      // Mais pour l'instant, on charge un message de test
+      const { useState } = React;
+      function App() {
+        const [user, setUser] = useState(null);
+        if (!user) return <div style={{ padding: "20px", textAlign: "center" }}><h1>ABJE Tarot</h1><button onClick={() => setUser("admin")}>Se connecter</button></div>;
+        return <div style={{ padding: "20px" }}><h1>Bienvenue, {user} !</h1><button onClick={() => setUser(null)}>Déconnexion</button></div>;
+      }
+      ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+  </body>
+</html>
