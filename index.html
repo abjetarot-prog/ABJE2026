@@ -36,17 +36,13 @@
       flex-direction: column;
     }
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem;
-      background: var(--card-bg);
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
+    <header>
+  <div class="logo">
+    <div class="logo-icon">🃏</div>
+    <span>ABJE Tarot</span>
+  </div>
+  <button id="logout-btn" class="btn-ghost" style="display: none;">Déconnexion</button>
+</header>
 
     .logo {
       display: flex;
