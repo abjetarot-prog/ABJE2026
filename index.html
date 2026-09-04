@@ -184,18 +184,39 @@
     }
 
     function renderApp() {
+  // CORRECTION: Vérifier que le DOM est prêt
+  if (!document.getElementById("app")) {
+    setTimeout(renderApp, 100); // Réessayer après 100ms si l'élément n'existe pas encore
+    return;
+  }
+
   if (!user) {
     renderLogin();
-    document.getElementById("nav-tabs").style.display = "none";
-    document.getElementById("logout-btn").style.display = "none";
+    if (document.getElementById("nav-tabs")) {
+      document.getElementById("nav-tabs").style.display = "none";
+    }
+    if (document.getElementById("logout-btn")) {
+      document.getElementById("logout-btn").style.display = "none";
+    }
   } else {
-    document.getElementById("nav-tabs").style.display = "flex";
-    document.getElementById("logout-btn").style.display = "block";
-    document.getElementById("logout-btn").onclick = function() {
-      user = null;
-      saveData();
-      renderApp();
-    };
+    document.getElementById("app").innerHTML = `
+      <div style="text-align: center; padding: 2rem;">
+        <h2>Bienvenue sur ABJE Tarot !</h2>
+        <p>Connecté en tant que ${user.role}</p>
+        <button onclick="user=null;saveData();renderApp();"
+                style="padding: 0.5rem 1rem; background: #334155; border: none; border-radius: 0.5rem; color: white; cursor: pointer;">
+          Déconnexion
+        </button>
+      </div>
+    `;
+    if (document.getElementById("nav-tabs")) {
+      document.getElementById("nav-tabs").style.display = "flex";
+    }
+    if (document.getElementById("logout-btn")) {
+      document.getElementById("logout-btn").style.display = "block";
+    }
+  }
+}
     renderContent("accueil"); // Affiche le contenu de l'onglet Accueil
   }
 }
@@ -313,5 +334,11 @@ function renderResultats() {
       renderApp();
     }
   </script>
+  // CORRECTION: Initialisation sécurisée
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  renderApp();
+} else {
+  document.addEventListener('DOMContentLoaded', renderApp);
+}
 </body>
 </html>
