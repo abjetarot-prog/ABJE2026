@@ -8,22 +8,32 @@
     :root {
       --bg: #0f172a;
       --bg2: #1a1a2e;
+      --bg3: #16213e;
       --card-bg: #1e293b;
       --accent1: #f59e0b;
       --accent2: #ef4444;
       --accent3: #8b5cf6;
       --accent4: #10b981;
+      --accent5: #3b82f6;
       --text: #f8fafc;
       --text-muted: #94a3b8;
       --border: #334155;
+      --error: #ef4444;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
     body {
-      margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
     header {
@@ -33,12 +43,15 @@
       padding: 1rem;
       background: var(--card-bg);
       border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
     .logo {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.75rem;
     }
 
     .logo-icon {
@@ -51,24 +64,39 @@
       justify-content: center;
       color: white;
       font-weight: bold;
+      font-size: 1.5rem;
     }
 
     nav {
       display: flex;
+      justify-content: center;
       background: var(--card-bg);
       border-bottom: 1px solid var(--border);
       padding: 0.5rem 0;
+      position: sticky;
+      top: 60px;
+      z-index: 99;
     }
 
     .nav-tab {
       flex: 1;
+      max-width: 120px;
       padding: 0.5rem;
       background: none;
       border: none;
       color: var(--text-muted);
       cursor: pointer;
       font-size: 0.875rem;
+      font-weight: 600;
       transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .nav-tab:hover {
+      color: var(--text);
     }
 
     .nav-tab.active {
@@ -76,8 +104,14 @@
       border-bottom: 2px solid var(--accent1);
     }
 
+    .nav-tab span:first-child {
+      font-size: 1.25rem;
+    }
+
     main {
+      flex: 1;
       max-width: 600px;
+      width: 100%;
       margin: 0 auto;
       padding: 1rem;
     }
@@ -90,19 +124,21 @@
       border: 1px solid var(--border);
     }
 
-    .qr-code img {
-      display: block;
-      margin: 1rem auto;
-      border-radius: 0.75rem;
-      border: 4px solid var(--border);
-    }
-
     h1, h2, h3 {
       margin: 0 0 1rem 0;
       color: var(--text);
+      font-weight: 700;
+    }
+
+    h1 {
+      font-size: 1.75rem;
     }
 
     h2 {
+      font-size: 1.5rem;
+    }
+
+    h3 {
       font-size: 1.25rem;
     }
 
@@ -110,33 +146,74 @@
       padding: 0.75rem 1.5rem;
       border: none;
       border-radius: 0.5rem;
-      background: var(--accent1);
-      color: white;
       font-weight: 600;
       cursor: pointer;
+      font-size: 0.95rem;
+      transition: all 0.2s;
       margin: 0.25rem;
-      transition: background 0.2s;
     }
 
-    button:hover {
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      color: white;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-success {
+      background: var(--accent4);
+      color: white;
+    }
+
+    .btn-danger {
       background: var(--accent2);
+      color: white;
     }
 
-    button.secondary {
+    .btn-ghost {
       background: transparent;
       border: 1px solid var(--border);
       color: var(--text);
     }
 
+    .btn-info {
+      background: linear-gradient(135deg, var(--accent5), #2563eb);
+      color: white;
+    }
+
     input, select {
       width: 100%;
       padding: 0.75rem;
-      margin: 0.5rem 0;
       border-radius: 0.5rem;
       border: 1px solid var(--border);
       background: var(--bg);
       color: var(--text);
       font-size: 1rem;
+      margin: 0.5rem 0;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent3);
+    }
+
+    .qr-code {
+      text-align: center;
+      margin: 1rem 0;
+    }
+
+    .qr-code img {
+      border-radius: 0.75rem;
+      border: 4px solid var(--border);
+      max-width: 200px;
+      margin: 0 auto;
     }
 
     .player-grid {
@@ -150,6 +227,13 @@
       border-radius: 0.75rem;
       padding: 1rem;
       border: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .player-info {
+      flex: 1;
     }
 
     .player-name {
@@ -162,27 +246,81 @@
       color: var(--text-muted);
     }
 
+    .player-score {
+      font-weight: 700;
+      font-size: 1.25rem;
+    }
+
+    .positive {
+      color: var(--accent4);
+    }
+
+    .negative {
+      color: var(--accent2);
+    }
+
     .error {
       color: var(--accent2);
+      font-size: 0.9rem;
       margin: 0.5rem 0;
     }
 
-    .login-container {
-      max-width: 400px;
-      margin: 2rem auto;
-      text-align: center;
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
     }
 
-    .login-icon {
-      width: 4rem;
-      height: 4rem;
-      margin: 0 auto 1rem;
-      background: linear-gradient(135deg, var(--accent1), var(--accent2));
-      border-radius: 1rem;
+    .modal.active {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .form-row > div {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    @media (max-width: 600px) {
+      .nav-tab {
+        font-size: 0.75rem;
+        padding: 0.25rem;
+      }
+      .nav-tab span:first-child {
+        font-size: 1rem;
+      }
     }
   </style>
 </head>
@@ -192,276 +330,426 @@
       <div class="logo-icon">🃏</div>
       <span>ABJE Tarot</span>
     </div>
-    <button id="logout-btn" class="secondary" style="display: none;">Déconnexion</button>
+    <button id="logout-btn" class="btn-ghost" style="display: none;">Déconnexion</button>
   </header>
 
   <nav id="nav-tabs" style="display: none;">
-    <button class="nav-tab active" data-tab="accueil">🏠 Accueil</button>
-    <button class="nav-tab" data-tab="joueurs">👥 Joueurs</button>
-    <button class="nav-tab" data-tab="tables">🎲 Tables</button>
-    <button class="nav-tab" data-tab="saisie">✏️ Saisie</button>
-    <button class="nav-tab" data-tab="resultats">🏆 Résultats</button>
+    <button class="nav-tab active" data-tab="accueil"><span>🏠</span> Accueil</button>
+    <button class="nav-tab" data-tab="joueurs"><span>👥</span> Joueurs</button>
+    <button class="nav-tab" data-tab="tables"><span>🎲</span> Tables</button>
+    <button class="nav-tab" data-tab="saisie"><span>✏️</span> Saisie</button>
+    <button class="nav-tab" data-tab="resultats"><span>🏆</span> Résultats</button>
   </nav>
 
   <main id="app"></main>
 
-  <script>
-    // ========== DONNÉES ==========
-    const ADMIN_PASSWORD = "Tass6gny";
-    const ABJE_PASSWORD = "0309";
-    const APP_URL = "https://abjetarot-prog.github.io/ABJE2026/";
+  <!-- Modals -->
+  <div id="create-table-modal" class="modal">
+    <div class="modal-content">
+      <h2>Créer une nouvelle table</h2>
+      <div class="form-group">
+        <label>Nombre de joueurs</label>
+        <select id="new-table-nb-joueurs">
+          <option value="4">4 joueurs</option>
+          <option value="5">5 joueurs</option>
+          <option value="6">6 joueurs</option>
+          <option value="7">7 joueurs</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Joueurs disponibles</label>
+        <div id="available-players" style="max-height: 200px; overflow-y: auto;"></div>
+      </div>
+      <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+        <button class="btn-primary" onclick="createTable()">Créer la table</button>
+        <button class="btn-ghost" onclick="hideModal('create-table-modal')">Annuler</button>
+      </div>
+    </div>
+  </div>
 
-    let user = JSON.parse(localStorage.getItem("abje_user")) || null;
-    let joueurs = JSON.parse(localStorage.getItem("abje_joueurs")) || [
-      { id: "1", nom: "Joueur 1", disponible: false },
-      { id: "2", nom: "Joueur 2", disponible: false },
-      { id: "3", nom: "Joueur 3", disponible: false },
-      { id: "4", nom: "Joueur 4", disponible: false }
-    ];
-    let tables = JSON.parse(localStorage.getItem("abje_tables")) || [];
-    let menes = JSON.parse(localStorage.getItem("abje_menes")) || {};
-    let tableCounter = parseInt(localStorage.getItem("abje_tableCounter") || "0");
-
-    // ========== SAUVEGARDE ==========
-    function saveData() {
-      localStorage.setItem("abje_user", JSON.stringify(user));
-      localStorage.setItem("abje_joueurs", JSON.stringify(joueurs));
-      localStorage.setItem("abje_tables", JSON.stringify(tables));
-      localStorage.setItem("abje_menes", JSON.stringify(menes));
-      localStorage.setItem("abje_tableCounter", tableCounter);
+  <div id="saisie-mene-modal" class="modal">
+    <div class="modal-content">
+      <h2 id="saisie-mene-title">Nouvelle mène</h2>
+      <form id="saisieMeneForm">
+        <!-- Les champs seront ajoutés dynamiquement par JavaScript -->
+      </form>
+    </div>
+  </div>
+  <!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABJE Tarot - Gestion de Club</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --bg2: #1a1a2e;
+      --bg3: #16213e;
+      --card-bg: #1e293b;
+      --accent1: #f59e0b;
+      --accent2: #ef4444;
+      --accent3: #8b5cf6;
+      --accent4: #10b981;
+      --accent5: #3b82f6;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --error: #ef4444;
     }
 
-    // ========== FONCTIONS UTILITAIRES ==========
-    function formatDateFR(date) {
-      if (typeof date === "string") date = new Date(date);
-      return date.toLocaleDateString("fr-FR", {
-        weekday: "long",
-        day: "numeric",
-        month: "long"
-      });
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    function dateKey(date) {
-      if (typeof date === "string") return date;
-      return date.toISOString().split("T")[0];
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
-    // ========== RENDU DES ÉCRANS ==========
-    function renderLogin() {
-      document.getElementById("app").innerHTML = `
-        <div class="login-container">
-          <div class="login-icon">🃏</div>
-          <h1>ABJE Tarot</h1>
-          <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Gestion de club de Tarot</p>
-
-          <form id="loginForm">
-            <input type="text" id="login" placeholder="Login (admin/abje)" required>
-            <input type="password" id="password" placeholder="Mot de passe" required>
-            <div id="loginError" class="error"></div>
-            <button type="submit" style="width: 100%;">Se connecter</button>
-          </form>
-        </div>
-      `;
-
-      document.getElementById("loginForm").addEventListener("submit", (e) => {
-        e.preventDefault();
-        const login = document.getElementById("login").value.trim().toLowerCase();
-        const password = document.getElementById("password").value;
-        const errorEl = document.getElementById("loginError");
-
-        if ((login === "admin" && password === ADMIN_PASSWORD) ||
-            (login === "abje" && password === ABJE_PASSWORD)) {
-          user = { role: login };
-          errorEl.textContent = "";
-          saveData();
-          renderApp();
-        } else {
-          errorEl.textContent = "Login ou mot de passe incorrect";
-        }
-      });
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
-    function renderAccueil() {
-      document.getElementById("app").innerHTML = `
-        <div class="card" style="text-align: center;">
-          <h2>Bienvenue sur ABJE Tarot</h2>
-          <p>Scannez le QR code pour accéder depuis votre mobile :</p>
-
-          <div class="qr-code">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(APP_URL)}&bgcolor=1e293b&color=f8fafc" alt="QR Code" width="200">
-          </div>
-
-          <p><a href="${APP_URL}" style="color: var(--accent4);">${APP_URL}</a></p>
-          <button class="secondary" onclick="copyLink()">Copier le lien</button>
-        </div>
-
-        <div class="card">
-          <h3>Navigation</h3>
-          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
-            <button onclick="showTab('joueurs')">👥 Joueurs</button>
-            <button onclick="showTab('tables')">🎲 Tables</button>
-            <button onclick="showTab('saisie')">✏️ Saisie</button>
-            <button onclick="showTab('resultats')">🏆 Résultats</button>
-          </div>
-        </div>
-      `;
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
     }
 
-    function copyLink() {
-      navigator.clipboard.writeText(APP_URL).then(() => alert("Lien copié !"));
+    .logo-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 1.5rem;
     }
 
-    function renderJoueurs() {
-      document.getElementById("app").innerHTML = `
-        <div>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h2>👥 Joueurs</h2>
-            <button onclick="showAddJoueur()">+ Ajouter</button>
-          </div>
-
-          <div class="player-grid">
-            ${joueurs.map(j => `
-              <div class="player-card">
-                <div class="player-name">${j.nom}</div>
-                <div class="player-status">${j.disponible ? "✅ Disponible" : "❌ Non disponible"}</div>
-                <div style="margin-top: 0.5rem;">
-                  <button class="secondary" onclick="toggleDispo('${j.id}')" style="padding: 0.25rem 0.5rem;">
-                    ${j.disponible ? "Retirer" : "Ajouter"}
-                  </button>
-                  <button onclick="deleteJoueur('${j.id}')" style="padding: 0.25rem 0.5rem; background: var(--accent2);">×</button>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `;
+    nav {
+      display: flex;
+      justify-content: center;
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 0.5rem 0;
+      position: sticky;
+      top: 60px;
+      z-index: 99;
     }
 
-    function renderTables() {
-      document.getElementById("app").innerHTML = `
-        <div>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h2>🎲 Tables</h2>
-            <button onclick="showCreateTable()">+ Nouvelle table</button>
-          </div>
-
-          ${tables.length === 0 ? `
-            <div class="card">Aucune table créée.</div>
-          ` : `
-            ${tables.map(t => `
-              <div class="card">
-                <h3>Table n°${t.numero} (${t.nbJoueurs} joueurs)</h3>
-                <p>Joueurs: ${t.joueursAffectes ? t.joueursAffectes.length : 0}/${t.nbJoueurs}</p>
-                <button onclick="deleteTable('${t.id}')" style="background: var(--accent2);">Supprimer</button>
-              </div>
-            `).join('')}
-          `}
-        </div>
-      `;
+    .nav-tab {
+      flex: 1;
+      max-width: 120px;
+      padding: 0.5rem;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
     }
 
-    function renderSaisie() {
-      document.getElementById("app").innerHTML = `
-        <div class="card">
-          <h2>✏️ Saisie des résultats</h2>
-          <p>Fonctionnalité à implémenter (votre ancienne version était ici).</p>
-        </div>
-      `;
+    .nav-tab:hover {
+      color: var(--text);
     }
 
-    function renderResultats() {
-      document.getElementById("app").innerHTML = `
-        <div class="card">
-          <h2>🏆 Résultats</h2>
-          <p>Fonctionnalité à implémenter (votre ancienne version était ici).</p>
-        </div>
-      `;
+    .nav-tab.active {
+      color: var(--accent1);
+      border-bottom: 2px solid var(--accent1);
     }
 
-    // ========== MODALES ==========
-    function showAddJoueur() {
-      const nom = prompt("Nom du nouveau joueur :");
-      if (nom) {
-        joueurs.push({ id: Date.now().toString(), nom, disponible: false });
-        saveData();
-        renderJoueurs();
+    .nav-tab span:first-child {
+      font-size: 1.25rem;
+    }
+
+    main {
+      flex: 1;
+      max-width: 600px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid var(--border);
+    }
+
+    h1, h2, h3 {
+      margin: 0 0 1rem 0;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+    }
+
+    button {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+      margin: 0.25rem;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      color: white;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-success {
+      background: var(--accent4);
+      color: white;
+    }
+
+    .btn-danger {
+      background: var(--accent2);
+      color: white;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-info {
+      background: linear-gradient(135deg, var(--accent5), #2563eb);
+      color: white;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 1rem;
+      margin: 0.5rem 0;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent3);
+    }
+
+    .qr-code {
+      text-align: center;
+      margin: 1rem 0;
+    }
+
+    .qr-code img {
+      border-radius: 0.75rem;
+      border: 4px solid var(--border);
+      max-width: 200px;
+      margin: 0 auto;
+    }
+
+    .player-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .player-card {
+      background: var(--bg);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      border: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .player-info {
+      flex: 1;
+    }
+
+    .player-name {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .player-status {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .player-score {
+      font-weight: 700;
+      font-size: 1.25rem;
+    }
+
+    .positive {
+      color: var(--accent4);
+    }
+
+    .negative {
+      color: var(--accent2);
+    }
+
+    .error {
+      color: var(--accent2);
+      font-size: 0.9rem;
+      margin: 0.5rem 0;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .form-row > div {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    @media (max-width: 600px) {
+      .nav-tab {
+        font-size: 0.75rem;
+        padding: 0.25rem;
+      }
+      .nav-tab span:first-child {
+        font-size: 1rem;
       }
     }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🃏</div>
+      <span>ABJE Tarot</span>
+    </div>
+    <button id="logout-btn" class="btn-ghost" style="display: none;">Déconnexion</button>
+  </header>
 
-    function showCreateTable() {
-      const nbJoueurs = prompt("Nombre de joueurs (4-7) :");
-      if (nbJoueurs && [4,5,6,7].includes(parseInt(nbJoueurs))) {
-        tableCounter++;
-        tables.push({
-          id: Date.now().toString(),
-          numero: tableCounter,
-          nbJoueurs: parseInt(nbJoueurs),
-          joueursAffectes: []
-        });
-        saveData();
-        renderTables();
-      }
-    }
+  <nav id="nav-tabs" style="display: none;">
+    <button class="nav-tab active" data-tab="accueil"><span>🏠</span> Accueil</button>
+    <button class="nav-tab" data-tab="joueurs"><span>👥</span> Joueurs</button>
+    <button class="nav-tab" data-tab="tables"><span>🎲</span> Tables</button>
+    <button class="nav-tab" data-tab="saisie"><span>✏️</span> Saisie</button>
+    <button class="nav-tab" data-tab="resultats"><span>🏆</span> Résultats</button>
+  </nav>
 
-    // ========== FONCTIONS DE GESTION ==========
-    function toggleDispo(id) {
-      joueurs = joueurs.map(j => j.id === id ? { ...j, disponible: !j.disponible } : j);
-      saveData();
-      renderJoueurs();
-    }
+  <main id="app"></main>
 
-    function deleteJoueur(id) {
-      if (confirm("Supprimer ce joueur ?")) {
-        joueurs = joueurs.filter(j => j.id !== id);
-        saveData();
-        renderJoueurs();
-      }
-    }
+  <!-- Modals -->
+  <div id="create-table-modal" class="modal">
+    <div class="modal-content">
+      <h2>Créer une nouvelle table</h2>
+      <div class="form-group">
+        <label>Nombre de joueurs</label>
+        <select id="new-table-nb-joueurs">
+          <option value="4">4 joueurs</option>
+          <option value="5">5 joueurs</option>
+          <option value="6">6 joueurs</option>
+          <option value="7">7 joueurs</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Joueurs disponibles</label>
+        <div id="available-players" style="max-height: 200px; overflow-y: auto;"></div>
+      </div>
+      <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+        <button class="btn-primary" onclick="createTable()">Créer la table</button>
+        <button class="btn-ghost" onclick="hideModal('create-table-modal')">Annuler</button>
+      </div>
+    </div>
+  </div>
 
-    function deleteTable(id) {
-      if (confirm("Supprimer cette table ?")) {
-        tables = tables.filter(t => t.id !== id);
-        saveData();
-        renderTables();
-      }
-    }
-
-    function showTab(tab) {
-      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-      document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
-      renderContent(tab);
-    }
-
-    function renderContent(tab) {
-      const contentMap = {
-        accueil: renderAccueil,
-        joueurs: renderJoueurs,
-        tables: renderTables,
-        saisie: renderSaisie,
-        resultats: renderResultats
-      };
-      contentMap[tab]();
-    }
-
-    function renderApp() {
-      if (!user) {
-        renderLogin();
-        document.getElementById("nav-tabs").style.display = "none";
-        document.getElementById("logout-btn").style.display = "none";
-      } else {
-        document.getElementById("nav-tabs").style.display = "flex";
-        document.getElementById("logout-btn").style.display = "block";
-        document.getElementById("logout-btn").onclick = () => {
-          user = null;
-          saveData();
-          renderApp();
-        };
-        renderContent("accueil");
-      }
-    }
-
-    // ========== INITIALISATION ==========
-    renderApp();
-  </script>
-</body>
-</html>
+  <div id="saisie-mene-modal" class="modal">
+    <div class="modal-content">
+      <h2 id="saisie-mene-title">Nouvelle mène</h2>
+      <form id="saisieMeneForm">
+        <!-- Les champs seront ajoutés dynamiquement par JavaScript -->
+      </form>
+    </div>
+  </div>
+  
