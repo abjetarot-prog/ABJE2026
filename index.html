@@ -282,30 +282,34 @@
     }
 
    function renderApp() {
+  // Masquer les modales au changement d'onglet
+  document.querySelectorAll('.modal').forEach(modal => modal.classList.remove('active'));
+
   if (!user) {
     renderLogin();
     document.getElementById("nav-tabs").style.display = "none";
     document.getElementById("logout-btn").style.display = "none";
   } else {
+    // CORRECTION : Afficher la navigation et le bouton de déconnexion
     document.getElementById("nav-tabs").style.display = "flex";
     document.getElementById("logout-btn").style.display = "block";
-    
+
     // CORRECTION : Attacher les événements des onglets
     document.querySelectorAll('.nav-tab').forEach(tab => {
       tab.onclick = () => showTab(tab.dataset.tab);
     });
-    
+
     // CORRECTION : Attacher l'événement de déconnexion
     document.getElementById("logout-btn").onclick = () => {
       user = null;
       saveData();
-      renderApp();
+      renderApp(); // Re-rendre l'application pour revenir au login
     };
-    
+
+    // CORRECTION : Charger le contenu de l'onglet actuel
     renderContent("accueil");
   }
 }
-
     function copyLink() {
       navigator.clipboard.writeText(APP_URL).then(() => alert("Lien copié !"));
     }
