@@ -183,13 +183,15 @@
       };
     }
 
-    function renderApp() {
-  // CORRECTION: Vérifier que le DOM est prêt
-  if (!document.getElementById("app")) {
-    setTimeout(renderApp, 100); // Réessayer après 100ms si l'élément n'existe pas encore
-    return;
+  function renderApp() {
+  if (!user) {
+    renderLogin();
+    document.getElementById("nav-tabs").style.display = "none";
+    document.getElementById("logout-btn").style.display = "none";
+  } else {
+    // ... votre code existant pour l'interface connectée
   }
-
+}
   if (!user) {
     renderLogin();
     if (document.getElementById("nav-tabs")) {
@@ -331,8 +333,9 @@ function renderResultats() {
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', renderApp);
     } else {
-      renderApp();
     }
+    // ========== INITIALISATION (À PLACER À LA FIN DU SCRIPT) ==========
+window.onload = renderApp;
   </script>
   // CORRECTION: Initialisation sécurisée
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
