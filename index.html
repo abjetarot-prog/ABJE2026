@@ -281,31 +281,30 @@
       });
     }
 
-    function renderAccueil() {
-      document.getElementById("app").innerHTML = `
-        <div class="card" style="text-align: center;">
-          <h2>Bienvenue sur ABJE Tarot</h2>
-          <p>Scannez le QR code pour accéder depuis votre mobile :</p>
-
-          <div class="qr-code">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(APP_URL)}&bgcolor=1e293b&color=f8fafc" alt="QR Code" width="200">
-          </div>
-
-          <p><a href="${APP_URL}" style="color: var(--accent4);">${APP_URL}</a></p>
-          <button class="secondary" onclick="copyLink()">Copier le lien</button>
-        </div>
-
-        <div class="card">
-          <h3>Navigation</h3>
-          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
-            <button onclick="showTab('joueurs')">👥 Joueurs</button>
-            <button onclick="showTab('tables')">🎲 Tables</button>
-            <button onclick="showTab('saisie')">✏️ Saisie</button>
-            <button onclick="showTab('resultats')">🏆 Résultats</button>
-          </div>
-        </div>
-      `;
-    }
+   function renderApp() {
+  if (!user) {
+    renderLogin();
+    document.getElementById("nav-tabs").style.display = "none";
+    document.getElementById("logout-btn").style.display = "none";
+  } else {
+    document.getElementById("nav-tabs").style.display = "flex";
+    document.getElementById("logout-btn").style.display = "block";
+    
+    // CORRECTION : Attacher les événements des onglets
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.onclick = () => showTab(tab.dataset.tab);
+    });
+    
+    // CORRECTION : Attacher l'événement de déconnexion
+    document.getElementById("logout-btn").onclick = () => {
+      user = null;
+      saveData();
+      renderApp();
+    };
+    
+    renderContent("accueil");
+  }
+}
 
     function copyLink() {
       navigator.clipboard.writeText(APP_URL).then(() => alert("Lien copié !"));
@@ -427,21 +426,33 @@
     }
 
     function showTab(tab) {
-      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-      document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
-      renderContent(tab);
-    }
+  // CORRECTION : Retirer la classe active de tous les onglets
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  
+  // CORRECTION : Ajouter la classe active à l'onglet cliqué
+  const activeTab = document.querySelector(`[data-tab="${tab}"]`);
+  if (activeTab) activeTab.classList.add('active');
+  
+  // CORRECTION : Charger le contenu de l'onglet
+  renderContent(tab);
+}
 
     function renderContent(tab) {
-      const contentMap = {
-        accueil: renderAccueil,
-        joueurs: renderJoueurs,
-        tables: renderTables,
-        saisie: renderSaisie,
-        resultats: renderResultats
-      };
-      contentMap[tab]();
-    }
+  const contentMap = {
+    accueil: renderAccueil,
+    joueurs: renderJoueurs,
+    tables: renderTables,
+    saisie: renderSaisie,
+    resultats: renderResultats
+  };
+
+  // CORRECTION : Vérifier que la fonction existe avant de l'appeler
+  if (contentMap[tab]) {
+    contentMap[tab]();
+  } else {
+    console.error(`Onglet "${tab}" non trouvé.`);
+  }
+}
 
     function renderApp() {
       if (!user) {
