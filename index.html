@@ -184,12 +184,76 @@
     }
 
   function renderApp() {
+  // Vérification de sécurité
+  const appElement = document.getElementById('app');
+  if (!appElement) {
+    console.error("Élément #app introuvable !");
+    return;
+  }
+
   if (!user) {
-    renderLogin();
-    document.getElementById("nav-tabs").style.display = "none";
-    document.getElementById("logout-btn").style.display = "none";
+    // Affiche la page de login
+    appElement.innerHTML = `
+      <div style="max-width: 400px; margin: 2rem auto; text-align: center;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">🃏</div>
+        <h1>ABJE Tarot</h1>
+        <form id="loginForm">
+          <input type="text" id="login" placeholder="Login (admin/abje)" required>
+          <input type="password" id="password" placeholder="Mot de passe" required>
+          <div id="loginError" style="color: #ef4444; margin: 0.5rem 0;"></div>
+          <button type="submit" style="width: 100%; padding: 0.75rem; background: #f59e0b; border: none; border-radius: 0.5rem; color: white; font-weight: bold; cursor: pointer;">Se connecter</button>
+        </form>
+      </div>
+    `;
+
+    // Gestion du formulaire
+    document.getElementById('loginForm').onsubmit = function(e) {
+      e.preventDefault();
+      const login = document.getElementById('login').value.trim().toLowerCase();
+      const password = document.getElementById('password').value;
+      const errorEl = document.getElementById('loginError');
+
+      if ((login === "admin" && password === "Tass6gny") || (login === "abje" && password === "0309")) {
+        user = { role: login };
+        errorEl.textContent = "";
+        saveData();
+        renderApp(); // Recharge l'interface
+      } else {
+        errorEl.textContent = "Login ou mot de passe incorrect";
+      }
+    };
+
+    // Masquer les éléments de navigation
+    const navTabs = document.getElementById('nav-tabs');
+    const logoutBtn = document.getElementById('logout-btn');
+    if (navTabs) navTabs.style.display = "none";
+    if (logoutBtn) logoutBtn.style.display = "none";
+
   } else {
-    // ... votre code existant pour l'interface connectée
+    // Affiche l'interface connectée
+    appElement.innerHTML = `
+      <div style="text-align: center; padding: 2rem;">
+        <h2>Bienvenue sur ABJE Tarot !</h2>
+        <p>Connecté en tant que ${user.role}</p>
+        <button onclick="user=null;saveData();renderApp();"
+                style="padding: 0.5rem 1rem; background: #334155; border: none; border-radius: 0.5rem; color: white; cursor: pointer;">
+          Déconnexion
+        </button>
+      </div>
+    `;
+
+    // Afficher les éléments de navigation
+    const navTabs = document.getElementById('nav-tabs');
+    const logoutBtn = document.getElementById('logout-btn');
+    if (navTabs) navTabs.style.display = "flex";
+    if (logoutBtn) {
+      logoutBtn.style.display = "block";
+      logoutBtn.onclick = function() {
+        user = null;
+        saveData();
+        renderApp();
+      };
+    }
   }
 }
   if (!user) {
