@@ -392,14 +392,17 @@ function renderSaisie() {
 function renderResultats() {
   document.getElementById("app").innerHTML = `<div class="card"><h2>🏆 Résultats</h2><p>À implémenter...</p></div>`;
 }
-    // ========== INITIALISATION ==========
-    // CORRECTION: Utiliser DOMContentLoaded pour s'assurer que le DOM est prêt
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', renderApp);
-    } else {
-    }
-    // ========== INITIALISATION (À PLACER À LA FIN DU SCRIPT) ==========
-window.onload = renderApp;
+
+    // ===== INITIALISATION CORRIGÉE =====
+// Attendre que la page soit complètement chargée
+window.onload = function() {
+  // Vérifier que l'élément #app existe
+  if (document.getElementById('app')) {
+    renderApp();
+  } else {
+    console.error("Erreur: L'élément #app est introuvable !");
+  }
+};
   </script>
   window.addEventListener('load', init)
   // CORRECTION: Initialisation sécurisée
