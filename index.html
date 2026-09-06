@@ -407,9 +407,6 @@ window.onload = function() {
   window.addEventListener('load', init)
   // CORRECTION: Initialisation sécurisée
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
-  renderApp();
-} else {
-  document.addEventListener('DOMContentLoaded', renderApp);
 }
 </body>
 </html>
