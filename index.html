@@ -401,6 +401,7 @@ function renderResultats() {
     // ========== INITIALISATION (À PLACER À LA FIN DU SCRIPT) ==========
 window.onload = renderApp;
   </script>
+  window.addEventListener('load', init)
   // CORRECTION: Initialisation sécurisée
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
   renderApp();
