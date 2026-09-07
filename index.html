@@ -394,8 +394,11 @@ function renderTables() {
       ` : tables.map(t => `
         <div class="card">
           <h3>Table n°${t.numero} (${t.nbJoueurs} joueurs)</h3>
-          <p>Joueurs: ${t.joueursAffectes ? t.joueursAffectes.length : 0}/${t.nbJoueurs}</p>
-          <button onclick="deleteTable('${t.id}')" class="btn-danger">Supprimer</button>
+          <p>Joueurs affectés: ${t.joueursAffectes ? t.joueursAffectes.length : 0}/${t.nbJoueurs}</p>
+          <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+            <button onclick="affecterJoueursATable('${t.id}')" class="btn-primary" style="flex: 1;">+ Affecter joueur</button>
+            <button onclick="deleteTable('${t.id}')" class="btn-danger" style="flex: 1;">Supprimer</button>
+          </div>
         </div>
       `).join('')}
     </div>
