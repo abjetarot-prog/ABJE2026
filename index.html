@@ -437,7 +437,43 @@ function showCreateTable() {
     renderTables();
   }
 }
+// Fonction pour affecter des joueurs à une table
+function affecterJoueursATable(tableId) {
+  const table = tables.find(t => t.id === tableId);
+  if (!table) return;
 
+  // Filtrer les joueurs disponibles
+  const joueursDisponibles = joueurs.filter(j => j.disponible && !table.joueursAffectes?.includes(j.id));
+
+  if (joueursDisponibles.length === 0) {
+    alert("Aucun joueur disponible à affecter !");
+    return;
+  }
+
+  // Afficher une liste de joueurs disponibles
+  let message = "Joueurs disponibles :\n\n";
+  joueursDisponibles.forEach((j, index) => {
+    message += `${index + 1}. ${j.nom}\n`;
+  });
+
+  const choix = prompt(message + "\nEntrez le numéro du joueur à affecter (ou 'annuler') :");
+  if (choix === null || choix === "annuler") return;
+
+  const joueurIndex = parseInt(choix) - 1;
+  if (joueurIndex >= 0 && joueurIndex < joueursDisponibles.length) {
+    // Initialiser le tableau si nécessaire
+    if (!table.joueursAffectes) {
+      table.joueursAffectes = [];
+    }
+
+    // Ajouter le joueur à la table
+    table.joueursAffectes.push(joueursDisponibles[joueurIndex].id);
+    saveData();
+    renderTables();
+  } else {
+    alert("Numéro invalide !");
+  }
+}
 // Fonction pour supprimer une table
 function deleteTable(id) {
   if (confirm("Êtes-vous sûr de vouloir supprimer cette table ?")) {
