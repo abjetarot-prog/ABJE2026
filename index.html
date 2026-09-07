@@ -177,25 +177,207 @@
     }
 
     function renderApp() {
-      if (!user) {
-        renderLogin();
-        document.getElementById("logout-btn").style.display = "none";
-      } else {
-        document.getElementById("logout-btn").style.display = "block";
-        document.getElementById("logout-btn").onclick = function() {
-          user = null;
-          saveData();
-          renderApp();
-        };
-        document.getElementById("app").innerHTML = `
-          <div class="card" style="text-align: center;">
-            <h2>Bienvenue sur ABJE Tarot !</h2>
-            <p>Connecté en tant que ${user.role}</p>
-            <button onclick="showTab('joueurs')" class="btn-primary">Aller aux joueurs</button>
+  if (!user) {
+    renderLogin();
+    document.getElementById("logout-btn").style.display = "none";
+  } else {
+    document.getElementById("logout-btn").style.display = "block";
+    document.getElementById("logout-btn").onclick = function() {
+      user = null;
+      saveData();
+      renderApp();
+    };
+// Fonction pour changer d'onglet
+function showTab(tab) {
+  // Mettre à jour les onglets actifs
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+
+  // Charger le contenu
+  renderContent(tab);
+}
+
+// Fonction pour rendre le contenu de l'onglet
+function renderContent(tab) {
+  const contentMap = {
+    accueil: renderAccueil,
+    joueurs: renderJoueurs,
+    tables: renderTables,
+    saisie: renderSaisie,
+    resultats: renderResultats
+  };
+
+  if (contentMap[tab]) {
+    contentMap[tab]();
+  }
+}
+
+// Fonction pour l'onglet Accueil
+function renderAccueil() {
+  document.getElementById("app").innerHTML = `
+    <div class="card" style="text-align: center;">
+      <h2>Bienvenue sur ABJE Tarot !</h2>
+      <p>Connecté en tant que ${user.role}</p>
+      <p>Scannez le QR code pour accéder depuis votre mobile :</p>
+      <div class="qr-code">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(APP_URL)}&bgcolor=1e293b&color=f8fafc" alt="QR Code" width="200">
+      </div>
+      <p><a href="${APP_URL}" style="color: var(--accent4);" target="_blank">${APP_URL}</a></p>
+      <button onclick="navigator.clipboard.writeText('${APP_URL}').then(() => alert('Lien copié !'))" class="btn-ghost">Copier le lien</button>
+    </div>
+  `;
+}
+    function renderJoueurs() {
+  document.getElementById("app").innerHTML = `
+    <div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2>👥 Joueurs (${joueurs.length})</h2>
+        <button onclick="showAddJoueur()" class="btn-success">+ Nouveau</button>
+      </div>
+
+      <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+        <button onclick="cocherTousPresents()" class="btn-ghost" style="flex: 1;">✅ Tout cocher</button>
+        <button onclick="decocherTousPresents()" class="btn-ghost" style="flex: 1;">☐ Tout décocher</button>
+      </div>
+
+      <div class="player-grid">
+        ${joueurs.map(j => `
+          <div class="player-card">
+            <div>
+              <div class="player-name">${j.nom}</div>
+              <div class="player-status">${j.disponible ? "✅ Disponible" : "❌ Non disponible"}</div>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button onclick="toggleDispo('${j.id}')" class="btn-ghost" style="padding: 0.25rem;">${j.disponible ? "Retirer" : "Ajouter"}</button>
+              <button onclick="deleteJoueur('${j.id}')" class="btn-danger" style="padding: 0.25rem;">×</button>
+            </div>
           </div>
-        `;
-      }
-    }
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+    // Fonction pour afficher le modal d'ajout de joueur
+function showAddJoueur() {
+  const nom = prompt("Nom du nouveau joueur :");
+  if (nom && nom.trim()) {
+    joueurs.push({ id: Date.now().toString(), nom: nom.trim(), disponible: false });
+    saveData();
+    renderJoueurs();
+  }
+}
+
+// Fonction pour basculer la disponibilité d'un joueur
+function toggleDispo(id) {
+  joueurs = joueurs.map(j => j.id === id ? { ...j, disponible: !j.disponible } : j);
+  saveData();
+  renderJoueurs();
+}
+
+// Fonction pour supprimer un joueur
+function deleteJoueur(id) {
+  if (confirm("Êtes-vous sûr de vouloir supprimer ce joueur ?")) {
+    joueurs = joueurs.filter(j => j.id !== id);
+    saveData();
+    renderJoueurs();
+  }
+}
+
+// Fonction pour cocher tous les joueurs comme disponibles
+function cocherTousPresents() {
+  joueurs = joueurs.map(j => ({ ...j, disponible: true }));
+  saveData();
+  renderJoueurs();
+}
+
+// Fonction pour décocher tous les joueurs
+function decocherTousPresents() {
+  joueurs = joueurs.map(j => ({ ...j, disponible: false }));
+  saveData();
+  renderJoueurs();
+}
+// Fonction pour l'onglet Tables
+function renderTables() {
+  document.getElementById("app").innerHTML = `
+    <div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2>🎲 Tables (${tables.length})</h2>
+        <button onclick="showCreateTable()" class="btn-primary">+ Nouvelle table</button>
+      </div>
+      ${tables.length === 0 ? `
+        <div class="card" style="text-align: center;">
+          <p>Aucune table créée.</p>
+        </div>
+      ` : tables.map(t => `
+        <div class="card">
+          <h3>Table n°${t.numero} (${t.nbJoueurs} joueurs)</h3>
+          <p>Joueurs: ${t.joueursAffectes ? t.joueursAffectes.length : 0}/${t.nbJoueurs}</p>
+          <button onclick="deleteTable('${t.id}')" class="btn-danger">Supprimer</button>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// Fonction pour l'onglet Saisie
+function renderSaisie() {
+  document.getElementById("app").innerHTML = `
+    <div class="card">
+      <h2>✏️ Saisie des résultats</h2>
+      <p>Fonctionnalité à implémenter.</p>
+    </div>
+  `;
+}
+
+// Fonction pour l'onglet Résultats
+function renderResultats() {
+  document.getElementById("app").innerHTML = `
+    <div class="card">
+      <h2>🏆 Résultats</h2>
+      <p>Fonctionnalité à implémenter.</p>
+    </div>
+  `;
+}
+
+// Fonction pour créer une table
+function showCreateTable() {
+  const nbJoueurs = prompt("Nombre de joueurs (4-7) :");
+  if (nbJoueurs && [4,5,6,7].includes(parseInt(nbJoueurs))) {
+    const tableCounter = tables.length + 1;
+    tables.push({
+      id: Date.now().toString(),
+      numero: tableCounter,
+      nbJoueurs: parseInt(nbJoueurs),
+      joueursAffectes: []
+    });
+    saveData();
+    renderTables();
+  }
+}
+
+// Fonction pour supprimer une table
+function deleteTable(id) {
+  if (confirm("Êtes-vous sûr de vouloir supprimer cette table ?")) {
+    tables = tables.filter(t => t.id !== id);
+    saveData();
+    renderTables();
+  }
+}
+    // CORRECTION: Afficher la navigation
+    const navTabs = document.createElement('nav');
+    navTabs.id = 'nav-tabs';
+    navTabs.innerHTML = `
+      <button class="nav-tab active" data-tab="accueil" onclick="showTab('accueil')">🏠 Accueil</button>
+      <button class="nav-tab" data-tab="joueurs" onclick="showTab('joueurs')">👥 Joueurs</button>
+      <button class="nav-tab" data-tab="tables" onclick="showTab('tables')">🎲 Tables</button>
+      <button class="nav-tab" data-tab="saisie" onclick="showTab('saisie')">✏️ Saisie</button>
+      <button class="nav-tab" data-tab="resultats" onclick="showTab('resultats')">🏆 Résultats</button>
+    `;
+    document.body.insertBefore(navTabs, document.getElementById("app"));
+
+    renderContent("accueil");
+  }
+}
 
     // ========== INITIALISATION ==========
     // CORRECTION: Utiliser DOMContentLoaded pour s'assurer que le DOM est prêt
