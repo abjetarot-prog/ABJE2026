@@ -574,7 +574,7 @@ function showCreateTable() {
 function affecterJoueursATable(tableId) {
   const table = tables.find(t => t.id === tableId);
   if (!table) return;
-
+  
   // Initialiser joueursAffectes si vide
   if (!table.joueursAffectes) {
     table.joueursAffectes = [];
