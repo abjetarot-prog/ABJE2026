@@ -396,7 +396,10 @@ function renderTables() {
           <h3>Table n°${t.numero} (${t.nbJoueurs} joueurs)</h3>
           <p>Joueurs affectés: ${t.joueursAffectes ? t.joueursAffectes.length : 0}/${t.nbJoueurs}</p>
           <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-            <button onclick="affecterJoueursATable('${t.id}')" class="btn-primary" style="flex: 1;">+ Affecter joueur</button>
+            ${t.joueursAffectes && t.joueursAffectes.length >= t.nbJoueurs ?
+              `<button class="btn-ghost" style="flex: 1; opacity: 0.5; cursor: not-allowed;">Table pleine</button>` :
+              `<button onclick="affecterJoueursATable('${t.id}')" class="btn-primary" style="flex: 1;">+ Affecter joueur</button>`
+            }
             <button onclick="deleteTable('${t.id}')" class="btn-danger" style="flex: 1;">Supprimer</button>
           </div>
         </div>
@@ -404,15 +407,141 @@ function renderTables() {
     </div>
   `;
 }
-
 // Fonction pour l'onglet Saisie
 function renderSaisie() {
-  document.getElementById("app").innerHTML = `
-    <div class="card">
-      <h2>✏️ Saisie des résultats</h2>
-      <p>Fonctionnalité à implémenter.</p>
+  // Filtrer les tables avec des joueurs affectés
+  const tablesAvecJoueurs = tables.filter(t => t.joueursAffectes && t.joueursAffectes.length > 0);
+
+  if (tablesAvecJoueurs.length === 0) {
+    document.getElementById("app").innerHTML = `
+      <div class="card" style="text-align: center;">
+        <h2>✏️ Saisie des résultats</h2>
+        <p>Aucune table avec des joueurs affectés.</p>
+        <p>Créez une table et affectez des joueurs d'abord.</p>
+      </div>
+    `;
+    return;
+  }
+
+  // Générer le HTML pour la saisie
+  let html = `
+    <div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2>✏️ Saisie des résultats</h2>
+        <button onclick="showNewMene()" class="btn-primary">+ Nouvelle mène</button>
+      </div>
+      <div id="mene-list">
+  `;
+
+  // Ajouter les mène existantes (si vous en avez déjà)
+  if (localStorage.getItem("abje_menes")) {
+    const menes = JSON.parse(localStorage.getItem("abje_menes")) || [];
+    menes.forEach((mene, index) => {
+      html += `
+        <div class="card" style="margin-bottom: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <h3>Mène n°${index + 1} - Table n°${mene.tableNumero}</h3>
+            <button onclick="deleteMene(${index})" class="btn-danger" style="padding: 0.25rem 0.5rem;">×</button>
+          </div>
+          <p>Date: ${new Date(mene.date).toLocaleString('fr-FR')}</p>
+          <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; margin-top: 0.5rem;">
+      `;
+
+      // Afficher les scores des 5 joueurs
+      for (let i = 0; i < 5; i++) {
+        const joueur = joueurs.find(j => j.id === mene.joueurs[i]);
+        html += `
+          <div style="text-align: center; padding: 0.5rem; background: var(--bg); border-radius: 0.5rem;">
+            <div style="font-weight: bold; font-size: 0.8rem;">${joueur ? joueur.nom : '—'}</div>
+            <div style="color: ${mene.scores[i] >= 0 ? 'var(--accent4)' : 'var(--accent2)'};">${mene.scores[i] >= 0 ? '+' : ''}${mene.scores[i]}</div>
+          </div>
+        `;
+      }
+
+      html += `
+          </div>
+          <p style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">Total: ${mene.scores.reduce((a, b) => a + b, 0)}</p>
+        </div>
+      `;
+    });
+  } else {
+    html += `<p style="text-align: center; color: var(--text-muted);">Aucune mène enregistrée.</p>`;
+  }
+
+  html += `
+      </div>
     </div>
   `;
+
+  document.getElementById("app").innerHTML = html;
+}
+
+// Fonction pour ajouter une nouvelle mène
+function showNewMene() {
+  const tablesAvecJoueurs = tables.filter(t => t.joueursAffectes && t.joueursAffectes.length === t.nbJoueurs);
+
+  if (tablesAvecJoueurs.length === 0) {
+    alert("Aucune table complète (5 joueurs) n'est prête pour une mène !");
+    return;
+  }
+
+  // Demander quelle table utiliser
+  let message = "Sélectionnez une table pour la nouvelle mène :\n\n";
+  tablesAvecJoueurs.forEach((t, index) => {
+    message += `${index + 1}. Table n°${t.numero} (${t.nbJoueurs} joueurs: ${t.joueursAffectes.map(id => joueurs.find(j => j.id === id).nom).join(', ')})\n`;
+  });
+
+  const choixTable = prompt(message + "\n(Entrez le numéro ou 'annuler')");
+  if (choixTable === null || choixTable.toLowerCase() === "annuler") return;
+
+  const tableIndex = parseInt(choixTable) - 1;
+  if (tableIndex < 0 || tableIndex >= tablesAvecJoueurs.length) {
+    alert("Numéro de table invalide !");
+    return;
+  }
+
+  const selectedTable = tablesAvecJoueurs[tableIndex];
+
+  // Demander les scores pour chaque joueur
+  const scores = [];
+  for (let i = 0; i < selectedTable.nbJoueurs; i++) {
+    const joueur = joueurs.find(j => j.id === selectedTable.joueursAffectes[i]);
+    let score;
+    do {
+      score = prompt(`Score de ${joueur.nom} (ex: +50, -25, 0):`);
+      if (score === null) return; // Annuler
+      score = parseInt(score.replace('+', ''));
+      if (isNaN(score)) {
+        alert("Veuillez entrer un nombre valide (ex: 50, -25, 0)");
+      }
+    } while (isNaN(score));
+    scores.push(score);
+  }
+
+  // Créer la nouvelle mène
+  const menes = JSON.parse(localStorage.getItem("abje_menes")) || [];
+  menes.push({
+    id: Date.now().toString(),
+    tableId: selectedTable.id,
+    tableNumero: selectedTable.numero,
+    joueurs: selectedTable.joueursAffectes,
+    scores: scores,
+    date: new Date().toISOString()
+  });
+
+  localStorage.setItem("abje_menes", JSON.stringify(menes));
+  renderSaisie();
+  alert("✅ Mène enregistrée avec succès !");
+}
+
+// Fonction pour supprimer une mène
+function deleteMene(index) {
+  if (confirm("Êtes-vous sûr de vouloir supprimer cette mène ?")) {
+    const menes = JSON.parse(localStorage.getItem("abje_menes")) || [];
+    menes.splice(index, 1);
+    localStorage.setItem("abje_menes", JSON.stringify(menes));
+    renderSaisie();
+  }
 }
 
 // Fonction pour l'onglet Résultats
