@@ -730,19 +730,7 @@ function affecterJoueursATable(tableId) {
     message += `${index + 1}. ${j.nom}\n`;
   });
 
-  const choix = prompt(message + "\n(Entrez le numéro ou 'annuler')");
-  if (choix === null || choix.toLowerCase() === "annuler") return;
-
-  const joueurIndex = parseInt(choix) - 1;
-  if (joueurIndex >= 0 && joueurIndex < joueursDisponibles.length) {
-    table.joueursAffectes.push(joueursDisponibles[joueurIndex].id);
-    saveData();
-    renderTables();
-    alert(`✅ ${joueursDisponibles[joueurIndex].nom} a été affecté à la table n°${table.numero}!`);
-  } else {
-    alert("❌ Numéro invalide !");
-  }
-}
+ }
 // Fonction pour supprimer une table
 function deleteTable(id) {
   if (confirm("Êtes-vous sûr de vouloir supprimer cette table ?")) {
