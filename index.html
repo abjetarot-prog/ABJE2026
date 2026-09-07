@@ -132,7 +132,15 @@
     </div>
     <button id="logout-btn" class="btn-ghost" style="display: none;">Déconnexion</button>
   </header>
+  <nav id="nav-tabs" style="display: none;">
+    <button class="nav-tab active" data-tab="accueil" onclick="showTab('accueil')">🏠 Accueil</button>
+    <button class="nav-tab" data-tab="joueurs" onclick="showTab('joueurs')">👥 Joueurs</button>
+    <button class="nav-tab" data-tab="tables" onclick="showTab('tables')">🎲 Tables</button>
+    <button class="nav-tab" data-tab="saisie" onclick="showTab('saisie')">✏️ Saisie</button>
+    <button class="nav-tab" data-tab="resultats" onclick="showTab('resultats')">🏆 Résultats</button>
+  </nav>
 
+  <main id="app"></main>
   <main id="app">
     <!-- Le contenu sera généré par JavaScript -->
   </main>
@@ -146,6 +154,7 @@
     // ========== DONNÉES ==========
     let user = JSON.parse(localStorage.getItem("abje_user")) || null;
     let joueurs = JSON.parse(localStorage.getItem("abje_joueurs")) || [
+          let tables = JSON.parse(localStorage.getItem("abje_tables")) || [];
       { id: "1", nom: "Tarot ABJE", disponible: false },
       { id: "2", nom: "Joueur 2", disponible: false },
       { id: "3", nom: "Joueur 3", disponible: false },
@@ -156,7 +165,8 @@
     function saveData() {
       localStorage.setItem("abje_user", JSON.stringify(user));
       localStorage.setItem("abje_joueurs", JSON.stringify(joueurs));
-    }
+      localStorage.setItem("abje_tables", JSON.stringify(tables)); 
+            }
 
     // ========== RENDU ==========
     function renderLogin() {
@@ -437,22 +447,7 @@ function deleteTable(id) {
     tables = tables.filter(t => t.id !== id);
     saveData();
     renderTables();
-  }
-}
-    // CORRECTION: Afficher la navigation
-    const navTabs = document.createElement('nav');
-    navTabs.id = 'nav-tabs';
-    navTabs.innerHTML = `
-      <button class="nav-tab active" data-tab="accueil" onclick="showTab('accueil')">🏠 Accueil</button>
-      <button class="nav-tab" data-tab="joueurs" onclick="showTab('joueurs')">👥 Joueurs</button>
-      <button class="nav-tab" data-tab="tables" onclick="showTab('tables')">🎲 Tables</button>
-      <button class="nav-tab" data-tab="saisie" onclick="showTab('saisie')">✏️ Saisie</button>
-      <button class="nav-tab" data-tab="resultats" onclick="showTab('resultats')">🏆 Résultats</button>
-    `;
-    document.body.insertBefore(navTabs, document.getElementById("app"));
-
-    renderContent("accueil");
-  }
+    
 }
 
     // ========== INITIALISATION ==========
