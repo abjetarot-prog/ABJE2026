@@ -107,6 +107,21 @@
       font-size: 4rem;
       margin-bottom: 1rem;
     }
+    /* Style pour les onglets actifs */
+.nav-tab.active {
+  color: var(--accent1) !important;
+  border-bottom: 3px solid var(--accent1) !important;
+  background: rgba(245, 158, 11, 0.1) !important;
+}
+
+/* Animation au survol */
+.nav-tab {
+  transition: all 0.2s ease;
+}
+.nav-tab:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
+}
   </style>
 </head>
 <body>
@@ -179,26 +194,32 @@
     function renderApp() {
   if (!user) {
     renderLogin();
+    document.getElementById("nav-tabs").style.display = "none";
     document.getElementById("logout-btn").style.display = "none";
   } else {
+    document.getElementById("nav-tabs").style.display = "flex";
     document.getElementById("logout-btn").style.display = "block";
-    document.getElementById("logout-btn").onclick = function() {
+
+    // CORRECTION: Initialiser les événements des onglets
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.onclick = () => showTab(tab.dataset.tab);
+    });
+
+    document.getElementById("logout-btn").onclick = () => {
       user = null;
       saveData();
       renderApp();
     };
-// Fonction pour changer d'onglet
+
+    renderContent("accueil");
+  }
+}
 function showTab(tab) {
-  // Mettre à jour les onglets actifs
+  // Mettre à jour l'onglet actif
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
 
   // Charger le contenu
-  renderContent(tab);
-}
-
-// Fonction pour rendre le contenu de l'onglet
-function renderContent(tab) {
   const contentMap = {
     accueil: renderAccueil,
     joueurs: renderJoueurs,
@@ -209,21 +230,76 @@ function renderContent(tab) {
 
   if (contentMap[tab]) {
     contentMap[tab]();
+  } else {
+    console.error(`Onglet "${tab}" introuvable.`);
+  }
+}
+// Fonction pour rendre le contenu de l'onglet
+function renderContent(tab) {
+  const contentMap = {
+    accueil: renderAccueil,
+    joueurs: renderJoueurs,
+    tables: renderTables,
+    saisie: renderSaisie,
+    resultats: renderResultats
+  };
+
+  // Vérifier que l'onglet existe
+  if (contentMap[tab]) {
+    try {
+      contentMap[tab]();
+    } catch (error) {
+      console.error(`Erreur lors du rendu de l'onglet "${tab}":`, error);
+      document.getElementById("app").innerHTML = `
+        <div class="card" style="color: var(--accent2);">
+          <h3>⚠️ Erreur</h3>
+          <p>Impossible de charger l'onglet <strong>${tab}</strong>.</p>
+          <button onclick="showTab('accueil')" class="btn-primary">Retour à l'accueil</button>
+        </div>
+      `;
+    }
+  } else {
+    // Onglet inconnu : retourner à l'accueil
+    showTab('accueil');
   }
 }
 
-// Fonction pour l'onglet Accueil
 function renderAccueil() {
   document.getElementById("app").innerHTML = `
     <div class="card" style="text-align: center;">
       <h2>Bienvenue sur ABJE Tarot !</h2>
-      <p>Connecté en tant que ${user.role}</p>
-      <p>Scannez le QR code pour accéder depuis votre mobile :</p>
-      <div class="qr-code">
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(APP_URL)}&bgcolor=1e293b&color=f8fafc" alt="QR Code" width="200">
+      <p>Connecté en tant que <strong>${user.role}</strong></p>
+
+      <!-- Section QR Code -->
+      <div style="margin: 1.5rem 0; padding: 1rem; background: var(--bg); border-radius: 0.75rem; border: 1px solid var(--border);">
+        <p style="margin-bottom: 0.75rem; font-size: 0.9rem; color: var(--text-muted);">Accès mobile :</p>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(APP_URL)}&bgcolor=1e293b&color=f8fafc"
+             alt="QR Code ABJE Tarot" width="140" style="border-radius: 0.5rem; border: 2px solid var(--border); margin: 0 auto; display: block;">
+        <p style="margin-top: 0.75rem; font-size: 0.8rem;">
+          <a href="${APP_URL}" style="color: var(--accent4);" target="_blank">${APP_URL.replace('https://', '')}</a>
+        </p>
+        <button onclick="navigator.clipboard.writeText('${APP_URL}').then(() => alert('✅ Lien copié !'))"
+                class="btn-ghost" style="font-size: 0.8rem; margin-top: 0.5rem;">Copier</button>
       </div>
-      <p><a href="${APP_URL}" style="color: var(--accent4);" target="_blank">${APP_URL}</a></p>
-      <button onclick="navigator.clipboard.writeText('${APP_URL}').then(() => alert('Lien copié !'))" class="btn-ghost">Copier le lien</button>
+    </div>
+
+    <!-- Section Navigation -->
+    <div class="card">
+      <h3>🎯 Menu principal</h3>
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
+        <button onclick="showTab('joueurs')" class="btn-primary" style="padding: 0.75rem; font-size: 0.9rem;">
+          👥 Joueurs (${joueurs.length})
+        </button>
+        <button onclick="showTab('tables')" class="btn-primary" style="padding: 0.75rem; font-size: 0.9rem;">
+          🎲 Tables (${tables.length})
+        </button>
+        <button onclick="showTab('saisie')" class="btn-primary" style="padding: 0.75rem; font-size: 0.9rem;">
+          ✏️ Saisie
+        </button>
+        <button onclick="showTab('resultats')" class="btn-primary" style="padding: 0.75rem; font-size: 0.9rem;">
+          🏆 Résultats
+        </button>
+      </div>
     </div>
   `;
 }
