@@ -393,16 +393,8 @@ function renderResultats() {
   document.getElementById("app").innerHTML = `<div class="card"><h2>🏆 Résultats</h2><p>À implémenter...</p></div>`;
 }
 
-    // ===== INITIALISATION CORRIGÉE =====
-// Attendre que la page soit complètement chargée
-window.onload = function() {
-  // Vérifier que l'élément #app existe
-  if (document.getElementById('app')) {
-    renderApp();
-  } else {
-    console.error("Erreur: L'élément #app est introuvable !");
-  }
-};
+    // ===== INITIALISATION CORRIGÉE (À PLACER À LA FIN DU SCRIPT) =====
+window.onload = renderApp;
   </script>
 </body>
 </html>
