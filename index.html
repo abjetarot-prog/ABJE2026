@@ -397,9 +397,9 @@ function renderTables() {
           <p>Joueurs affectés: ${t.joueursAffectes ? t.joueursAffectes.length : 0}/${t.nbJoueurs}</p>
           <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
             ${t.joueursAffectes && t.joueursAffectes.length >= t.nbJoueurs ?
-              `<button class="btn-ghost" style="flex: 1; opacity: 0.5; cursor: not-allowed;">Table pleine</button>` :
-              `<button onclick="affecterJoueursATable('${t.id}')" class="btn-primary" style="flex: 1;">+ Affecter joueur</button>`
-            }
+  `<button class="btn-ghost" style="flex: 1; opacity: 0.5; cursor: not-allowed;">Table pleine</button>` :
+  `<button onclick="affecterJoueursATable('${t.id}')" class="btn-primary" style="flex: 1;">+ Affecter joueur(s)</button>`
+}
             <button onclick="deleteTable('${t.id}')" class="btn-danger" style="flex: 1;">Supprimer</button>
           </div>
         </div>
@@ -570,23 +570,115 @@ function showCreateTable() {
   }
 }
 // Fonction pour affecter des joueurs à une table
+// Fonction pour afficher un modal d'affectation avec cases à cocher
 function affecterJoueursATable(tableId) {
   const table = tables.find(t => t.id === tableId);
   if (!table) return;
 
-  // Filtrer les joueurs disponibles
-  const joueursDisponibles = joueurs.filter(j => j.disponible && !table.joueursAffectes?.includes(j.id));
+  // Initialiser joueursAffectes si vide
+  if (!table.joueursAffectes) {
+    table.joueursAffectes = [];
+  }
+
+  // Vérifier si la table est pleine
+  if (table.joueursAffectes.length >= table.nbJoueurs) {
+    alert(`Cette table est déjà complète (${table.nbJoueurs} joueurs max).`);
+    return;
+  }
+
+  // Filtrer les joueurs disponibles et non déjà affectés
+  const joueursDisponibles = joueurs.filter(j =>
+    j.disponible && !table.joueursAffectes.includes(j.id)
+  );
 
   if (joueursDisponibles.length === 0) {
     alert("Aucun joueur disponible à affecter !");
     return;
   }
 
-  // Afficher une liste de joueurs disponibles
-  let message = "Joueurs disponibles :\n\n";
-  joueursDisponibles.forEach((j, index) => {
-    message += `${index + 1}. ${j.nom}\n`;
-  });
+  // Créer le modal
+  document.getElementById("app").innerHTML += `
+    <div id="modal-affectation" style="
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    ">
+      <div class="card" style="max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto;">
+        <h3 style="margin-bottom: 1rem;">Affecter des joueurs à la table n°${table.numero}</h3>
+        <p style="color: var(--text-muted); margin-bottom: 1rem;">
+          ${table.joueursAffectes.length}/${table.nbJoueurs} joueurs affectés
+        </p>
+
+        <div style="margin-bottom: 1rem;">
+          <h4>Joueurs disponibles :</h4>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
+            ${joueursDisponibles.map(j => `
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="checkbox" id="joueur-${j.id}" value="${j.id}">
+                <span>${j.nom}</span>
+              </label>
+            `).join('')}
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+          <button onclick="confirmerAffectation('${table.id}')" class="btn-primary" style="flex: 1;">
+            ✅ Affecter les joueurs sélectionnés
+          </button>
+          <button onclick="annulerAffectation()" class="btn-ghost" style="flex: 1;">
+            Annuler
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// Fonction pour confirmer l'affectation
+function confirmerAffectation(tableId) {
+  const table = tables.find(t => t.id === tableId);
+  if (!table) return;
+
+  // Initialiser joueursAffectes si vide
+  if (!table.joueursAffectes) {
+    table.joueursAffectes = [];
+  }
+
+  // Récupérer les joueurs sélectionnés
+  const joueursSelectionnes = Array.from(document.querySelectorAll('#modal-affectation input[type="checkbox"]:checked'))
+    .map(checkbox => checkbox.value);
+
+  if (joueursSelectionnes.length === 0) {
+    alert("Veuillez sélectionner au moins un joueur !");
+    return;
+  }
+
+  // Vérifier qu'on ne dépasse pas le nombre de joueurs max
+  if (table.joueursAffectes.length + joueursSelectionnes.length > table.nbJoueurs) {
+    alert(`Vous ne pouvez pas affecter plus de ${table.nbJoueurs} joueurs à cette table !`);
+    return;
+  }
+
+  // Ajouter les joueurs sélectionnés
+  table.joueursAffectes.push(...joueursSelectionnes);
+  saveData();
+  annulerAffectation();
+  renderTables();
+  alert(`✅ ${joueursSelectionnes.length} joueur(s) affecté(s) à la table n°${table.numero} !`);
+}
+
+// Fonction pour annuler l'affectation
+function annulerAffectation() {
+  const modal = document.getElementById("modal-affectation");
+  if (modal) modal.remove();
+}
 
   const choix = prompt(message + "\nEntrez le numéro du joueur à affecter (ou 'annuler') :");
   if (choix === null || choix === "annuler") return;
