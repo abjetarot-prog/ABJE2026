@@ -123,7 +123,7 @@
   transform: translateY(-2px);
 }
   </style>
-</head>
+</head>/
 <body>
   <header>
     <div class="logo">
@@ -141,10 +141,7 @@
   </nav>
 
   <main id="app"></main>
-  <main id="app">
-    <!-- Le contenu sera généré par JavaScript -->
-  </main>
-
+ 
   <script>
     // ========== CONSTANTES ==========
     const ADMIN_PASSWORD = "Tass6gny";
@@ -153,13 +150,13 @@
 
     // ========== DONNÉES ==========
     let user = JSON.parse(localStorage.getItem("abje_user")) || null;
-    let joueurs = JSON.parse(localStorage.getItem("abje_joueurs")) || [
-          let tables = JSON.parse(localStorage.getItem("abje_tables")) || [];
+        let joueurs = JSON.parse(localStorage.getItem("abje_joueurs")) || [
       { id: "1", nom: "Tarot ABJE", disponible: false },
       { id: "2", nom: "Joueur 2", disponible: false },
       { id: "3", nom: "Joueur 3", disponible: false },
       { id: "4", nom: "Joueur 4", disponible: false }
     ];
+    let tables = JSON.parse(localStorage.getItem("abje_tables")) || [];
 
     // ========== SAUVEGARDE ==========
     function saveData() {
