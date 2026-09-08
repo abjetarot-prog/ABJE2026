@@ -372,99 +372,160 @@
       renderTables();
     }
 
-    // ========== RENDU SAISIE ==========
+        // ========== RENDU SAISIE ==========
     function renderSaisie() {
-      const tablesAvecJoueurs = tables.filter(t => t.joueursAffectes && t.joueursAffectes.length === t.nbJoueurs);
-      if (tablesAvecJoueurs.length === 0) {
+      // Récupère les tables complètes
+      const tablesPleines = tables.filter(t =>
+        t.joueursAffectes && t.joueursAffectes.length === t.nbJoueurs
+      );
+
+      // Message si aucune table n'est prête
+      if (tablesPleines.length === 0) {
         document.getElementById("app").innerHTML = `
           <div style="text-align: center; padding: 2rem;">
             <h2>✏️ Saisie des résultats</h2>
-            <p>Aucune table complète. Créez une table et affectez des joueurs d'abord.</p>
-            <button onclick="showTab('tables')" class="btn-primary" style="margin-top: 1rem; max-width: 300px;">Aller aux tables</button>
+            <p>Aucune table complète.</p>
+            <button onclick="showTab('tables')" class="btn-primary"
+              style="margin-top: 1rem; max-width: 300px;">
+              Aller aux tables
+            </button>
           </div>
         `;
         return;
       }
-      let html = `
+
+      // Construction de l'affichage
+      document.getElementById("app").innerHTML = `
         <div style="padding: 1rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <div style="display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 1rem;">
             <h2>✏️ Saisie des résultats</h2>
-            <button onclick="showNewMeneForm()" class="btn-primary" style="width: auto; margin: 0;">+ Nouvelle mène</button>
+            <button onclick="showNewMeneForm()" class="btn-primary"
+              style="width: auto; margin: 0;">
+              + Nouvelle mène
+            </button>
           </div>
-          <div id="new-mene-form" class="card" style="display: none; margin-bottom: 1rem;">
+
+          <!-- Formulaire de nouvelle mène -->
+          <div id="new-mene-form" class="card"
+            style="display: none; margin-bottom: 1rem;">
             <h3 style="margin-bottom: 0.5rem;">Nouvelle mène</h3>
-            <label style="display: block; margin-bottom: 0.5rem;">Choisir une table :</label>
-            <select id="meneTableSelect" style="width: 100%; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border); background: #0f172a; color: var(--text); margin-bottom: 1rem;">
-              ${tablesAvecJoueurs.map(t => `<option value="${t.id}">Table n°${t.numero}</option>`).join('')}
+            <label style="display: block; margin-bottom: 0.5rem;">
+              Choisir une table :
+            </label>
+            <select id="meneTableSelect"
+              style="width: 100%; padding: 0.75rem; border-radius: 0.5rem;
+              border: 1px solid var(--border); background: #0f172a;
+              color: var(--text); margin-bottom: 1rem;">
+              ${tablesPleines.map(t =>
+                `<option value="${t.id}">Table n°${t.numero}</option>`
+              ).join('')}
             </select>
             <div id="meneScoresInputs"></div>
-            <button onclick="confirmNewMene()" class="btn-primary" style="margin-top: 1rem;">Enregistrer la mène</button>
+            <button onclick="confirmNewMene()" class="btn-primary"
+              style="margin-top: 1rem;">
+              Enregistrer la mène
+            </button>
           </div>
+
+          <!-- Liste des mènes existantes -->
           <div style="display: grid; gap: 1rem;">
-      `;
-      menes.forEach((mene, index) => {
-        const table = tables.find(t => t.id === mene.tableId);
-        html += `
-          <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <h3 style="margin: 0;">Mène n°${index + 1} - Table n°${table ? table.numero : 'inconnue'}</h3>
-              <button onclick="deleteMene(${index})" style="background: var(--accent2); color: white; border: none; border-radius: 0.25rem; padding: 0.25rem 0.5rem; cursor: pointer;">×</button>
-            </div>
-            <p style="margin: 0 0 0.5rem 0; color: var(--text-muted);">Date: ${new Date(mene.date).toLocaleString('fr-FR')}</p>
-            <div style="display: grid; grid-template-columns: repeat(${mene.joueurs.length}, 1fr); gap: 0.5rem; margin-top: 0.5rem;">
-              ${mene.joueurs.map((joueurId, i) => {
-                const joueur = joueurs.find(j => j.id === joueurId);
-                return `<div style="text-align: center; padding: 0.5rem; background: var(--bg); border-radius: 0.5rem;">
-                  <div style="font-weight: bold; font-size: 0.8rem;">${joueur ? joueur.nom : '—'}</div>
-                  <div class="${mene.scores[i] >= 0 ? 'score-positif' : 'score-negatif'}">${mene.scores[i] >= 0 ? '+' : ''}${mene.scores[i]}</div>
-                </div>`;
-              }).join('')}
-            </div>
+            ${menes.map((mene, index) => {
+              const table = tables.find(t => t.id === mene.tableId);
+              return `
+                <div class="card">
+                  <div style="display: flex; justify-content: space-between;
+                    align-items: center; margin-bottom: 0.5rem;">
+                    <h3 style="margin: 0;">
+                      Mène n°${index + 1} - Table n°${table ? table.numero : '?'}
+                    </h3>
+                    <button onclick="deleteMene(${index})"
+                      style="background: var(--accent2); color: white;
+                      border: none; border-radius: 0.25rem; padding: 0.25rem 0.5rem;
+                      cursor: pointer;">
+                      ×
+                    </button>
+                  </div>
+                  <p style="margin: 0 0 0.5rem 0; color: var(--text-muted);">
+                    Date: ${new Date(mene.date).toLocaleString('fr-FR')}
+                  </p>
+                  <div style="display: grid;
+                    grid-template-columns: repeat(${mene.joueurs.length}, 1fr);
+                    gap: 0.5rem; margin-top: 0.5rem;">
+                    ${mene.joueurs.map((joueurId, i) => {
+                      const joueur = joueurs.find(j => j.id === joueurId);
+                      return `
+                        <div style="text-align: center; padding: 0.5rem;
+                          background: var(--bg); border-radius: 0.5rem;">
+                          <div style="font-weight: bold; font-size: 0.8rem;">
+                            ${joueur ? joueur.nom : '—'}
+                          </div>
+                          <div class="${mene.scores[i] >= 0
+                            ? 'score-positif' : 'score-negatif'}">
+                            ${mene.scores[i] >= 0 ? '+' : ''}${mene.scores[i]}
+                          </div>
+                        </div>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+            ${menes.length === 0
+              ? '<p style="text-align: center; color: var(--text-muted);">Aucune mène enregistrée.</p>'
+              : ''
+            }
           </div>
-        `;
-      });
-      if (menes.length === 0) html += `<p style="text-align: center; color: var(--text-muted);">Aucune mène enregistrée.</p>`;
-      html += `</div></div>`;
-      document.getElementById("app").innerHTML = html;
-      
+        </div>
+      `;
+
+      // Active le changement de table pour générer les champs
       const select = document.getElementById("meneTableSelect");
       if (select) {
-        select.onchange = function() { generateScoreInputs(this.value); };
+        select.onchange = function() {
+          generateScoreInputs(this.value);
+        };
         generateScoreInputs(select.value);
       }
     }
 
+    // Affiche le formulaire
     function showNewMeneForm() {
       document.getElementById("new-mene-form").style.display = "block";
       generateScoreInputs(document.getElementById("meneTableSelect").value);
     }
 
+    // Génère les champs de score pour la table sélectionnée
     function generateScoreInputs(tableId) {
       const table = tables.find(t => t.id == tableId);
       const container = document.getElementById("meneScoresInputs");
       if (!table || !container) return;
-      
+
       let html = '';
       table.joueursAffectes.forEach((joueurId) => {
         const joueur = joueurs.find(j => j.id === joueurId);
         html += `
           <div style="margin-bottom: 0.5rem;">
-            <label style="display: block; font-size: 0.9rem; margin-bottom: 0.25rem;">${joueur ? joueur.nom : '—'}</label>
-            <input type="number" id="score-${joueurId}" placeholder="Score (ex: 50, -25)" />
+            <label style="display: block; font-size: 0.9rem; margin-bottom: 0.25rem;">
+              ${joueur ? joueur.nom : '—'}
+            </label>
+            <input type="number" id="score-${joueurId}"
+              placeholder="Score (ex: 50, -25)" />
           </div>
         `;
       });
       container.innerHTML = html;
     }
 
+    // Enregistre la nouvelle mène
     function confirmNewMene() {
       const tableId = document.getElementById("meneTableSelect").value;
       const table = tables.find(t => t.id == tableId);
       if (!table) return;
-      
+
       const scores = [];
       let isValid = true;
-      
+
       table.joueursAffectes.forEach((joueurId) => {
         const input = document.getElementById(`score-${joueurId}`);
         const val = parseInt(input.value);
@@ -476,12 +537,12 @@
           scores.push(val);
         }
       });
-      
+
       if (!isValid) {
         alert("Veuillez remplir tous les scores avec des nombres valides.");
         return;
       }
-      
+
       menes.push({
         id: Date.now(),
         tableId: table.id,
@@ -489,11 +550,12 @@
         scores: scores,
         date: new Date().toISOString()
       });
-      
+
       saveData();
       renderSaisie();
     }
 
+    // Supprime une mène
     function deleteMene(index) {
       menes.splice(index, 1);
       saveData();
