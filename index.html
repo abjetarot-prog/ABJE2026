@@ -372,7 +372,7 @@
       renderTables();
     }
 
-    // ========== RENDU SAISIE ==========
+        // ========== RENDU SAISIE ==========
     function renderSaisie() {
       const tablesAvecJoueurs = tables.filter(t => t.joueursAffectes && t.joueursAffectes.length === t.nbJoueurs);
       if (tablesAvecJoueurs.length === 0) {
@@ -389,7 +389,16 @@
         <div style="padding: 1rem;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
             <h2>✏️ Saisie des résultats</h2>
-            <button onclick="showNewMene()" class="btn-primary" style="width: auto; margin: 0;">+ Nouvelle mène</button>
+            <button onclick="showNewMeneForm()" class="btn-primary" style="width: auto; margin: 0;">+ Nouvelle mène</button>
+          </div>
+          <div id="new-mene-form" class="card" style="display: none; margin-bottom: 1rem;">
+            <h3 style="margin-bottom: 0.5rem;">Nouvelle mène</h3>
+            <label style="display: block; margin-bottom: 0.5rem;">Choisir une table :</label>
+            <select id="meneTableSelect" style="width: 100%; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border); background: #0f172a; color: var(--text); margin-bottom: 1rem;">
+              ${tablesAvecJoueurs.map(t => `<option value="${t.id}">Table n°${t.numero}</option>`).join('')}
+            </select>
+            <div id="meneScoresInputs"></div>
+            <button onclick="confirmNewMene()" class="btn-primary" style="margin-top: 1rem;">Enregistrer la mène</button>
           </div>
           <div style="display: grid; gap: 1rem;">
       `;
@@ -417,31 +426,71 @@
       if (menes.length === 0) html += `<p style="text-align: center; color: var(--text-muted);">Aucune mène enregistrée.</p>`;
       html += `</div></div>`;
       document.getElementById("app").innerHTML = html;
+      
+      // Génération des champs de score quand on change de table
+      const select = document.getElementById("meneTableSelect");
+      if (select) {
+        select.onchange = function() { generateScoreInputs(this.value); };
+        generateScoreInputs(select.value);
+      }
     }
 
-    function showNewMene() {
-      const tablesAvecJoueurs = tables.filter(t => t.joueursAffectes && t.joueursAffectes.length === t.nbJoueurs);
-      if (tablesAvecJoueurs.length === 0) { alert("Aucune table complète !"); return; }
-      let message = "Sélectionnez une table :\n\n";
-      tablesAvecJoueurs.forEach((t, index) => { message += `${index + 1}. Table n°${t.numero}\n`; });
-      const choixTable = prompt(message);
-      if (choixTable === null) return;
-      const tableIndex = parseInt(choixTable) - 1;
-      if (tableIndex < 0 || tableIndex >= tablesAvecJoueurs.length) { alert("Invalide !"); return; }
-      const selectedTable = tablesAvecJoueurs[tableIndex];
+    function showNewMeneForm() {
+      document.getElementById("new-mene-form").style.display = "block";
+      generateScoreInputs(document.getElementById("meneTableSelect").value);
+    }
+
+    function generateScoreInputs(tableId) {
+      const table = tables.find(t => t.id == tableId);
+      const container = document.getElementById("meneScoresInputs");
+      if (!table || !container) return;
+      
+      let html = '';
+      table.joueursAffectes.forEach((joueurId) => {
+        const joueur = joueurs.find(j => j.id === joueurId);
+        html += `
+          <div style="margin-bottom: 0.5rem;">
+            <label style="display: block; font-size: 0.9rem; margin-bottom: 0.25rem;">${joueur ? joueur.nom : '—'}</label>
+            <input type="number" id="score-${joueurId}" placeholder="Score (ex: 50, -25)" />
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    function confirmNewMene() {
+      const tableId = document.getElementById("meneTableSelect").value;
+      const table = tables.find(t => t.id == tableId);
+      if (!table) return;
+      
       const scores = [];
-      for (let i = 0; i < selectedTable.joueursAffectes.length; i++) {
-        const joueur = joueurs.find(j => j.id === selectedTable.joueursAffectes[i]);
-        let score;
-        do {
-          score = prompt(`Score de ${joueur.nom}:`);
-          if (score === null) return;
-          score = parseInt(score.replace('+', ''));
-          if (isNaN(score)) alert("Nombre invalide");
-        } while (isNaN(score));
-        scores.push(score);
+      let isValid = true;
+      
+      table.joueursAffectes.forEach((joueurId) => {
+        const input = document.getElementById(`score-${joueurId}`);
+        const val = parseInt(input.value);
+        if (isNaN(val)) {
+          input.style.border = '1px solid var(--accent2)';
+          isValid = false;
+        } else {
+          input.style.border = '1px solid var(--border)';
+          scores.push(val);
+        }
+      });
+      
+      if (!isValid) {
+        alert("Veuillez remplir tous les scores avec des nombres valides.");
+        return;
       }
-      menes.push({ id: Date.now(), tableId: selectedTable.id, joueurs: selectedTable.joueursAffectes, scores: scores, date: new Date().toISOString() });
+      
+      menes.push({
+        id: Date.now(),
+        tableId: table.id,
+        joueurs: table.joueursAffectes,
+        scores: scores,
+        date: new Date().toISOString()
+      });
+      
       saveData();
       renderSaisie();
     }
@@ -451,7 +500,6 @@
       saveData();
       renderSaisie();
     }
-
     // ========== RENDU RÉSULTATS ==========
     function renderResultats() {
       if (menes.length === 0) {
