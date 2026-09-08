@@ -1,1 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABJE Tarot - Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .login-container {
+      background: #1e293b;
+      padding: 2rem;
+      border-radius: 1rem;
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+    }
+    .login-icon {
+      font-size: 5rem;
+      margin-bottom: 1rem;
+    }
+    h1 {
+      margin-bottom: 1rem;
+    }
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      border-radius: 0.5rem;
+      border: 1px solid #334155;
+      background: #0f172a;
+      color: white;
+      box-sizing: border-box;
+    }
+    .btn-primary {
+      width: 100%;
+      padding: 0.75rem;
+      margin-top: 1rem;
+      background: linear-gradient(135deg, #f59e0b, #ef4444);
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .error {
+      color: #ef4444;
+      margin: 0.5rem 0;
+    }
+    .qr-section {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: #0f172a;
+      border-radius: 0.75rem;
+      border: 1px solid #334155;
+    }
+    .qr-section img {
+      border-radius: 0.5rem;
+      border: 2px solid #334155;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-icon">🃏</div>
+    <h1>ABJE Tarot</h1>
+    <p>Gestion de club de Tarot</p>
+    <form id="loginForm">
+      <input type="text" id="login" placeholder="Login (admin/abje)" required autocomplete="username">
+      <input type="password" id="password" placeholder="Mot de passe" required autocomplete="current-password">
+      <div id="loginError" class="error"></div>
+      <button type="submit" class="btn-primary">Se connecter</button>
+    </form>
+    <div class="qr-section">
+      <p>Accès mobile :</p>
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://abjetarot-prog.github.io/ABJE2026/&bgcolor=1e293b&color=f8fafc" alt="QR Code" width="150">
+      <p><a href="https://abjetarot-prog.github.io/ABJE2026/" style="color: #f59e0b;" target="_blank">abjetarot-prog.github.io/ABJE2026/</a></p>
+    </div>
+  </div>
 
+  <script>
+    const ADMIN_PASSWORD = "Tass6gny";
+    const ABJE_PASSWORD = "0309";
+
+    document.getElementById("loginForm").onsubmit = function(e) {
+      e.preventDefault();
+      const login = document.getElementById("login").value.trim().toLowerCase();
+      const password = document.getElementById("password").value;
+      const errorEl = document.getElementById("loginError");
+
+      if ((login === "admin" && password === ADMIN_PASSWORD) || (login === "abje" && password === ABJE_PASSWORD)) {
+        errorEl.textContent = "";
+        alert("Connexion réussie ! Bienvenue, " + login + " !");
+      } else {
+        errorEl.textContent = "Login ou mot de passe incorrect";
+      }
+    };
+  </script>
+</body>
+</html>
