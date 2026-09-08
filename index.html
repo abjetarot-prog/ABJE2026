@@ -207,6 +207,13 @@
     }
     .present-badge.on { background: var(--success); color: white; }
     .present-badge.off { background: var(--border); color: var(--text-muted); }
+    /* Badge date du jour */
+.date-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: var(--bg); border: 1px solid var(--accent1);
+  border-radius: 0.5rem; padding: 0.4rem 0.8rem;
+  font-size: 0.85rem; color: var(--accent1);
+}
   </style>
 </head>
 <body>
@@ -259,7 +266,16 @@
       "garde_sans": { mult: 4, label: "Garde sans" },
       "garde_contre": { mult: 6, label: "Garde contre" }
     };
-
+// ========== UTILITAIRES DATE ==========
+function aujourdhui() {
+  return new Date().toDateString();
+}
+function formatDateLong(date) {
+  const jours = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+  const mois = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+  const d = new Date(date);
+  return jours[d.getDay()] + ' ' + d.getDate() + ' ' + mois[d.getMonth()] + ' ' + d.getFullYear();
+}
     // ========== DONNÉES ==========
     let user = JSON.parse(localStorage.getItem("abje_user")) || null;
     let joueurs = JSON.parse(localStorage.getItem("abje_joueurs")) || [
@@ -349,9 +365,10 @@
 
     // ========== RENDU ACCUEIL ==========
     function renderAccueil() {
-      const tablesCompletes = tables.filter(t =>
-        t.joueursAffectes && t.joueursAffectes.length === t.nbJoueurs
-      ).length;
+      const tablesDuJour = tables.filter(t => t.date === aujourdhui());
+const tablesCompletes = tablesDuJour.filter(t =>
+  t.joueursAffectes && t.joueursAffectes.length === t.nbJoueurs
+).length;
       document.getElementById("app").innerHTML = `
         <div style="text-align: center; padding: 2rem;">
           <h2>Bienvenue, ${user.role} !</h2>
@@ -365,7 +382,7 @@
               <button onclick="showTab('presents')" class="btn btn-secondary" style="margin-top: 1rem;">Présence</button>
             </div>
             <div class="card">
-              <h3>🎲 ${tables.length} Tables</h3>
+              <h3>🎲 ${tablesDuJour.length} Tables</h3>
               <p>${tablesCompletes} complètes</p>
               <button onclick="showTab('tables')" class="btn btn-secondary" style="margin-top: 1rem;">Gérer</button>
             </div>
@@ -515,77 +532,109 @@
       saveData();
       renderMembres();
     }
+// ========== HELPERS TABLES ==========
+function getTablesDuJour() {
+  return tables.filter(t => t.date === aujourdhui());
+}
 
+function estJoueurAffecteAilleurs(joueurId, tableIndexIgnore) {
+  return getTablesDuJour().some((t, i) => {
+    if (i === tableIndexIgnore) return false;
+    return t.joueursAffectes && t.joueursAffectes.includes(joueurId);
+  });
+}
+
+function getJoueursDisposPourTable(tableIndex) {
+  const table = tables[tableIndex];
+  const dejaAffectes = table.joueursAffectes || [];
+  return joueurs.filter(j =>
+    j.disponible &&
+    !dejaAffectes.includes(j.id) &&
+    !estJoueurAffecteAilleurs(j.id, tableIndex)
+  );
+}
     // ========== RENDU TABLES ==========
-    function renderTables() {
-      document.getElementById("app").innerHTML = `
-        <div style="padding: 1rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h2>🎲 Tables (${tables.length})</h2>
-            <button onclick="createTable()" class="btn btn-primary" style="width: auto; margin: 0;">+ Nouvelle table</button>
-          </div>
-          <div id="create-table-form" class="card" style="display: none; margin-bottom: 1rem;">
-            <h3 style="margin-bottom: 0.5rem;">Nouvelle table</h3>
-            <input type="number" id="newTableNb" placeholder="Nombre de joueurs (4-7)" min="4" max="7" />
-            <button onclick="confirmCreateTable()" class="btn btn-primary" style="margin-top: 0.5rem;">Créer</button>
-          </div>
-          ${tables.length === 0 ? `
-            <div style="text-align: center; color: var(--text-muted);">
-              <p>Aucune table créée.</p>
-            </div>
-          ` : tables.map((t, index) => `
-            <div class="card">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                <h3 style="margin: 0;">Table n°${t.numero} (${t.nbJoueurs} joueurs)</h3>
-                <button onclick="deleteTable(${index})"
-                  style="background: var(--accent2); color: white; border: none;
-                  border-radius: 0.25rem; padding: 0.25rem 0.5rem; cursor: pointer;">×</button>
-              </div>
-              <p style="margin: 0 0 0.5rem 0; color: var(--text-muted);">
-                Joueurs affectés: ${t.joueursAffectes ? t.joueursAffectes.length : 0}/${t.nbJoueurs}
-              </p>
-              ${t.joueursAffectes && t.joueursAffectes.length > 0 ? `
-                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
-                  ${t.joueursAffectes.map((joueurId, jIndex) => {
-                    const joueur = joueurs.find(j => j.id === joueurId);
-                    return joueur ? `
-                      <span style="background: var(--bg); padding: 0.25rem 0.5rem;
-                        border-radius: 0.5rem; font-size: 0.85rem; display: flex;
-                        align-items: center; gap: 0.25rem;">
-                        ${joueur.nom}
-                        <button onclick="retirerJoueurTable(${index}, ${jIndex})"
-                          style="background: var(--accent2); color: white; border: none;
-                          border-radius: 50%; width: 1.2rem; height: 1.2rem; padding: 0;
-                          cursor: pointer; font-size: 0.7rem; display: flex;
-                          align-items: center; justify-content: center;">×</button>
-                      </span>
-                    ` : '';
-                  }).join('')}
-                </div>
-              ` : ''}
-              <button onclick="toggleAffectation(${index})" class="btn btn-primary" style="margin-top: 0.75rem; width: 100%;">
-                ${t.joueursAffectes && t.joueursAffectes.length === t.nbJoueurs ? '✅ Table complète' : '+ Affecter joueurs'}
-              </button>
-              <div id="affectation-form-${index}" class="card" style="display: none; margin-top: 1rem; background: var(--bg);">
-                <h4 style="margin-bottom: 0.5rem;">Joueurs disponibles :</h4>
-                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                  ${joueurs.filter(j => j.disponible && !t.joueursAffectes.includes(j.id)).length === 0
-                    ? '<p style="color: var(--text-muted); font-size: 0.9rem;">Aucun joueur disponible</p>'
-                    : joueurs.filter(j => j.disponible && !t.joueursAffectes.includes(j.id)).map(j => `
-                      <button onclick="affecterJoueur(${index}, ${j.id})"
-                        style="background: var(--card-bg); color: var(--text);
-                        border: 1px solid var(--border); padding: 0.5rem; cursor: pointer;
-                        text-align: left; border-radius: 0.5rem;">
-                        + ${j.nom}
-                      </button>
-                    `).join('')}
-                </div>
-              </div>
-            </div>
-          `).join('')}
+   function renderTables() {
+  const tablesDuJour = getTablesDuJour();
+  document.getElementById("app").innerHTML = `
+    <div style="padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <h2>🎲 Tables du jour</h2>
+        <button onclick="createTable()" class="btn btn-primary" style="width: auto; margin: 0;">+ Nouvelle table</button>
+      </div>
+      <div class="date-badge" style="margin-bottom: 1rem;">
+        📅 ${formatDateLong(new Date())}
+      </div>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+        Les tables ne sont ouvertes que pour aujourd'hui. Seuls les membres présents
+        et non encore affectés à une autre table peuvent être sélectionnés.
+      </p>
+      <div id="create-table-form" class="card" style="display: none; margin-bottom: 1rem;">
+        <h3 style="margin-bottom: 0.5rem;">Nouvelle table</h3>
+        <input type="number" id="newTableNb" placeholder="Nombre de joueurs (4-7)" min="4" max="7" />
+        <button onclick="confirmCreateTable()" class="btn btn-primary" style="margin-top: 0.5rem;">Créer</button>
+      </div>
+      ${tablesDuJour.length === 0 ? `
+        <div style="text-align: center; color: var(--text-muted); padding: 2rem;">
+          <p>Aucune table ouverte pour aujourd'hui.</p>
         </div>
-      `;
-    }
+      ` : tablesDuJour.map((t) => {
+        const index = tables.indexOf(t);
+        const placesRestantes = t.nbJoueurs - (t.joueursAffectes ? t.joueursAffectes.length : 0);
+        return `
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <h3 style="margin: 0;">Table n°${t.numero} (${t.nbJoueurs} joueurs)</h3>
+            <button onclick="deleteTable(${index})"
+              style="background: var(--accent2); color: white; border: none;
+              border-radius: 0.25rem; padding: 0.25rem 0.5rem; cursor: pointer;">×</button>
+          </div>
+          <p style="margin: 0 0 0.5rem 0; color: var(--text-muted);">
+            Joueurs affectés: ${t.joueursAffectes ? t.joueursAffectes.length : 0}/${t.nbJoueurs}
+            ${placesRestantes > 0 ? `• ${placesRestantes} place(s) restante(s)` : '• ✅ Complète'}
+          </p>
+          ${t.joueursAffectes && t.joueursAffectes.length > 0 ? `
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+              ${t.joueursAffectes.map((joueurId, jIndex) => {
+                const joueur = joueurs.find(j => j.id === joueurId);
+                return joueur ? `
+                  <span style="background: var(--bg); padding: 0.25rem 0.5rem;
+                    border-radius: 0.5rem; font-size: 0.85rem; display: flex;
+                    align-items: center; gap: 0.25rem;">
+                    ${joueur.nom}
+                    <button onclick="retirerJoueurTable(${index}, ${jIndex})"
+                      style="background: var(--accent2); color: white; border: none;
+                      border-radius: 50%; width: 1.2rem; height: 1.2rem; padding: 0;
+                      cursor: pointer; font-size: 0.7rem; display: flex;
+                      align-items: center; justify-content: center;">×</button>
+                  </span>
+                ` : '';
+              }).join('')}
+            </div>
+          ` : ''}
+          <button onclick="toggleAffectation(${index})" class="btn btn-primary" style="margin-top: 0.75rem; width: 100%;">
+            ${t.joueursAffectes && t.joueursAffectes.length === t.nbJoueurs ? '✅ Table complète' : '+ Affecter joueurs'}
+          </button>
+          <div id="affectation-form-${index}" class="card" style="display: none; margin-top: 1rem; background: var(--bg);">
+            <h4 style="margin-bottom: 0.5rem;">Joueurs disponibles :</h4>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+              ${getJoueursDisposPourTable(index).length === 0
+                ? '<p style="color: var(--text-muted); font-size: 0.9rem;">Aucun joueur disponible</p>'
+                : getJoueursDisposPourTable(index).map(j => `
+                  <button onclick="affecterJoueur(${index}, ${j.id})"
+                    style="background: var(--card-bg); color: var(--text);
+                    border: 1px solid var(--border); padding: 0.5rem; cursor: pointer;
+                    text-align: left; border-radius: 0.5rem;">
+                    + ${j.nom}
+                  </button>
+                `).join('')}
+            </div>
+          </div>
+        </div>
+      `;}).join('')}
+    </div>
+  `;
+}
     function createTable() {
       document.getElementById("create-table-form").style.display = "block";
       document.getElementById("newTableNb").focus();
@@ -593,7 +642,7 @@
     function confirmCreateTable() {
       const nb = parseInt(document.getElementById("newTableNb").value);
       if (nb && [4,5,6,7].includes(nb)) {
-        tables.push({ id: Date.now(), numero: tables.length + 1, nbJoueurs: nb, joueursAffectes: [] });
+        tables.push({ id: Date.now(), numero: tables.length + 1, nbJoueurs: nb, joueursAffectes: [], date: aujourdhui() });
         saveData();
         renderTables();
       } else {
