@@ -127,7 +127,13 @@
     <button id="logout-btn" class="btn-primary" style="display: none;">Déconnexion</button>
   </header>
 
-  <main id="app"></main>
+<nav id="nav-tabs" style="display: none;">
+  <button class="nav-tab active" data-tab="accueil" onclick="showTab('accueil')">🏠 Accueil</button>
+  <button class="nav-tab" data-tab="joueurs" onclick="showTab('joueurs')">👥 Joueurs</button>
+  <button class="nav-tab" data-tab="tables" onclick="showTab('tables')">🎲 Tables</button>
+  <button class="nav-tab" data-tab="resultats" onclick="showTab('resultats')">🏆 Résultats</button>
+</nav>
+
 
   <script>
   // ========== CONSTANTES ==========
