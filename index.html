@@ -154,6 +154,23 @@
   <main id="app"></main>
 
   <script>
+    // ========== DONNÉES ==========
+let user = JSON.parse(localStorage.getItem("abje_user")) || null;
+let joueurs = JSON.parse(localStorage.getItem("abje_joueurs")) || [
+  { id: Date.now(), nom: "Tarot ABJE", disponible: true },
+  { id: Date.now() + 1, nom: "Joueur 2", disponible: true },
+  { id: Date.now() + 2, nom: "Joueur 3", disponible: true }
+];
+let tables = JSON.parse(localStorage.getItem("abje_tables")) || [];
+let menes = JSON.parse(localStorage.getItem("abje_menes")) || []; // <-- Ajoutez cette ligne
+
+// ========== SAUVEGARDE ==========
+function saveData() {
+  localStorage.setItem("abje_user", JSON.stringify(user));
+  localStorage.setItem("abje_joueurs", JSON.stringify(joueurs));
+  localStorage.setItem("abje_tables", JSON.stringify(tables));
+  localStorage.setItem("abje_menes", JSON.stringify(menes)); // <-- Ajoutez cette ligne
+}
     // ========== CONSTANTES ==========
     const ADMIN_PASSWORD = "Tass6gny";
     const ABJE_PASSWORD = "0309";
@@ -249,23 +266,170 @@
       `;
     }
 
-    function renderJoueurs() {
-      document.getElementById("app").innerHTML = `
-        <div style="text-align: center; padding: 2rem;">
-          <h2>👥 Joueurs</h2>
-          <p>Fonctionnalité à implémenter.</p>
-        </div>
-      `;
-    }
+    // ========== DONNÉES JOUEURS ==========
+let joueurs = JSON.parse(localStorage.getItem("abje_joueurs")) || [
+  { id: Date.now(), nom: "Tarot ABJE", disponible: true },
+  { id: Date.now() + 1, nom: "Joueur 2", disponible: true },
+  { id: Date.now() + 2, nom: "Joueur 3", disponible: true }
+];
 
-    function renderTables() {
-      document.getElementById("app").innerHTML = `
-        <div style="text-align: center; padding: 2rem;">
-          <h2>🎲 Tables</h2>
-          <p>Fonctionnalité à implémenter.</p>
+// ========== FONCTIONS JOUEURS ==========
+function renderJoueurs() {
+  document.getElementById("app").innerHTML = `
+    <div style="padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2>👥 Joueurs (${joueurs.length})</h2>
+        <button onclick="showAddJoueur()" class="btn-primary">+ Nouveau</button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+        ${joueurs.map(j => `
+          <div style="background: var(--card-bg); padding: 1rem; border-radius: 0.5rem; border: 1px solid var(--border);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <h3 style="margin: 0; font-size: 1rem;">${j.nom}</h3>
+              <button onclick="toggleDispo('${j.id}')" style="background: ${j.disponible ? 'var(--accent1)' : 'var(--border)'}; color: white; border: none; border-radius: 0.25rem; padding: 0.25rem 0.5rem; cursor: pointer;">
+                ${j.disponible ? '✅' : '❌'}
+              </button>
+            </div>
+            <button onclick="deleteJoueur('${j.id}')" style="background: var(--accent2); color: white; border: none; border-radius: 0.25rem; padding: 0.25rem 0.5rem; margin-top: 0.5rem; cursor: pointer;">
+              Supprimer
+            </button>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function showAddJoueur() {
+  const nom = prompt("Nom du nouveau joueur :");
+  if (nom && nom.trim()) {
+    joueurs.push({ id: Date.now(), nom: nom.trim(), disponible: true });
+    saveData();
+    renderJoueurs();
+  }
+}
+
+function toggleDispo(id) {
+  joueurs = joueurs.map(j => j.id === id ? { ...j, disponible: !j.disponible } : j);
+  saveData();
+  renderJoueurs();
+}
+
+function deleteJoueur(id) {
+  if (confirm("Supprimer ce joueur ?")) {
+    joueurs = joueurs.filter(j => j.id !== id);
+    saveData();
+    renderJoueurs();
+  }
+}
+
+    // ========== DONNÉES TABLES ==========
+let tables = JSON.parse(localStorage.getItem("abje_tables")) || [];
+
+// ========== FONCTIONS TABLES ==========
+function renderTables() {
+  document.getElementById("app").innerHTML = `
+    <div style="padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2>🎲 Tables (${tables.length})</h2>
+        <button onclick="showCreateTable()" class="btn-primary">+ Nouvelle table</button>
+      </div>
+
+      ${tables.length === 0 ? `
+        <div style="text-align: center; color: var(--text-muted);">
+          <p>Aucune table créée.</p>
         </div>
-      `;
-    }
+      ` : tables.map(t => `
+        <div style="background: var(--card-bg); padding: 1rem; border-radius: 0.5rem; border: 1px solid var(--border); margin-bottom: 1rem;">
+          <h3 style="margin: 0 0 0.5rem 0;">Table n°${t.numero} (${t.nbJoueurs} joueurs)</h3>
+          <p style="margin: 0 0 0.5rem 0; color: var(--text-muted);">
+            Joueurs affectés: ${t.joueursAffectes ? t.joueursAffectes.length : 0}/${t.nbJoueurs}
+          </p>
+          <div style="display: flex; gap: 0.5rem;">
+            <button onclick="affecterJoueursATable('${t.id}')" class="btn-primary" style="flex: 1;">+ Affecter joueurs</button>
+            <button onclick="deleteTable('${t.id}')" style="background: var(--accent2); color: white; border: none; border-radius: 0.25rem; padding: 0.5rem; cursor: pointer; flex: 1;">Supprimer</button>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function showCreateTable() {
+  let nbJoueurs = prompt("Nombre de joueurs (4-7) :");
+  if (nbJoueurs && [4,5,6,7].includes(parseInt(nbJoueurs))) {
+    const tableCounter = tables.length + 1;
+    tables.push({
+      id: Date.now(),
+      numero: tableCounter,
+      nbJoueurs: parseInt(nbJoueurs),
+      joueursAffectes: []
+    });
+    saveData();
+    renderTables();
+  } else {
+    alert("Veuillez entrer un nombre entre 4 et 7.");
+  }
+}
+
+function deleteTable(id) {
+  if (confirm("Supprimer cette table ?")) {
+    tables = tables.filter(t => t.id !== id);
+    saveData();
+    renderTables();
+  }
+}
+
+// ========== AFFECTATION JOUEURS ==========
+function affecterJoueursATable(tableId) {
+  const table = tables.find(t => t.id === tableId);
+  if (!table) return;
+
+  if (!table.joueursAffectes) table.joueursAffectes = [];
+
+  if (table.joueursAffectes.length >= table.nbJoueurs) {
+    alert(`Cette table est déjà complète (${table.nbJoueurs} joueurs max).`);
+    return;
+  }
+
+  const joueursDisponibles = joueurs.filter(j =>
+    j.disponible && !table.joueursAffectes.includes(j.id)
+  );
+
+  if (joueursDisponibles.length === 0) {
+    alert("Aucun joueur disponible à affecter !");
+    return;
+  }
+
+  let message = "Sélectionnez les joueurs à affecter :\n\n";
+  joueursDisponibles.forEach((j, index) => {
+    message += `${index + 1}. ${j.nom}\n`;
+  });
+
+  const choix = prompt(message + "\n(Entrez les numéros séparés par des virgules ou 'annuler')");
+  if (choix === null || choix.toLowerCase() === "annuler") return;
+
+  const indices = choix.split(',').map(i => parseInt(i.trim()) - 1);
+  const joueursSelectionnes = indices
+    .filter(i => i >= 0 && i < joueursDisponibles.length)
+    .map(i => joueursDisponibles[i].id);
+
+  if (joueursSelectionnes.length === 0) {
+    alert("Aucun joueur valide sélectionné !");
+    return;
+  }
+
+  if (table.joueursAffectes.length + joueursSelectionnes.length > table.nbJoueurs) {
+    alert(`Trop de joueurs sélectionnés ! Maximum : ${table.nbJoueurs - table.joueursAffectes.length}`);
+    return;
+  }
+
+  table.joueursAffectes.push(...joueursSelectionnes);
+  saveData();
+  renderTables();
+  alert(`✅ ${joueursSelectionnes.length} joueur(s) affecté(s) à la table n°${table.numero} !`);
+}
 
     function renderResultats() {
       document.getElementById("app").innerHTML = `
@@ -275,7 +439,121 @@
         </div>
       `;
     }
+function renderSaisie() {
+  const tablesAvecJoueurs = tables.filter(t => t.joueursAffectes && t.joueursAffectes.length === t.nbJoueurs);
 
+  if (tablesAvecJoueurs.length === 0) {
+    document.getElementById("app").innerHTML = `
+      <div style="text-align: center; padding: 2rem;">
+        <h2>✏️ Saisie des résultats</h2>
+        <p>Aucune table complète (${tables.length > 0 ? 'les tables existantes ne sont pas pleines' : 'aucune table créée'}).</p>
+        <p>Créez une table et affectez des joueurs d'abord.</p>
+        <button onclick="showTab('tables')" class="btn-primary">Aller aux tables</button>
+      </div>
+    `;
+    return;
+  }
+function showNewMene() {
+  const tablesAvecJoueurs = tables.filter(t => t.joueursAffectes && t.joueursAffectes.length === t.nbJoueurs);
+
+  if (tablesAvecJoueurs.length === 0) {
+    alert("Aucune table complète n'est prête pour une mène !");
+    return;
+  }
+
+  let message = "Sélectionnez une table pour la nouvelle mène :\n\n";
+  tablesAvecJoueurs.forEach((t, index) => {
+    message += `${index + 1}. Table n°${t.numero} (${t.joueursAffectes.map(id => joueurs.find(j => j.id === id).nom).join(', ')})\n`;
+  });
+
+  const choixTable = prompt(message + "\n(Entrez le numéro ou 'annuler')");
+  if (choixTable === null || choixTable.toLowerCase() === "annuler") return;
+
+  const tableIndex = parseInt(choixTable) - 1;
+  if (tableIndex < 0 || tableIndex >= tablesAvecJoueurs.length) {
+    alert("Numéro de table invalide !");
+    return;
+  }
+
+  const selectedTable = tablesAvecJoueurs[tableIndex];
+  const scores = [];
+
+  for (let i = 0; i < selectedTable.joueursAffectes.length; i++) {
+    const joueur = joueurs.find(j => j.id === selectedTable.joueursAffectes[i]);
+    let score;
+    do {
+      score = prompt(`Score de ${joueur.nom} (ex: +50, -25, 0):`);
+      if (score === null) return;
+      score = parseInt(score.replace('+', ''));
+      if (isNaN(score)) {
+        alert("Veuillez entrer un nombre valide (ex: 50, -25, 0)");
+      }
+    } while (isNaN(score));
+    scores.push(score);
+  }
+
+  menes.push({
+    id: Date.now(),
+    tableId: selectedTable.id,
+    tableNumero: selectedTable.numero,
+    joueurs: selectedTable.joueursAffectes,
+    scores: scores,
+    date: new Date().toISOString()
+  });
+
+  saveData();
+  renderSaisie();
+  alert("✅ Mène enregistrée avec succès !");
+}
+
+function deleteMene(index) {
+  if (confirm("Êtes-vous sûr de vouloir supprimer cette mène ?")) {
+    menes.splice(index, 1);
+    saveData();
+    renderSaisie();
+  }
+}
+  let html = `
+    <div style="padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2>✏️ Saisie des résultats</h2>
+        <button onclick="showNewMene()" class="btn-primary">+ Nouvelle mène</button>
+      </div>
+      <div style="display: grid; gap: 1rem;">
+  `;
+
+  menes.forEach((mene, index) => {
+    const table = tables.find(t => t.id === mene.tableId);
+    html += `
+      <div style="background: var(--card-bg); padding: 1rem; border-radius: 0.5rem; border: 1px solid var(--border);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <h3 style="margin: 0;">Mène n°${index + 1} - Table n°${table ? table.numero : 'inconnue'}</h3>
+          <button onclick="deleteMene(${index})" style="background: var(--accent2); color: white; border: none; border-radius: 0.25rem; padding: 0.25rem 0.5rem; cursor: pointer;">×</button>
+        </div>
+        <p style="margin: 0 0 0.5rem 0; color: var(--text-muted);">Date: ${new Date(mene.date).toLocaleString('fr-FR')}</p>
+        <div style="display: grid; grid-template-columns: repeat(${mene.joueurs.length}, 1fr); gap: 0.5rem; margin-top: 0.5rem;">
+          ${mene.joueurs.map((joueurId, i) => {
+            const joueur = joueurs.find(j => j.id === joueurId);
+            return `
+              <div style="text-align: center; padding: 0.5rem; background: var(--bg); border-radius: 0.5rem;">
+                <div style="font-weight: bold; font-size: 0.8rem;">${joueur ? joueur.nom : '—'}</div>
+                <div style="color: ${mene.scores[i] >= 0 ? 'var(--accent1)' : 'var(--accent2)'};">${mene.scores[i] >= 0 ? '+' : ''}${mene.scores[i]}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+        <p style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">Total: ${mene.scores.reduce((a, b) => a + b, 0)}</p>
+      </div>
+    `;
+  });
+
+  if (menes.length === 0) {
+    html += `<p style="text-align: center; color: var(--text-muted);">Aucune mène enregistrée.</p>`;
+  }
+
+  html += `</div></div>`;
+  document.getElementById("app").innerHTML = html;
+}
     function logout() {
       user = null;
       saveData();
