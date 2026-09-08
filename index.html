@@ -412,7 +412,7 @@ function renderTables() {
 }
 // Fonction pour l'onglet Saisie
 function renderSaisie() {
-  // Fonction pour ajouter une nouvelle mène
+// Fonction pour ajouter une nouvelle mène
 function showNewMene() {
   alert("Fonctionnalité à implémenter plus tard.");
 }
@@ -421,6 +421,10 @@ function showNewMene() {
 function deleteMene(index) {
   alert("Fonctionnalité à implémenter plus tard.");
 }
+function showNewMene() {
+  alert("Fonctionnalité à implémenter plus tard.");
+}
+
   // Filtrer les tables avec des joueurs affectés
   const tablesAvecJoueurs = tables.filter(t => t.joueursAffectes && t.joueursAffectes.length > 0);
 
@@ -692,19 +696,7 @@ function annulerAffectation() {
   if (modal) modal.remove();
 }
 
- 
-    // Fonction pour affecter des joueurs à une table
-
   }
-
-  // Créer une liste de choix
-  let message = "Sélectionnez un joueur à affecter à la table n°" + table.numero + " :\n\n";
-  joueursDisponibles.forEach((j, index) => {
-    message += `${index + 1}. ${j.nom}\n`;
-  });
-
- }
-// Fonction pour supprimer une table
 function deleteTable(id) {
   if (confirm("Êtes-vous sûr de vouloir supprimer cette table ?")) {
     tables = tables.filter(t => t.id !== id);
@@ -713,7 +705,7 @@ function deleteTable(id) {
   } // ✅ ACCOLADE FERMANTE AJOUTÉE
 }
 
- // ========== INITIALISATION ==========
+// ========== INITIALISATION ==========
 document.addEventListener('DOMContentLoaded', renderApp);
     }
   </script>
