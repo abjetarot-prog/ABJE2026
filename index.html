@@ -49,20 +49,77 @@
     </form>
   </div>
 
-  <script>
+ <script>
+  // ========== CONSTANTES ==========
+  const ADMIN_PASSWORD = "Tass6gny";
+  const ABJE_PASSWORD = "0309";
+
+  // ========== DONNÉES ==========
+  let user = JSON.parse(localStorage.getItem("abje_user")) || null;
+
+  // ========== SAUVEGARDE ==========
+  function saveData() {
+    localStorage.setItem("abje_user", JSON.stringify(user));
+  }
+
+  // ========== RENDU ==========
+  function renderLogin() {
+    document.getElementById("app").innerHTML = `
+      <div class="login-box">
+        <h1>🃏 ABJE Tarot</h1>
+        <form id="loginForm">
+          <input type="text" id="login" placeholder="Login (admin/abje)" required>
+          <input type="password" id="password" placeholder="Mot de passe" required>
+          <div id="loginError" class="error"></div>
+          <button type="submit">Se connecter</button>
+        </form>
+      </div>
+    `;
+
     document.getElementById("loginForm").onsubmit = function(e) {
       e.preventDefault();
-      const login = document.getElementById("login").value;
+      const login = document.getElementById("login").value.trim().toLowerCase();
       const password = document.getElementById("password").value;
       const errorEl = document.getElementById("loginError");
 
-      if ((login === "admin" && password === "Tass6gny") || (login === "abje" && password === "0309")) {
+      if ((login === "admin" && password === ADMIN_PASSWORD) || (login === "abje" && password === ABJE_PASSWORD)) {
+        user = { role: login };
         errorEl.textContent = "";
-        alert("Connecté !");
+        saveData();
+        renderApp();  // <-- Appel à renderApp() après connexion
       } else {
         errorEl.textContent = "Login ou mot de passe incorrect";
       }
     };
-  </script>
+  }
+
+  function renderApp() {
+    if (!user) {
+      renderLogin();
+      document.getElementById("nav-tabs").style.display = "none";
+      document.getElementById("logout-btn").style.display = "none";
+    } else {
+      // Affiche le contenu de l'app après connexion
+      document.getElementById("app").innerHTML = `
+        <div style="text-align: center;">
+          <h2>Bienvenue, ${user.role} !</h2>
+          <p>Vous êtes connecté.</p>
+          <button onclick="logout()" class="btn-primary">Déconnexion</button>
+        </div>
+      `;
+      document.getElementById("nav-tabs").style.display = "none";
+      document.getElementById("logout-btn").style.display = "none";
+    }
+  }
+
+  function logout() {
+    user = null;
+    saveData();
+    renderApp();
+  }
+
+  // ========== INITIALISATION ==========
+  document.addEventListener('DOMContentLoaded', renderApp);
+</script>
 </body>
 </html>
