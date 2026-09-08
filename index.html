@@ -1,125 +1,212 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>ABJE Tarot - Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABJE Tarot</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #0f172a;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --accent1: #f59e0b;
+      --accent2: #ef4444;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
     }
-    .login-box {
-      background: #1e293b;
-      padding: 2rem;
-      border-radius: 1rem;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .logo-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+    main {
+      flex: 1;
+      max-width: 800px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .login-container {
+      max-width: 500px;
+      margin: 2rem auto;
       text-align: center;
+      padding: 2rem;
+      background: var(--card-bg);
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+    }
+    .login-icon {
+      font-size: 5rem;
+      margin-bottom: 1rem;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 1rem;
+      width: 100%;
+      margin-top: 1rem;
     }
     input {
-      display: block;
-      margin: 1rem auto;
-      padding: 0.5rem;
-      width: 200px;
+      width: 100%;
+      padding: 0.75rem;
       border-radius: 0.5rem;
-      border: none;
+      border: 1px solid var(--border);
+      background: #0f172a;
+      color: var(--text);
+      font-size: 1rem;
+      margin: 0.5rem 0;
+    }
+    .error {
+      color: var(--accent2);
+      font-size: 0.9rem;
+      margin: 0.5rem 0;
+    }
+    .qr-section {
+      margin: 1.5rem auto;
+      padding: 1rem;
+      background: var(--bg);
+      border-radius: 0.75rem;
+      border: 1px solid var(--border);
+      max-width: 300px;
+    }
+    .app-content {
+      text-align: center;
     }
     button {
-      padding: 0.5rem 1rem;
-      background: #f59e0b;
+      padding: 0.75rem 1.5rem;
       border: none;
       border-radius: 0.5rem;
+      font-weight: 600;
       cursor: pointer;
+      font-size: 0.95rem;
     }
-    .error { color: #ef4444; }
   </style>
 </head>
 <body>
-  <div class="login-box">
-    <h1>🃏 ABJE Tarot</h1>
-    <form id="loginForm">
-      <input type="text" id="login" placeholder="Login" required>
-      <input type="password" id="password" placeholder="Mot de passe" required>
-      <div id="loginError" class="error"></div>
-      <button type="submit">Se connecter</button>
-    </form>
-  </div>
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🃏</div>
+      <span>ABJE Tarot</span>
+    </div>
+    <button id="logout-btn" class="btn-primary" style="display: none;">Déconnexion</button>
+  </header>
 
- <script>
-  // ========== CONSTANTES ==========
-  const ADMIN_PASSWORD = "Tass6gny";
-  const ABJE_PASSWORD = "0309";
+  <main id="app"></main>
 
-  // ========== DONNÉES ==========
-  let user = JSON.parse(localStorage.getItem("abje_user")) || null;
+  <script>
+    // ========== CONSTANTES ==========
+    const ADMIN_PASSWORD = "Tass6gny";
+    const ABJE_PASSWORD = "0309";
+    const APP_URL = "https://abjetarot-prog.github.io/ABJE2026/";
 
-  // ========== SAUVEGARDE ==========
-  function saveData() {
-    localStorage.setItem("abje_user", JSON.stringify(user));
-  }
+    // ========== DONNÉES ==========
+    let user = JSON.parse(localStorage.getItem("abje_user")) || null;
 
-  // ========== RENDU ==========
-  function renderLogin() {
-    document.getElementById("app").innerHTML = `
-      <div class="login-box">
-        <h1>🃏 ABJE Tarot</h1>
-        <form id="loginForm">
-          <input type="text" id="login" placeholder="Login (admin/abje)" required>
-          <input type="password" id="password" placeholder="Mot de passe" required>
-          <div id="loginError" class="error"></div>
-          <button type="submit">Se connecter</button>
-        </form>
-      </div>
-    `;
+    // ========== SAUVEGARDE ==========
+    function saveData() {
+      localStorage.setItem("abje_user", JSON.stringify(user));
+    }
 
-    document.getElementById("loginForm").onsubmit = function(e) {
-      e.preventDefault();
-      const login = document.getElementById("login").value.trim().toLowerCase();
-      const password = document.getElementById("password").value;
-      const errorEl = document.getElementById("loginError");
-
-      if ((login === "admin" && password === ADMIN_PASSWORD) || (login === "abje" && password === ABJE_PASSWORD)) {
-        user = { role: login };
-        errorEl.textContent = "";
-        saveData();
-        renderApp();  // <-- Appel à renderApp() après connexion
-      } else {
-        errorEl.textContent = "Login ou mot de passe incorrect";
-      }
-    };
-  }
-
-  function renderApp() {
-    if (!user) {
-      renderLogin();
-      document.getElementById("nav-tabs").style.display = "none";
-      document.getElementById("logout-btn").style.display = "none";
-    } else {
-      // Affiche le contenu de l'app après connexion
+    // ========== RENDU ==========
+    function renderLogin() {
       document.getElementById("app").innerHTML = `
-        <div style="text-align: center;">
-          <h2>Bienvenue, ${user.role} !</h2>
-          <p>Vous êtes connecté.</p>
-          <button onclick="logout()" class="btn-primary">Déconnexion</button>
+        <div class="login-container">
+          <div class="login-icon">🃏</div>
+          <h1>ABJE Tarot</h1>
+          <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Gestion de club de Tarot</p>
+
+          <form id="loginForm">
+            <input type="text" id="login" placeholder="Login (admin/abje)" required autocomplete="username">
+            <input type="password" id="password" placeholder="Mot de passe" required autocomplete="current-password">
+            <div id="loginError" class="error"></div>
+            <button type="submit" class="btn-primary">Se connecter</button>
+          </form>
+
+          <div class="qr-section">
+            <p style="margin-bottom: 0.75rem; color: var(--text-muted);">Accès mobile :</p>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(APP_URL)}&bgcolor=1e293b&color=f8fafc"
+                 alt="QR Code ABJE Tarot" width="150" style="border-radius: 0.5rem; border: 2px solid var(--border); margin: 0 auto; display: block;">
+            <p style="margin-top: 0.75rem; font-size: 0.8rem;">
+              <a href="${APP_URL}" style="color: var(--accent1);" target="_blank">${APP_URL.replace('https://', '')}</a>
+            </p>
+          </div>
         </div>
       `;
-      document.getElementById("nav-tabs").style.display = "none";
-      document.getElementById("logout-btn").style.display = "none";
+
+      document.getElementById("loginForm").onsubmit = function(e) {
+        e.preventDefault();
+        const login = document.getElementById("login").value.trim().toLowerCase();
+        const password = document.getElementById("password").value;
+        const errorEl = document.getElementById("loginError");
+
+        if ((login === "admin" && password === ADMIN_PASSWORD) || (login === "abje" && password === ABJE_PASSWORD)) {
+          user = { role: login };
+          errorEl.textContent = "";
+          saveData();
+          renderApp(); // Passe à l'app après connexion
+        } else {
+          errorEl.textContent = "Login ou mot de passe incorrect";
+        }
+      };
     }
-  }
 
-  function logout() {
-    user = null;
-    saveData();
-    renderApp();
-  }
+    function renderApp() {
+      if (!user) {
+        renderLogin();
+        document.getElementById("logout-btn").style.display = "none";
+      } else {
+        document.getElementById("app").innerHTML = `
+          <div class="app-content">
+            <h2>Bienvenue, ${user.role} !</h2>
+            <p>Vous êtes connecté à l'application ABJE Tarot.</p>
+          </div>
+        `;
+        document.getElementById("logout-btn").style.display = "block";
+        document.getElementById("logout-btn").onclick = logout;
+      }
+    }
 
-  // ========== INITIALISATION ==========
-  document.addEventListener('DOMContentLoaded', renderApp);
-</script>
+    function logout() {
+      user = null;
+      saveData();
+      renderApp();
+    }
+
+    // ========== INITIALISATION ==========
+    document.addEventListener('DOMContentLoaded', renderApp);
+  </script>
 </body>
 </html>
