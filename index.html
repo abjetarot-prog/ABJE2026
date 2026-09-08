@@ -235,7 +235,7 @@
       `;
     }
 
-    // ========== RENDU JOUEURS ==========
+       // ========== RENDU JOUEURS ==========
     function renderJoueurs() {
       document.getElementById("app").innerHTML = `
         <div style="padding: 1rem;">
@@ -244,15 +244,15 @@
             <button onclick="showAddJoueur()" class="btn-primary" style="width: auto; margin: 0;">+ Nouveau</button>
           </div>
           <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
-            ${joueurs.map(j => `
+            ${joueurs.map((j, index) => `
               <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                   <h3 style="margin: 0; font-size: 1rem;">${j.nom}</h3>
-                  <button onclick="toggleDispo(${j.id})" style="background: ${j.disponible ? 'var(--accent1)' : 'var(--border)'}; color: white; border: none; border-radius: 0.25rem; padding: 0.25rem 0.5rem; cursor: pointer;">
+                  <button onclick="toggleDispo(${index})" style="background: ${j.disponible ? 'var(--accent1)' : 'var(--border)'}; color: white; border: none; border-radius: 0.25rem; padding: 0.25rem 0.5rem; cursor: pointer;">
                     ${j.disponible ? '✅' : '❌'}
                   </button>
                 </div>
-                <button onclick="deleteJoueur(${j.id})" style="background: var(--accent2); color: white; border: none; border-radius: 0.25rem; padding: 0.25rem 0.5rem; margin-top: 0.5rem; cursor: pointer; width: 100%;">
+                <button onclick="deleteJoueur(${index})" style="background: var(--accent2); color: white; border: none; border-radius: 0.25rem; padding: 0.25rem 0.5rem; margin-top: 0.5rem; cursor: pointer; width: 100%;">
                   Supprimer
                 </button>
               </div>
@@ -271,15 +271,15 @@
       }
     }
 
-    function toggleDispo(id) {
-      joueurs = joueurs.map(j => j.id === id ? { ...j, disponible: !j.disponible } : j);
+    function toggleDispo(index) {
+      joueurs[index].disponible = !joueurs[index].disponible;
       saveData();
       renderJoueurs();
     }
 
-    function deleteJoueur(id) {
+    function deleteJoueur(index) {
       if (confirm("Supprimer ce joueur ?")) {
-        joueurs = joueurs.filter(j => j.id !== id);
+        joueurs.splice(index, 1);
         saveData();
         renderJoueurs();
       }
