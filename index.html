@@ -412,13 +412,11 @@ function renderTables() {
 }
 // Fonction pour l'onglet Saisie
 function renderSaisie() {
-function showNewMene() {
-  alert("Fonctionnalité à implémenter plus tard.");
-}
-
+// Fonction pour l'onglet Saisie
+function renderSaisie() {
   // Filtrer les tables avec des joueurs affectés
   const tablesAvecJoueurs = tables.filter(t => t.joueursAffectes && t.joueursAffectes.length > 0);
-
+  
   if (tablesAvecJoueurs.length === 0) {
     document.getElementById("app").innerHTML = `
       <div class="card" style="text-align: center;">
@@ -557,6 +555,15 @@ function renderResultats() {
     <div class="card">
       <h2>🏆 Résultats</h2>
       <p>Fonctionnalité à implémenter.</p>
+      // Fonction pour ajouter une nouvelle mène (simplifiée)
+function showNewMene() {
+  alert("Fonctionnalité à implémenter plus tard.");
+}
+
+// Fonction pour supprimer une mène (simplifiée)
+function deleteMene(index) {
+  alert("Fonctionnalité à implémenter plus tard.");
+}
     </div>
   `;
 }
@@ -696,8 +703,6 @@ function deleteTable(id) {
 
 // ========== INITIALISATION ==========
 document.addEventListener('DOMContentLoaded', renderApp);
-}
-  
   
   </script>
 </body>
