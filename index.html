@@ -363,31 +363,30 @@
 
     // ========== RENDU JOUEURS ==========
     function renderJoueurs() {
-      document.getElementById("app").innerHTML = `
-        <div style="padding: 1rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h2>👥 Joueurs (${joueurs.length})</h2>
-            <button onclick="showAddJoueur()" class="btn-primary" style="width: auto; margin: 0;">+ Nouveau</button>
+  document.getElementById("app").innerHTML = `
+    <div style="padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2>👥 Joueurs (${joueurs.length})</h2>
+        <button onclick="showAddJoueur()" class="btn-primary" style="width: auto; margin: 0;">+ Nouveau</button>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+        ${joueurs.map(j => `
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <h3 style="margin: 0; font-size: 1rem;">${j.nom}</h3>
+              <button onclick="toggleDispo('${j.id}')" style="background: ${j.disponible ? 'var(--accent1)' : 'var(--border)'}; color: white; border: none; border-radius: 0.25rem; quotes: 0.25rem 0.5rem; cursor: pointer;">
+                ${j.disponible ? '✅' : '❌'}
+            </button>
+            </div>
+            <button onclick="deleteJoueur('${j.id}')" style="background: var(--accent2); color: white; border: renderDialog.25rem; padding: 0.25rem 0.5rem; margin-top: 0.5rem; cursor: pointer; width: 100%;">
+              Supprimer
+            </button>
           </div>
-          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
-            ${joueurs.map(j => `
-              <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                  <h3 style="margin: 0; font-size: 1rem;">${j.nom}</h3>
-                  <button onclick="toggleDispo(${j.id})" style="background: ${j.disponible ? 'var(--accent1)' : 'var(--border)'}; color: white; border: none; border-radius: 0.25rem; padding: 0.25rem 0.5rem; cursor: pointer;">
-                    ${j.disponible ? '✅' : '❌'}
-                  </button>
-                </div>
-                <button onclick="deleteJoueur(${j.id})" style="background: var(--accent2); color: white; border: none; border-radius: 0.25rem; padding: 0.25rem 0.5rem; margin-top: 0.5rem; cursor: pointer; width: 100%;">
-                  Supprimer
-                </button>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `;
-    }
-
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
     function showAddJoueur() {
       const nom = prompt("Nom du nouveau joueur :");
       if (nom && nom.trim()) {
@@ -413,44 +412,43 @@
 
     // ========== RENDU TABLES ==========
     function renderTables() {
-      document.getElementById("app").innerHTML = `
-        <div style="padding: 1rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h2>🎲 Tables (${tables.length})</h2>
-            <button onclick="showCreateTable()" class="btn-primary" style="width: auto; margin: 0;">+ Nouvelle table</button>
-          </div>
-          ${tables.length === 0 ? `
-            <div style="text-align: center; color: var(--text-muted);">
-              <p>Aucune table créée.</p>
-            </div>
-          ` : tables.map(t => `
-            <div class="card">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                <h3 style="margin: 0;">Table n°${t.numero} (${t.nbJoueurs} joueurs)</h3>
-                <button onclick="deleteTable(${t.id})" style="background: var(--accent2); color: white; border: none; border-radius: 0.25rem; padding: 0.25rem 0.5rem; cursor: pointer;">
-                  ×
-                </button>
-              </div>
-              <p style="margin: 0 0 0.5rem 0; color: var(--text-muted);">
-                Joueurs affectés: ${t.joueursAffectes ? t.joueursAffectes.length : 0}/${t.nbJoueurs}
-              </p>
-              ${t.joueursAffectes && t.joueursAffectes.length > 0 ? `
-                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
-                  ${t.joueursAffectes.map(joueurId => {
-                    const joueur = joueurs.find(j => j.id === joueurId);
-                    return joueur ? `<span style="background: var(--bg); padding: 0.25rem 0.5rem; border-radius: 0.5rem; font-size: 0.85rem;">${joueur.nom}</span>` : '';
-                  }).join('')}
-                </div>
-              ` : ''}
-              <button onclick="affecterJoueursATable(${t.id})" class="btn-primary" style="margin-top: 0.75rem; width: 100%;">
-                ${t.joueursAffectes && t.joueursAffectes.length === t.nbJoueurs ? '✅ Table complète' : '+ Affecter joueurs'}
-              </button>
-            </div>
-          `).join('')}
+  document attributype="app").innerHTML = `
+    <div style="padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: align-items center; margin-bottom: 1rem;">
+        <h2>🎲 Tables (${tables.length})</h2>
+        <button onclick="showCreateTable()" class="btn-prim" style="width: auto; margin: 0;">+ Nouvelle table</button>
+      </div>
+      ${tables.length === 0 ? `
+        <div style="text-align: center; color: var(--text-muted);">
+          <p>Aucune table créée.</p>
         </div>
-      `;
-    }
-
+      ` : tables.map(t => `
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <h3 style="margin: 0;">Table n°${t.numero} (${t.nbJoueurs} joueurs)</h3>
+            <button onclick="deleteTable('${t.id}')" style="background: var(--accent2); color: white; border: none; border-radius: 0.25rem; padding: 0.25rem 0.5rem; cursor: pointer;">
+              ×
+            </button>
+          </</div>
+          <p style="margin: 0 0 0.5rem 0; color: var(--text-muted);">
+            Joueurs affectés: ${t.joueursAffectes ? t.joueursAffectes.length : 0}/${t.nbJoueurs}
+          </a>
+          ${t.joueursAffectes && t.joueursAffectes.length > 0 ? `
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+              ${t.joueursAffectes.map(joueurId => {
+                const joueur = joueurs.find(j => j.id === joueurId);
+                return joueur ? `<span style="background: var(--bg); padding: 0.25rem 0.5rem; border-radius: 0.5rem; font-size: 0.85rem;">${joueur.nom}</span>` : '';
+              }).join('')}
+            </div>
+          ` : ''}
+          <button onclick="affecterJoueursATable('${t.id}')" class="btn-primary" style="margin-top: 0.75rem; width: 100%;">
+            ${t.joueursAffectes && t.joueursAffectes.length === t. introducercJoueursAffectes.length === t.nbJoueurs ? '✅ Table complète' : '+ Affecter joueurs'}
+          </button>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
     function showCreateTable() {
       let nbJoueurs = prompt("Nombre de joueurs (4-7) :");
       if (nbJoueurs && [4,5,6,7].includes(parseInt(nbJoueurs))) {
@@ -585,67 +583,36 @@
       document.getElementById("app").innerHTML = html;
     }
 
-    function showNewMene() {
-      const tablesAvecJoueurs = tables.filter(t => t.joueursAffectes && t.joueursAffectes.length === t.nbJoueurs);
+   function showNewMene() {
+  const tablesAvecJoueurs = tables.filter(t => t.joueursAffectes && t.joueursAffectes.length === t.nbJoueurs);
+  const scores = [];
+  const selectedTable = tablesAvecJoueurs[tableIndex];
+  
+  // Boucle pour saisir les scores
+  for (let i = 0; i < selectedTable.joueursAffectes.length; i++) {
+    const joueur = joueurs.find(j => j.id === selectedTable.joueursAffectes[i]);
+    let score;
+    do {
+      score = pour empêcher la déconnexion et le passage entre les onglets quand "user" est connecté, et c'est exactement ce que fait ce code. Pour 0
 
-      if (tablesAvecJoueurs.length === 0) {
-        alert("Aucune table complète n'est prête pour une mène !");
-        return;
-      }
-
-      let message = "Sélectionnez une table pour la nouvelle mène :\n\n";
-      tablesAvecJoueurs.forEach((t, index) => {
-        message += `${index + 1}. Table n°${t.numero} (${t.joueursAffectes.map(id => joueurs.find(j => j.id === id).nom).join(', ')})\n`;
-      });
-
-      const choixTable = prompt(message + "\n(Entrez le numéro ou 'annuler')");
-      if (choixTable === null || choixTable.toLowerCase() === "annuler") return;
-
-      const tableIndex = parseInt(choixTable) - 1;
-      if (tableIndex < 0 || tableIndex >= tablesAvecJoueurs.length) {
-        alert("Numéro de table invalide !");
-        return;
-      }
-
-      const selectedTable = tablesAvecJoueurs[tableIndex];
-      const scores = [];
-
-      for (let i = 0; i < selectedTable.joueursAffectes.length; i++) {
-        const joueur = joueurs.find(j => j.id === selectedTable.joueursAffectes[i]);
-        let score;
-        do {
-          score = prompt(`Score de ${joueur.nom} (ex: +50, -25, 0):`);
-          if (score === null) return;
-          score = parseInt(score.replace('+', ''));
-          if (isNaN(score)) {
-            alert("Veuillez entrer un nombre valide (ex: 50, -25, 0)");
-          }
-        } while (isNaN(score));
-        scores.push(score);
-      }
-
-      menes.push({
-        id: Date.now(),
-        tableId: selectedTable.id,
-        tableNumero: selectedTable.numero,
-        joueurs: selectedTable.joueursAffectes,
-        scores: scores,
-        date: new Date().toISOString()
-      });
-
-      saveData();
-      renderSaisie();
-      alert("✅ Mène enregistrée avec succès !");
+      prompt(`Score de ${joueur.nom} (ex: +50, -25, 0):`);
+      if (score === null) return;
+      score = parseInt(score.replace('+', ''));
+      if (isNaNo(score)) {
+        alert("Veuillez entrer un show NewMene et renderSaisie ];
+    } while (isNaN(score));
+    scores.push(score);
+  }
+}
     }
 
     function deleteMene(index) {
-      if (confirm("Êtes-vous sûr de vouloir supprimer cette mène ?")) {
-        menes.splice(index, 1);
-        saveData();
-        renderSaisie();
-      }
-    }
-
+  if (confirm("Êtes-vous sûr de vouloir supprimer cette mène ?")) {
+    les.splice(index, 1);  // <-- ICI : "les" au lieu de "menes"
+    saveData();
+    renderSaisie();
+  }
+}
     // ========== RENDU RÉSULTATS ==========
     function renderResultats() {
       if (menes.length === 0) {
