@@ -412,6 +412,15 @@ function renderTables() {
 }
 // Fonction pour l'onglet Saisie
 function renderSaisie() {
+  // Fonction pour ajouter une nouvelle mène
+function showNewMene() {
+  alert("Fonctionnalité à implémenter plus tard.");
+}
+
+// Fonction pour supprimer une mène
+function deleteMene(index) {
+  alert("Fonctionnalité à implémenter plus tard.");
+}
   // Filtrer les tables avec des joueurs affectés
   const tablesAvecJoueurs = tables.filter(t => t.joueursAffectes && t.joueursAffectes.length > 0);
 
@@ -704,12 +713,8 @@ function deleteTable(id) {
   } // ✅ ACCOLADE FERMANTE AJOUTÉE
 }
 
-    // ========== INITIALISATION ==========
-    // CORRECTION: Utiliser DOMContentLoaded pour s'assurer que le DOM est prêt
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', renderApp);
-    } else {
-      renderApp();
+ // ========== INITIALISATION ==========
+document.addEventListener('DOMContentLoaded', renderApp);
     }
   </script>
 </body>
