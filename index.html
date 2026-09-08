@@ -1,1 +1,289 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABJE Tarot</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --accent1: #f59e0b;
+      --accent2: #ef4444;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .logo-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+    main {
+      flex: 1;
+      max-width: 800px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .login-container {
+      max-width: 500px;
+      margin: 2rem auto;
+      text-align: center;
+      padding: 2rem;
+      background: var(--card-bg);
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+    }
+    .login-icon {
+      font-size: 5rem;
+      margin-bottom: 1rem;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 1rem;
+      width: 100%;
+      margin-top: 1rem;
+    }
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border);
+      background: #0f172a;
+      color: var(--text);
+      font-size: 1rem;
+      margin: 0.5rem 0;
+    }
+    .error {
+      color: var(--accent2);
+      font-size: 0.9rem;
+      margin: 0.5rem 0;
+    }
+    .qr-section {
+      margin: 1.5rem auto;
+      padding: 1rem;
+      background: var(--bg);
+      border-radius: 0.75rem;
+      border: 1px solid var(--border);
+      max-width: 300px;
+    }
+    #logout-btn {
+      background: var(--accent2) !important;
+      color: white !important;
+    }
+    /* Style pour les onglets */
+    #nav-tabs {
+      display: flex;
+      justify-content: center;
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 0.5rem 0;
+      margin-bottom: 1rem;
+    }
+    .nav-tab {
+      padding: 0.75rem 1.5rem;
+      background: transparent;
+      color: var(--text);
+      border: none;
+      border-radius: 0.5rem 0.5rem 0 0;
+      cursor: pointer;
+      margin: 0 0.25rem;
+      font-size: 0.95rem;
+    }
+    .nav-tab.active {
+      background: var(--bg);
+      color: var(--accent1);
+      border-bottom: 2px solid var(--accent1);
+    }
+    .nav-tab:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🃏</div>
+      <span>ABJE Tarot</span>
+    </div>
+    <button id="logout-btn" class="btn-primary" style="display: none;">Déconnexion</button>
+  </header>
 
+  <nav id="nav-tabs" style="display: none;">
+    <button class="nav-tab active" onclick="showTab('accueil')">🏠 Accueil</button>
+    <button class="nav-tab" onclick="showTab('joueurs')">👥 Joueurs</button>
+    <button class="nav-tab" onclick="showTab('tables')">🎲 Tables</button>
+    <button class="nav-tab" onclick="showTab('resultats')">🏆 Résultats</button>
+  </nav>
+
+  <main id="app"></main>
+
+  <script>
+    // ========== CONSTANTES ==========
+    const ADMIN_PASSWORD = "Tass6gny";
+    const ABJE_PASSWORD = "0309";
+    const APP_URL = "https://abjetarot-prog.github.io/ABJE2026/";
+
+    // ========== DONNÉES ==========
+    let user = JSON.parse(localStorage.getItem("abje_user")) || null;
+
+    // ========== SAUVEGARDE ==========
+    function saveData() {
+      localStorage.setItem("abje_user", JSON.stringify(user));
+    }
+
+    // ========== FONCTIONS DE RENDU ==========
+    function renderLogin() {
+      document.getElementById("app").innerHTML = `
+        <div class="login-container">
+          <div class="login-icon">🃏</div>
+          <h1>ABJE Tarot</h1>
+          <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Gestion de club de Tarot</p>
+
+          <form id="loginForm">
+            <input type="text" id="login" placeholder="Login (admin/abje)" required autocomplete="username">
+            <input type="password" id="password" placeholder="Mot de passe" required autocomplete="current-password">
+            <div id="loginError" class="error"></div>
+            <button type="submit" class="btn-primary">Se connecter</button>
+          </form>
+
+          <div class="qr-section">
+            <p style="margin-bottom: 0.75rem; color: var(--text-muted);">Accès mobile :</p>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(APP_URL)}&bgcolor=1e293b&color=f8fafc"
+                 alt="QR Code ABJE Tarot" width="150" style="border-radius: 0.5rem; border: 2px solid var(--border); margin: 0 auto; display: block;">
+            <p style="margin-top: 0.75rem; font-size: 0.8rem;">
+              <a href="${APP_URL}" style="color: var(--accent1);" target="_blank">${APP_URL.replace('https://', '')}</a>
+            </p>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("loginForm").onsubmit = function(e) {
+        e.preventDefault();
+        const login = document.getElementById("login").value.trim().toLowerCase();
+        const password = document.getElementById("password").value;
+        const errorEl = document.getElementById("loginError");
+
+        if ((login === "admin" && password === ADMIN_PASSWORD) || (login === "abje" && password === ABJE_PASSWORD)) {
+          user = { role: login };
+          errorEl.textContent = "";
+          saveData();
+          renderApp();
+        } else {
+          errorEl.textContent = "Login ou mot de passe incorrect";
+        }
+      };
+    }
+
+    function renderApp() {
+      if (!user) {
+        renderLogin();
+        document.getElementById("nav-tabs").style.display = "none";
+        document.getElementById("logout-btn").style.display = "none";
+      } else {
+        document.getElementById("nav-tabs").style.display = "flex";
+        document.getElementById("logout-btn").style.display = "block";
+        document.getElementById("logout-btn").onclick = logout;
+        showTab('accueil');
+      }
+    }
+
+    function showTab(tab) {
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      const activeTab = Array.from(document.querySelectorAll('.nav-tab')).find(
+        t => t.getAttribute('onclick').includes(tab)
+      );
+      if (activeTab) activeTab.classList.add('active');
+
+      const contentMap = {
+        accueil: renderAccueil,
+        joueurs: renderJoueurs,
+        tables: renderTables,
+        resultats: renderResultats
+      };
+
+      if (contentMap[tab]) contentMap[tab]();
+    }
+
+    function renderAccueil() {
+      document.getElementById("app").innerHTML = `
+        <div style="text-align: center; padding: 2rem;">
+          <h2>Bienvenue, ${user.role} !</h2>
+          <p>Vous êtes connecté à l'application ABJE Tarot.</p>
+        </div>
+      `;
+    }
+
+    function renderJoueurs() {
+      document.getElementById("app").innerHTML = `
+        <div style="text-align: center; padding: 2rem;">
+          <h2>👥 Joueurs</h2>
+          <p>Fonctionnalité à implémenter.</p>
+        </div>
+      `;
+    }
+
+    function renderTables() {
+      document.getElementById("app").innerHTML = `
+        <div style="text-align: center; padding: 2rem;">
+          <h2>🎲 Tables</h2>
+          <p>Fonctionnalité à implémenter.</p>
+        </div>
+      `;
+    }
+
+    function renderResultats() {
+      document.getElementById("app").innerHTML = `
+        <div style="text-align: center; padding: 2rem;">
+          <h2>🏆 Résultats</h2>
+          <p>Fonctionnalité à implémenter.</p>
+        </div>
+      `;
+    }
+
+    function logout() {
+      user = null;
+      saveData();
+      renderApp();
+    }
+
+    // ========== INITIALISATION ==========
+    document.addEventListener('DOMContentLoaded', renderApp);
+  </script>
+</body>
+</html>
