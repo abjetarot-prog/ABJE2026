@@ -1,1 +1,509 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABJE Tarot</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --accent1: #f59e0b;
+      --accent2: #ef4444;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; display: flex; flex-direction: column;
+    }
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem; background: var(--card-bg); border-bottom: 1px solid var(--border);
+    }
+    .logo { display: flex; align-items: center; gap: 0.75rem; }
+    .logo-icon {
+      width: 2.5rem; height: 2.5rem;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      border-radius: 0.75rem; display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: bold;
+    }
+    main { flex: 1; max-width: 1200px; width: 100%; margin: 0 auto; padding: 1rem; }
+    .login-container {
+      max-width: 500px; margin: 2rem auto; text-align: center;
+      padding: 2rem; background: var(--card-bg); border-radius: 1rem; border: 1px solid var(--border);
+    }
+    .login-icon { font-size: 5rem; margin-bottom: 1rem; }
+    .qr-section {
+      margin: 1.5rem auto; padding: 1rem; background: var(--bg);
+      border-radius: 0.75rem; border: 1px solid var(--border); max-width: 300px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 0.5rem;
+      font-weight: 600; cursor: pointer; font-size: 0.95rem; width: 100%; margin-top: 1rem;
+    }
+    button {
+      padding: 0.5rem 1rem; border: none; border-radius: 0.5rem;
+      font-weight: 600; cursor: pointer; font-size: 0.9rem;
+    }
+    #nav-tabs {
+      display: flex; justify-content: center; background: var(--card-bg);
+      border-bottom: 1px solid var(--border); padding: 0.5rem 0; margin-bottom: 1rem; flex-wrap: wrap;
+    }
+    .nav-tab {
+      padding: 0.75rem 1.5rem; background: transparent; color: var(--text);
+      border: none; border-radius: 0.5rem 0.5rem 0 0; cursor: pointer; margin: 0 0.25rem; font-size: 0.9rem;
+    }
+    .nav-tab.active { background: var(--bg); color: var(--accent1); border-bottom: 2px solid var(--accent1); }
+    .nav-tab:hover { background: rgba(255, 255, 255, 0.05); }
+    #logout-btn { background: var(--accent2) !important; color: white !important; }
+    input {
+      width: 100%; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);
+      background: #0f172a; color: var(--text); font-size: 0.95rem; margin: 0.5rem 0;
+    }
+    .error { color: var(--accent2); font-size: 0.85rem; margin: 0.5rem 0; }
+    .card {
+      background: var(--card-bg); border-radius: 0.75rem; padding: 1rem;
+      margin-bottom: 1rem; border: 1px solid var(--border);
+    }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { padding: 0.75rem; border: 1px solid var(--border); text-align: left; }
+    th { background: var(--card-bg); }
+    tr:nth-child(even) { background: var(--bg); }
+    .score-positif { color: var(--accent1); }
+    .score-negatif { color: var(--accent2); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🃏</div>
+      <span>ABJE Tarot</span>
+    </div>
+    <button id="logout-btn" class="btn-primary" style="display: none;">Déconnexion</button>
+  </header>
 
+  <nav id="nav-tabs" style="display: none;">
+    <button class="nav-tab active" onclick="showTab('accueil')">🏠 Accueil</button>
+    <button class="nav-tab" onclick="showTab('joueurs')">👥 Joueurs</button>
+    <button class="nav-tab" onclick="showTab('tables')">🎲 Tables</button>
+    <button class="nav-tab" onclick="showTab('saisie')">✏️ Saisie</button>
+    <button class="nav-tab" onclick="showTab('resultats')">🏆 Résultats</button>
+  </nav>
+
+  <main id="app"></main>
+
+  <script>
+    // ========== CONSTANTES ==========
+    const ADMIN_PASSWORD = "Tass6gny";
+    const ABJE_PASSWORD = "0309";
+    const APP_URL = "https://abjetarot-prog.github.io/ABJE2026/";
+
+    // ========== DONNÉES ==========
+    let user = JSON.parse(localStorage.getItem("abje_user")) || null;
+    let joueurs = JSON.parse(localStorage.getItem("abje_joueurs")) || [
+      { id: 1, nom: "Joueur 1", disponible: true },
+      { id: 2, nom: "Joueur 2", disponible: true },
+      { id: 3, nom: "Joueur 3", disponible: true },
+      { id: 4, nom: "Joueur 4", disponible: true },
+      { id: 5, nom: "Joueur 5", disponible: true }
+    ];
+    let tables = JSON.parse(localStorage.getItem("abje_tables")) || [];
+    let menes = JSON.parse(localStorage.getItem("abje_menes")) || [];
+
+    // ========== SAUVEGARDE ==========
+    function saveData() {
+      localStorage.setItem("abje_user", JSON.stringify(user));
+      localStorage.setItem("abje_joueurs", JSON.stringify(joueurs));
+      localStorage.setItem("abje_tables", JSON.stringify(tables));
+      localStorage.setItem("abje_menes", JSON.stringify(menes));
+    }
+
+    // ========== RENDU LOGIN ==========
+    function renderLogin() {
+      document.getElementById("nav-tabs").style.display = "none";
+      document.getElementById("logout-btn").style.display = "none";
+      document.getElementById("app").innerHTML = `
+        <div class="login-container">
+          <div class="login-icon">🃏</div>
+          <h1>ABJE Tarot</h1>
+          <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Gestion de club de Tarot</p>
+          <form id="loginForm">
+            <input type="text" id="login" placeholder="Login (admin/abje)" required autocomplete="username">
+            <input type="password" id="password" placeholder="Mot de passe" required autocomplete="current-password">
+            <div id="loginError" class="error"></div>
+            <button type="submit" class="btn-primary">Se connecter</button>
+          </form>
+          <div class="qr-section">
+            <p style="margin-bottom: 0.75rem; color: var(--text-muted);">Accès mobile :</p>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(APP_URL)}&bgcolor=1e293b&color=f8fafc" alt="QR Code" width="150" style="border-radius: 0.5rem; border: 2px solid var(--border); margin: 0 auto; display: block;">
+            <p style="margin-top: 0.75rem; font-size: 0.8rem;">
+              <a href="${APP_URL}" style="color: var(--accent1);" target="_blank">${APP_URL.replace('https://', '')}</a>
+            </p>
+          </div>
+        </div>
+      `;
+      document.getElementById("loginForm").onsubmit = function(e) {
+        e.preventDefault();
+        const login = document.getElementById("login").value.trim().toLowerCase();
+        const password = document.getElementById("password").value;
+        const errorEl = document.getElementById("loginError");
+        if ((login === "admin" && password === ADMIN_PASSWORD) || (login === "abje" && password === ABJE_PASSWORD)) {
+          user = { role: login };
+          errorEl.textContent = "";
+          saveData();
+          renderApp();
+        } else {
+          errorEl.textContent = "Login ou mot de passe incorrect";
+        }
+      };
+    }
+
+    // ========== GESTION DES ONGLETS ==========
+    function showTab(tab) {
+      if (!user) { renderLogin(); return; }
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      const activeTab = Array.from(document.querySelectorAll('.nav-tab')).find(t => t.getAttribute('onclick').includes(tab));
+      if (activeTab) activeTab.classList.add('active');
+      if (tab === 'accueil') renderAccueil();
+      else if (tab === 'joueurs') renderJoueurs();
+      else if (tab === 'tables') renderTables();
+      else if (tab === 'saisie') renderSaisie();
+      else if (tab === 'resultats') renderResultats();
+    }
+
+    // ========== RENDU ACCUEIL ==========
+    function renderAccueil() {
+      document.getElementById("app").innerHTML = `
+        <div style="text-align: center; padding: 2rem;">
+          <h2>Bienvenue, ${user.role} !</h2>
+          <p>Gestion complète de votre club de Tarot.</p>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+            <div class="card">
+              <h3>👥 ${joueurs.length} Joueurs</h3>
+              <p>${joueurs.filter(j => j.disponible).length} disponibles</p>
+              <button onclick="showTab('joueurs')" style="margin-top: 1rem;">Gérer</button>
+            </div>
+            <div class="card">
+              <h3>🎲 ${tables.length} Tables</h3>
+              <p>${tables.filter(t => t.joueursAffectes && t.joueursAffectes.length === t.nbJoueurs).length} complètes</p>
+              <button onclick="showTab('tables')" style="margin-top: 1rem;">Gérer</button>
+            </div>
+            <div class="card">
+              <h3>✏️ ${menes.length} Mènes</h3>
+              <p>Enregistrées</p>
+              <button onclick="showTab('saisie')" style="margin-top: 1rem;">Voir</button>
+            </div>
+            <div class="card">
+              <h3>🏆 Classement</h3>
+              <p>Consultez les résultats</p>
+              <button onclick="showTab('resultats')" style="margin-top: 1rem;">Voir</button>
+            </div>
+          </div>
+          <button onclick="logout()" class="btn-primary" style="margin-top: 2rem; max-width: 300px;">Déconnexion</button>
+        </div>
+      `;
+    }
+
+    // ========== RENDU JOUEURS ==========
+    function renderJoueurs() {
+      document.getElementById("app").innerHTML = `
+        <div style="padding: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h2>👥 Joueurs (${joueurs.length})</h2>
+            <button onclick="addJoueur()" class="btn-primary" style="width: auto; margin: 0;">+ Nouveau</button>
+          </div>
+          <div id="add-joueur-form" class="card" style="display: none; margin-bottom: 1rem;">
+            <h3 style="margin-bottom: 0.5rem;">Nouveau joueur</h3>
+            <input type="text" id="newJoueurNom" placeholder="Nom du joueur" />
+            <button onclick="confirmAddJoueur()" class="btn-primary" style="margin-top: 0.5rem;">Ajouter</button>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+            ${joueurs.map((j, index) => `
+              <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                  <h3 style="margin: 0; font-size: 1rem;">${j.nom}</h3>
+                  <button onclick="toggleDispo(${index})" style="background: ${j.disponible ? 'var(--accent1)' : 'var(--border)'}; color: white; border: none; border-radius: 0.25rem; padding: 0.25rem 0.5rem; cursor: pointer;">
+                    ${j.disponible ? '✅' : '❌'}
+                  </button>
+                </div>
+                <button onclick="deleteJoueur(${index})" style="background: var(--accent2); color: white; border: none; border-radius: 0.25rem; padding: 0.25rem 0.5rem; margin-top: 0.5rem; cursor: pointer; width: 100%;">
+                  Supprimer
+                </button>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function addJoueur() {
+      document.getElementById("add-joueur-form").style.display = "block";
+      document.getElementById("newJoueurNom").focus();
+    }
+
+    function confirmAddJoueur() {
+      const nom = document.getElementById("newJoueurNom").value;
+      if (nom && nom.trim()) {
+        joueurs.push({ id: Date.now(), nom: nom.trim(), disponible: true });
+        saveData();
+        renderJoueurs();
+      }
+    }
+
+    function toggleDispo(index) {
+      joueurs[index].disponible = !joueurs[index].disponible;
+      saveData();
+      renderJoueurs();
+    }
+
+    function deleteJoueur(index) {
+      joueurs.splice(index, 1);
+      saveData();
+      renderJoueurs();
+    }
+
+    // ========== RENDU TABLES ==========
+    function renderTables() {
+      document.getElementById("app").innerHTML = `
+        <div style="padding: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h2>🎲 Tables (${tables.length})</h2>
+            <button onclick="createTable()" class="btn-primary" style="width: auto; margin: 0;">+ Nouvelle table</button>
+          </div>
+          <div id="create-table-form" class="card" style="display: none; margin-bottom: 1rem;">
+            <h3 style="margin-bottom: 0.5rem;">Nouvelle table</h3>
+            <input type="number" id="newTableNb" placeholder="Nombre de joueurs (4-7)" min="4" max="7" />
+            <button onclick="confirmCreateTable()" class="btn-primary" style="margin-top: 0.5rem;">Créer</button>
+          </div>
+          ${tables.length === 0 ? `
+            <div style="text-align: center; color: var(--text-muted);">
+              <p>Aucune table créée.</p>
+            </div>
+          ` : tables.map((t, index) => `
+            <div class="card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <h3 style="margin: 0;">Table n°${t.numero} (${t.nbJoueurs} joueurs)</h3>
+                <button onclick="deleteTable(${index})" style="background: var(--accent2); color: white; border: none; border-radius: 0.25rem; padding: 0.25rem 0.5rem; cursor: pointer;">×</button>
+              </div>
+              <p style="margin: 0 0 0.5rem 0; color: var(--text-muted);">
+                Joueurs affectés: ${t.joueursAffectes ? t.joueursAffectes.length : 0}/${t.nbJoueurs}
+              </p>
+              ${t.joueursAffectes && t.joueursAffectes.length > 0 ? `
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+                  ${t.joueursAffectes.map((joueurId, jIndex) => {
+                    const joueur = joueurs.find(j => j.id === joueurId);
+                    return joueur ? `
+                      <span style="background: var(--bg); padding: 0.25rem 0.5rem; border-radius: 0.5rem; font-size: 0.85rem; display: flex; align-items: center; gap: 0.25rem;">
+                        ${joueur.nom}
+                        <button onclick="retirerJoueurTable(${index}, ${jIndex})" style="background: var(--accent2); color: white; border: none; border-radius: 50%; width: 1.2rem; height: 1.2rem; padding: 0; cursor: pointer; font-size: 0.7rem; display: flex; align-items: center; justify-content: center;">×</button>
+                      </span>
+                    ` : '';
+                  }).join('')}
+                </div>
+              ` : ''}
+              <button onclick="toggleAffectation(${index})" class="btn-primary" style="margin-top: 0.75rem; width: 100%;">
+                ${t.joueursAffectes && t.joueursAffectes.length === t.nbJoueurs ? '✅ Table complète' : '+ Affecter joueurs'}
+              </button>
+              <div id="affectation-form-${index}" class="card" style="display: none; margin-top: 1rem; background: var(--bg);">
+                <h4 style="margin-bottom: 0.5rem;">Joueurs disponibles :</h4>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                  ${joueurs.filter(j => j.disponible && !t.joueursAffectes.includes(j.id)).length === 0 
+                    ? '<p style="color: var(--text-muted); font-size: 0.9rem;">Aucun joueur disponible</p>'
+                    : joueurs.filter(j => j.disponible && !t.joueursAffectes.includes(j.id)).map(j => `
+                      <button onclick="affecterJoueur(${index}, ${j.id})" style="background: var(--card-bg); color: var(--text); border: 1px solid var(--border); padding: 0.5rem; cursor: pointer; text-align: left; border-radius: 0.5rem;">
+                        + ${j.nom}
+                      </button>
+                    `).join('')}
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function createTable() {
+      document.getElementById("create-table-form").style.display = "block";
+      document.getElementById("newTableNb").focus();
+    }
+
+    function confirmCreateTable() {
+      const nb = parseInt(document.getElementById("newTableNb").value);
+      if (nb && [4,5,6,7].includes(nb)) {
+        tables.push({ id: Date.now(), numero: tables.length + 1, nbJoueurs: nb, joueursAffectes: [] });
+        saveData();
+        renderTables();
+      } else {
+        alert("Veuillez entrer un nombre entre 4 et 7.");
+      }
+    }
+
+    function deleteTable(index) {
+      tables.splice(index, 1);
+      saveData();
+      renderTables();
+    }
+
+    function toggleAffectation(index) {
+      const form = document.getElementById(`affectation-form-${index}`);
+      form.style.display = form.style.display === "none" ? "block" : "none";
+    }
+
+    function affecterJoueur(tableIndex, joueurId) {
+      const table = tables[tableIndex];
+      if (!table.joueursAffectes) table.joueursAffectes = [];
+      if (table.joueursAffectes.length >= table.nbJoueurs) {
+        alert("Table complète !");
+        return;
+      }
+      table.joueursAffectes.push(joueurId);
+      saveData();
+      renderTables();
+    }
+
+    function retirerJoueurTable(tableIndex, joueurIndex) {
+      tables[tableIndex].joueursAffectes.splice(joueurIndex, 1);
+      saveData();
+      renderTables();
+    }
+
+    // ========== RENDU SAISIE ==========
+    function renderSaisie() {
+      const tablesAvecJoueurs = tables.filter(t => t.joueursAffectes && t.joueursAffectes.length === t.nbJoueurs);
+      if (tablesAvecJoueurs.length === 0) {
+        document.getElementById("app").innerHTML = `
+          <div style="text-align: center; padding: 2rem;">
+            <h2>✏️ Saisie des résultats</h2>
+            <p>Aucune table complète.</p>
+            <button onclick="showTab('tables')" class="btn-primary" style="margin-top: 1rem; max-width: 300px;">Aller aux tables</button>
+          </div>
+        `;
+        return;
+      }
+      let html = `
+        <div style="padding: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h2>✏️ Saisie des résultats</h2>
+            <button onclick="showNewMene()" class="btn-primary" style="width: auto; margin: 0;">+ Nouvelle mène</button>
+          </div>
+          <div style="display: grid; gap: 1rem;">
+      `;
+      menes.forEach((mene, index) => {
+        const table = tables.find(t => t.id === mene.tableId);
+        html += `
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <h3 style="margin: 0;">Mène n°${index + 1} - Table n°${table ? table.numero : 'inconnue'}</h3>
+              <button onclick="deleteMene(${index})" style="background: var(--accent2); color: white; border: none; border-radius: 0.25rem; padding: 0.25rem 0.5rem; cursor: pointer;">×</button>
+            </div>
+            <p style="margin: 0 0 0.5rem 0; color: var(--text-muted);">Date: ${new Date(mene.date).toLocaleString('fr-FR')}</p>
+            <div style="display: grid; grid-template-columns: repeat(${mene.joueurs.length}, 1fr); gap: 0.5rem; margin-top: 0.5rem;">
+              ${mene.joueurs.map((joueurId, i) => {
+                const joueur = joueurs.find(j => j.id === joueurId);
+                return `<div style="text-align: center; padding: 0.5rem; background: var(--bg); border-radius: 0.5rem;">
+                  <div style="font-weight: bold; font-size: 0.8rem;">${joueur ? joueur.nom : '—'}</div>
+                  <div class="${mene.scores[i] >= 0 ? 'score-positif' : 'score-negatif'}">${mene.scores[i] >= 0 ? '+' : ''}${mene.scores[i]}</div>
+                </div>`;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      });
+      if (menes.length === 0) html += `<p style="text-align: center; color: var(--text-muted);">Aucune mène enregistrée.</p>`;
+      html += `</div></div>`;
+      document.getElementById("app").innerHTML = html;
+    }
+
+    function showNewMene() {
+      const tablesAvecJoueurs = tables.filter(t => t.joueursAffectes && t.joueursAffectes.length === t.nbJoueurs);
+      if (tablesAvecJoueurs.length === 0) { alert("Aucune table complète !"); return; }
+      let message = "Sélectionnez une table :\n\n";
+      tablesAvecJoueurs.forEach((t, index) => { message += `${index + 1}. Table n°${t.numero}\n`; });
+      const choixTable = prompt(message);
+      if (choixTable === null) return;
+      const tableIndex = parseInt(choixTable) - 1;
+      if (tableIndex < 0 || tableIndex >= tablesAvecJoueurs.length) { alert("Invalide !"); return; }
+      const selectedTable = tablesAvecJoueurs[tableIndex];
+      const scores = [];
+      for (let i = 0; i < selectedTable.joueursAffectes.length; i++) {
+        const joueur = joueurs.find(j => j.id === selectedTable.joueursAffectes[i]);
+        let score;
+        do {
+          score = prompt(`Score de ${joueur.nom}:`);
+          if (score === null) return;
+          score = parseInt(score.replace('+', ''));
+          if (isNaN(score)) alert("Nombre invalide");
+        } while (isNaN(score));
+        scores.push(score);
+      }
+      menes.push({ id: Date.now(), tableId: selectedTable.id, joueurs: selectedTable.joueursAffectes, scores: scores, date: new Date().toISOString() });
+      saveData();
+      renderSaisie();
+    }
+
+    function deleteMene(index) {
+      menes.splice(index, 1);
+      saveData();
+      renderSaisie();
+    }
+
+    // ========== RENDU RÉSULTATS ==========
+    function renderResultats() {
+      if (menes.length === 0) {
+        document.getElementById("app").innerHTML = `<div style="text-align: center; padding: 2rem;"><h2>🏆 Résultats</h2><p>Aucune mène enregistrée.</p></div>`;
+        return;
+      }
+      const scoresJoueurs = {};
+      menes.forEach(mene => {
+        mene.joueurs.forEach((joueurId, index) => {
+          const joueur = joueurs.find(j => j.id === joueurId);
+          if (joueur) {
+            if (!scoresJoueurs[joueur.id]) scoresJoueurs[joueur.id] = { nom: joueur.nom, total: 0, menes: 0 };
+            scoresJoueurs[joueur.id].total += mene.scores[index];
+            scoresJoueurs[joueur.id].menes += 1;
+          }
+        });
+      });
+      const classement = Object.values(scoresJoueurs).sort((a, b) => b.total - a.total);
+      let html = `
+        <div style="padding: 1rem;">
+          <h2>🏆 Classement général</h2>
+          <table>
+            <thead><tr><th>Position</th><th>Joueur</th><th style="text-align: right;">Total</th><th style="text-align: right;">Mènes</th><th style="text-align: right;">Moyenne</th></tr></thead>
+            <tbody>
+      `;
+      classement.forEach((j, index) => {
+        html += `<tr><td>${index + 1}</td><td>${j.nom}</td><td style="text-align: right;" class="${j.total >= 0 ? 'score-positif' : 'score-negatif'}">${j.total >= 0 ? '+' : ''}${j.total}</td><td style="text-align: right;">${j.menes}</td><td style="text-align: right;">${(j.total / j.menes).toFixed(1)}</td></tr>`;
+      });
+      html += `</tbody></table></div>`;
+      document.getElementById("app").innerHTML = html;
+    }
+
+    // ========== FONCTIONS PRINCIPALES ==========
+    function renderApp() {
+      if (!user) {
+        renderLogin();
+      } else {
+        document.getElementById("nav-tabs").style.display = "flex";
+        document.getElementById("logout-btn").style.display = "block";
+        document.getElementById("logout-btn").onclick = logout;
+        showTab('accueil');
+      }
+    }
+
+    function logout() {
+      user = null;
+      saveData();
+      renderLogin();
+    }
+
+    // ========== INITIALISATION ==========
+    document.addEventListener('DOMContentLoaded', renderApp);
+  </script>
+</body>
+</html>
