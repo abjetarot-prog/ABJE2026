@@ -1,186 +1,68 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ABJE Tarot</title>
+  <title>ABJE Tarot - Login</title>
   <style>
-    :root {
-      --bg: #0f172a;
-      --card-bg: #1e293b;
-      --accent1: #f59e0b;
-      --accent2: #ef4444;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
-      --border: #334155;
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem;
-      background: var(--card-bg);
-      border-bottom: 1px solid var(--border);
-    }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    .logo-icon {
-      width: 2.5rem;
-      height: 2.5rem;
-      background: linear-gradient(135deg, var(--accent1), var(--accent2));
-      border-radius: 0.75rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: bold;
-    }
-    main {
-      flex: 1;
-      max-width: 600px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 1rem;
-    }
-    .card {
-      background: var(--card-bg);
-      border-radius: 1rem;
-      padding: 1.5rem;
-      margin-bottom: 1rem;
-      border: 1px solid var(--border);
-    }
-    h1, h2, h3 {
-      margin: 0 0 1rem 0;
-      color: var(--text);
-      font-weight: 700;
-    }
-    button {
-      padding: 0.75rem 1.5rem;
-      border: none;
-      border-radius: 0.5rem;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 0.95rem;
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent1), var(--accent2));
-      color: white;
-    }
-    input {
-      width: 100%;
-      padding: 0.75rem;
-      border-radius: 0.5rem;
-      border: 1px solid var(--border);
+      font-family: Arial, sans-serif;
       background: #0f172a;
-      color: var(--text);
-      font-size: 1rem;
-      margin: 0.5rem 0;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
     }
-    .error {
-      color: var(--accent2);
-      font-size: 0.9rem;
-      margin: 0.5rem 0;
-    }
-    .login-container {
-      max-width: 400px;
-      margin: 2rem auto;
+    .login-box {
+      background: #1e293b;
+      padding: 2rem;
+      border-radius: 1rem;
       text-align: center;
     }
-    .login-icon {
-      font-size: 4rem;
-      margin-bottom: 1rem;
+    input {
+      display: block;
+      margin: 1rem auto;
+      padding: 0.5rem;
+      width: 200px;
+      border-radius: 0.5rem;
+      border: none;
     }
+    button {
+      padding: 0.5rem 1rem;
+      background: #f59e0b;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+    }
+    .error { color: #ef4444; }
   </style>
 </head>
 <body>
-  <header>
-    <div class="logo">
-      <div class="logo-icon">🃏</div>
-      <span>ABJE Tarot</span>
-    </div>
-    <button id="logout-btn" class="btn-primary" style="display: none;">Déconnexion</button>
-  </header>
-
-<nav id="nav-tabs" style="display: none;"></nav>
-
-  <main id="app"></main>
+  <div class="login-box">
+    <h1>🃏 ABJE Tarot</h1>
+    <form id="loginForm">
+      <input type="text" id="login" placeholder="Login" required>
+      <input type="password" id="password" placeholder="Mot de passe" required>
+      <div id="loginError" class="error"></div>
+      <button type="submit">Se connecter</button>
+    </form>
+  </div>
 
   <script>
-    // ========== CONSTANTES ==========
-    const ADMIN_PASSWORD = "Tass6gny";
-    const ABJE_PASSWORD = "0309";
+    document.getElementById("loginForm").onsubmit = function(e) {
+      e.preventDefault();
+      const login = document.getElementById("login").value;
+      const password = document.getElementById("password").value;
+      const errorEl = document.getElementById("loginError");
 
-    // ========== DONNÉES ==========
-    let user = JSON.parse(localStorage.getItem("abje_user")) || null;
-
-    // ========== SAUVEGARDE ==========
-    function saveData() {
-      localStorage.setItem("abje_user", JSON.stringify(user));
-    }
-
-    // ========== RENDU ==========
-    function renderLogin() {
-      document.getElementById("app").innerHTML = `
-        <div class="login-container">
-          <div class="login-icon">🃏</div>
-          <h1>ABJE Tarot</h1>
-          <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Gestion de club de Tarot</p>
-          <form id="loginForm">
-            <input type="text" id="login" placeholder="Login (admin/abje)" required autocomplete="username">
-            <input type="password" id="password" placeholder="Mot de passe" required autocomplete="current-password">
-            <div id="loginError" class="error"></div>
-            <button type="submit" class="btn-primary" style="width: 100%;">Se connecter</button>
-          </form>
-        </div>
-      `;
-
-      document.getElementById("loginForm").onsubmit = function(e) {
-        e.preventDefault();
-        const login = document.getElementById("login").value.trim().toLowerCase();
-        const password = document.getElementById("password").value;
-        const errorEl = document.getElementById("loginError");
-
-        if ((login === "admin" && password === ADMIN_PASSWORD) || (login === "abje" && password === ABJE_PASSWORD)) {
-          user = { role: login };
-          errorEl.textContent = "";
-          saveData();
-          renderApp();
-        } else {
-          errorEl.textContent = "Login ou mot de passe incorrect";
-        }
-      };
-    }
-
-    function renderApp() {
-      if (!user) {
-        renderLogin();
-        document.getElementById("nav-tabs").style.display = "none";
-        document.getElementById("logout-btn").style.display = "none";
+      if ((login === "admin" && password === "Tass6gny") || (login === "abje" && password === "0309")) {
+        errorEl.textContent = "";
+        alert("Connecté !");
       } else {
-        document.getElementById("nav-tabs").style.display = "flex";
-        document.getElementById("logout-btn").style.display = "block";
-        document.getElementById("logout-btn").onclick = () => {
-          user = null;
-          saveData();
-          renderApp();
-        };
+        errorEl.textContent = "Login ou mot de passe incorrect";
       }
-    }
-
-    // ========== INITIALISATION ==========
-    document.addEventListener('DOMContentLoaded', renderApp);
+    };
   </script>
 </body>
 </html>
