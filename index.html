@@ -1,4 +1,23 @@
-<!DOCTYPE html>
+/* Style pour les onglets */
+.nav-tab {
+  padding: 0.75rem 1.5rem;
+  background: var(--card-bg);
+  color: var(--text);
+  border: none;
+  border-radius: 0.5rem 0.5rem 0 0;
+  cursor: pointer;
+  margin-right: 0.5rem;
+}
+
+.nav-tab.active {
+  background: var(--bg);
+  color: var(--accent1);
+  border-bottom: 2px solid var(--accent1);
+}
+
+.nav-tab:hover {
+  background: rgba(255, 255, 255, 0.05);
+}<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
