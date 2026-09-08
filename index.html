@@ -410,13 +410,11 @@ function renderTables() {
     </div>
   `;
 }
-// Fonction pour l'onglet Saisie
-function renderSaisie() {
+
 // Fonction pour l'onglet Saisie
 function renderSaisie() {
   // Filtrer les tables avec des joueurs affectés
-  const tablesAvecJoueurs = tables.filter(t => t.joueursAffectes && t.joueursAffectes.length > 0);
-  
+  const tablesAvecJoueurs = tables.filter(t => t.joueursAffectes && t.joueursAffectes.length > 0)
   if (tablesAvecJoueurs.length === 0) {
     document.getElementById("app").innerHTML = `
       <div class="card" style="text-align: center;">
@@ -692,7 +690,8 @@ function confirmerAffectation(tableId) {
 function annulerAffectation() {
   const modal = document.getElementById("modal-affectation");
   if (modal) modal.remove();
-  
+}
+
 function deleteTable(id) {
   if (confirm("Êtes-vous sûr de vouloir supprimer cette table ?")) {
     tables = tables.filter(t => t.id !== id);
@@ -703,7 +702,3 @@ function deleteTable(id) {
 
 // ========== INITIALISATION ==========
 document.addEventListener('DOMContentLoaded', renderApp);
-  
-  </script>
-</body>
-</html>
