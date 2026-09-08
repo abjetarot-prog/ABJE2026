@@ -113,6 +113,9 @@
       cursor: pointer;
       font-size: 0.95rem;
     }
+    #logout-btn {
+  background: var(--accent2) !important;
+  color: white !important;
   </style>
 </head>
 <body>
@@ -176,7 +179,23 @@
           user = { role: login };
           errorEl.textContent = "";
           saveData();
-          renderApp(); // Passe à l'app après connexion
+          function renderApp() {
+  if (!user) {
+    renderLogin();
+    document.getElementById("logout-btn").style.display = "none";
+  } else {
+    document.getElementById("app").innerHTML = `
+      <div class="app-content">
+        <h2>Bienvenue, ${user.role} !</h2>
+        <p>Vous êtes connecté à l'application ABJE Tarot.</p>
+        <button onclick="logout()" class="btn-primary" style="margin-top: 1rem;">Déconnexion</button>
+      </div>
+    `;
+    document.getElementById("logout-btn").style.display = "block";
+    document.getElementById("logout-btn").onclick = logout;
+  }
+}; 
+          // Passe à l'app après connexion
         } else {
           errorEl.textContent = "Login ou mot de passe incorrect";
         }
