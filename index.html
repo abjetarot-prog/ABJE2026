@@ -412,15 +412,6 @@ function renderTables() {
 }
 // Fonction pour l'onglet Saisie
 function renderSaisie() {
-// Fonction pour ajouter une nouvelle mène
-function showNewMene() {
-  alert("Fonctionnalité à implémenter plus tard.");
-}
-
-// Fonction pour supprimer une mène
-function deleteMene(index) {
-  alert("Fonctionnalité à implémenter plus tard.");
-}
 function showNewMene() {
   alert("Fonctionnalité à implémenter plus tard.");
 }
@@ -694,20 +685,20 @@ function confirmerAffectation(tableId) {
 function annulerAffectation() {
   const modal = document.getElementById("modal-affectation");
   if (modal) modal.remove();
-}
-
-  }
+  
 function deleteTable(id) {
   if (confirm("Êtes-vous sûr de vouloir supprimer cette table ?")) {
     tables = tables.filter(t => t.id !== id);
     saveData();
     renderTables();
-  } // ✅ ACCOLADE FERMANTE AJOUTÉE
+  }
 }
 
 // ========== INITIALISATION ==========
 document.addEventListener('DOMContentLoaded', renderApp);
-    }
+}
+  
+  
   </script>
 </body>
 </html>
