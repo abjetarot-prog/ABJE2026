@@ -1,1 +1,1074 @@
 
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABJE Tarot</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --accent1: #f59e0b;
+      --accent2: #ef4444;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --success: #10b981;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; display: flex; flex-direction: column;
+    }
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem; background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo { display: flex; align-items: center; gap: 0.75rem; }
+    .logo-icon {
+      width: 2.5rem; height: 2.5rem;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      border-radius: 0.75rem; display: flex; align-items: center;
+      justify-content: center; color: white; font-weight: bold;
+    }
+    main { flex: 1; max-width: 1200px; width: 100%; margin: 0 auto; padding: 1rem; }
+    .login-container {
+      max-width: 500px; margin: 2rem auto; text-align: center;
+      padding: 2rem; background: var(--card-bg); border-radius: 1rem;
+      border: 1px solid var(--border);
+    }
+    .login-icon { font-size: 5rem; margin-bottom: 1rem; }
+    .qr-section {
+      margin: 1.5rem auto; padding: 1rem; background: var(--bg);
+      border-radius: 0.75rem; border: 1px solid var(--border); max-width: 300px;
+    }
+    .btn {
+      padding: 0.75rem 1.5rem; border: none; border-radius: 0.5rem;
+      font-weight: 600; cursor: pointer; font-size: 0.95rem; width: 100%;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      color: white; margin-top: 1rem;
+    }
+    .btn-success { background: var(--success); color: white; margin-top: 1rem; }
+    .btn-secondary {
+      background: var(--border); color: var(--text); margin-top: 1rem;
+    }
+    .btn-danger { background: var(--accent2); color: white; margin-top: 1rem; }
+    .btn-small {
+      padding: 0.4rem 0.8rem; font-size: 0.85rem; width: auto; margin: 0;
+    }
+    #nav-tabs {
+      display: flex; justify-content: center; background: var(--card-bg);
+      border-bottom: 1px solid var(--border); padding: 0.5rem 0;
+      margin-bottom: 1rem; flex-wrap: wrap;
+    }
+    .nav-tab {
+      padding: 0.75rem 1.5rem; background: transparent; color: var(--text);
+      border: none; border-radius: 0.5rem 0.5rem 0 0; cursor: pointer;
+      margin: 0 0.25rem; font-size: 0.9rem;
+    }
+    .nav-tab.active {
+      background: var(--bg); color: var(--accent1);
+      border-bottom: 2px solid var(--accent1);
+    }
+    .nav-tab:hover { background: rgba(255, 255, 255, 0.05); }
+    #logout-btn { background: var(--accent2) !important; color: white !important; }
+    input, select {
+      width: 100%; padding: 0.75rem; border-radius: 0.5rem;
+      border: 1px solid var(--border); background: #0f172a;
+      color: var(--text); font-size: 0.95rem; margin: 0.5rem 0;
+    }
+    label { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.25rem; display: block; }
+    .error { color: var(--accent2); font-size: 0.85rem; margin: 0.5rem 0; }
+    .card {
+      background: var(--card-bg); border-radius: 0.75rem; padding: 1rem;
+      margin-bottom: 1rem; border: 1px solid var(--border);
+    }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { padding: 0.75rem; border: 1px solid var(--border); text-align: left; }
+    th { background: var(--card-bg); }
+    tr:nth-child(even) { background: var(--bg); }
+    .score-positif { color: var(--success); font-weight: bold; }
+    .score-negatif { color: var(--accent2); font-weight: bold; }
+    .score-zero { color: var(--text-muted); }
+
+    /* Modale plein écran */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--bg); z-index: 100; overflow-y: auto;
+      display: none;
+    }
+    .modal-overlay.active { display: block; }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem; background: var(--card-bg);
+      border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10;
+    }
+    .modal-content { max-width: 800px; margin: 0 auto; padding: 1rem; }
+    .cumul-banner {
+      background: var(--card-bg); border-radius: 0.75rem; padding: 1rem;
+      margin-bottom: 1rem; border: 1px solid var(--accent1);
+    }
+    .cumul-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 0.5rem; margin-top: 0.5rem;
+    }
+    .cumul-item {
+      text-align: center; padding: 0.5rem; background: var(--bg);
+      border-radius: 0.5rem;
+    }
+    .cumul-item .nom { font-size: 0.8rem; color: var(--text-muted); }
+    .cumul-item .score { font-size: 1.1rem; font-weight: bold; }
+    .mene-form {
+      background: var(--card-bg); border-radius: 0.75rem; padding: 1.5rem;
+      border: 1px solid var(--border); margin-bottom: 1rem;
+    }
+    .form-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;
+    }
+    .form-group { margin-bottom: 1rem; }
+    .radio-group {
+      display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;
+    }
+    .radio-btn {
+      padding: 0.5rem 1rem; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 0.5rem; cursor: pointer; font-size: 0.9rem; color: var(--text);
+    }
+    .radio-btn.active {
+      background: var(--accent1); color: var(--bg); border-color: var(--accent1);
+      font-weight: bold;
+    }
+    .mene-list-item {
+      background: var(--card-bg); border-radius: 0.5rem; padding: 1rem;
+      margin-bottom: 0.5rem; border: 1px solid var(--border);
+    }
+    .mene-list-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    .mene-scores {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 0.5rem;
+    }
+    .mene-score-item {
+      text-align: center; padding: 0.5rem; background: var(--bg);
+      border-radius: 0.5rem; font-size: 0.85rem;
+    }
+    .info-text { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🃏</div>
+      <span>ABJE Tarot</span>
+    </div>
+    <button id="logout-btn" class="btn btn-danger" style="display: none; width: auto;">
+      Déconnexion
+    </button>
+  </header>
+
+  <nav id="nav-tabs" style="display: none;">
+    <button class="nav-tab active" onclick="showTab('accueil')">🏠 Accueil</button>
+    <button class="nav-tab" onclick="showTab('joueurs')">👥 Joueurs</button>
+    <button class="nav-tab" onclick="showTab('tables')">🎲 Tables</button>
+    <button class="nav-tab" onclick="showTab('saisie')">✏️ Saisie</button>
+    <button class="nav-tab" onclick="showTab('resultats')">🏆 Résultats</button>
+  </nav>
+
+  <main id="app"></main>
+
+  <!-- Modale plein écran pour la saisie -->
+  <div id="saisie-modal" class="modal-overlay">
+    <div class="modal-header">
+      <h2 id="modal-title">Saisie des scores</h2>
+      <button onclick="fermerSaisie()" class="btn btn-danger btn-small">
+        Fermer
+      </button>
+    </div>
+    <div class="modal-content" id="modal-content"></div>
+  </div>
+
+  <script>
+    // ========== CONSTANTES ==========
+    const ADMIN_PASSWORD = "Tass6gny";
+    const ABJE_PASSWORD = "0309";
+    const APP_URL = "https://abjetarot-prog.github.io/ABJE2026/";
+
+    // Règles FFTarot : points à faire selon le nombre de bouts
+    const BOUTS_REQUIS = {
+      0: 56, 1: 51, 2: 41, 3: 36
+    };
+    // Contrats et leurs multiplicateurs
+    const CONTRATS = {
+      "petite": { mult: 1, label: "Petite", minJoueurs: 4 },
+      "garde": { mult: 2, label: "Garde" },
+      "garde_sans": { mult: 4, label: "Garde sans" },
+      "garde_contre": { mult: 6, label: "Garde contre" }
+    };
+
+    // ========== DONNÉES ==========
+    let user = JSON.parse(localStorage.getItem("abje_user")) || null;
+    let joueurs = JSON.parse(localStorage.getItem("abje_joueurs")) || [
+      { id: 1, nom: "Joueur 1", disponible: true },
+      { id: 2, nom: "Joueur 2", disponible: true },
+      { id: 3, nom: "Joueur 3", disponible: true },
+      { id: 4, nom: "Joueur 4", disponible: true },
+      { id: 5, nom: "Joueur 5", disponible: true }
+    ];
+    let tables = JSON.parse(localStorage.getItem("abje_tables")) || [];
+    let menes = JSON.parse(localStorage.getItem("abje_menes")) || [];
+    let parties = JSON.parse(localStorage.getItem("abje_parties")) || [];
+
+    // État temporaire pour la saisie
+    let saisieEnCours = null;
+
+    // ========== SAUVEGARDE ==========
+    function saveData() {
+      localStorage.setItem("abje_user", JSON.stringify(user));
+      localStorage.setItem("abje_joueurs", JSON.stringify(joueurs));
+      localStorage.setItem("abje_tables", JSON.stringify(tables));
+      localStorage.setItem("abje_menes", JSON.stringify(menes));
+      localStorage.setItem("abje_parties", JSON.stringify(parties));
+    }
+
+    // ========== RENDU LOGIN ==========
+    function renderLogin() {
+      document.getElementById("nav-tabs").style.display = "none";
+      document.getElementById("logout-btn").style.display = "none";
+      document.getElementById("app").innerHTML = `
+        <div class="login-container">
+          <div class="login-icon">🃏</div>
+          <h1>ABJE Tarot</h1>
+          <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+            Gestion de club de Tarot
+          </p>
+          <form id="loginForm">
+            <input type="text" id="login" placeholder="Login (admin/abje)"
+              required autocomplete="username">
+            <input type="password" id="password" placeholder="Mot de passe"
+              required autocomplete="current-password">
+            <div id="loginError" class="error"></div>
+            <button type="submit" class="btn btn-primary">Se connecter</button>
+          </form>
+          <div class="qr-section">
+            <p style="margin-bottom: 0.75rem; color: var(--text-muted);">
+              Accès mobile :
+            </p>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(APP_URL)}&bgcolor=1e293b&color=f8fafc"
+              alt="QR Code" width="150"
+              style="border-radius: 0.5rem; border: 2px solid var(--border); margin: 0 auto; display: block;">
+          </div>
+        </div>
+      `;
+      document.getElementById("loginForm").onsubmit = function(e) {
+        e.preventDefault();
+        const login = document.getElementById("login").value.trim().toLowerCase();
+        const password = document.getElementById("password").value;
+        const errorEl = document.getElementById("loginError");
+        if ((login === "admin" && password === ADMIN_PASSWORD) ||
+            (login === "abje" && password === ABJE_PASSWORD)) {
+          user = { role: login };
+          errorEl.textContent = "";
+          saveData();
+          renderApp();
+        } else {
+          errorEl.textContent = "Login ou mot de passe incorrect";
+        }
+      };
+    }
+
+    // ========== GESTION DES ONGLETS ==========
+    function showTab(tab) {
+      if (!user) { renderLogin(); return; }
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      const activeTab = Array.from(document.querySelectorAll('.nav-tab')).find(
+        t => t.getAttribute('onclick').includes(tab)
+      );
+      if (activeTab) activeTab.classList.add('active');
+      if (tab === 'accueil') renderAccueil();
+      else if (tab === 'joueurs') renderJoueurs();
+      else if (tab === 'tables') renderTables();
+      else if (tab === 'saisie') renderSaisie();
+      else if (tab === 'resultats') renderResultats();
+    }
+
+    // ========== RENDU ACCUEIL ==========
+    function renderAccueil() {
+      const tablesCompletes = tables.filter(t =>
+        t.joueursAffectes && t.joueursAffectes.length === t.nbJoueurs
+      ).length;
+      document.getElementById("app").innerHTML = `
+        <div style="text-align: center; padding: 2rem;">
+          <h2>Bienvenue, ${user.role} !</h2>
+          <p>Gestion complète de votre club de Tarot.</p>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr);
+            gap: 1rem; margin-top: 2rem; max-width: 600px;
+            margin-left: auto; margin-right: auto;">
+            <div class="card">
+              <h3>👥 ${joueurs.length} Joueurs</h3>
+              <p>${joueurs.filter(j => j.disponible).length} disponibles</p>
+              <button onclick="showTab('joueurs')" class="btn btn-secondary" style="margin-top: 1rem;">Gérer</button>
+            </div>
+            <div class="card">
+              <h3>🎲 ${tables.length} Tables</h3>
+              <p>${tablesCompletes} complètes</p>
+              <button onclick="showTab('tables')" class="btn btn-secondary" style="margin-top: 1rem;">Gérer</button>
+            </div>
+            <div class="card">
+              <h3>✏️ ${menes.length} Mènes</h3>
+              <p>Enregistrées</p>
+              <button onclick="showTab('saisie')" class="btn btn-secondary" style="margin-top: 1rem;">Voir</button>
+            </div>
+            <div class="card">
+              <h3>🏆 Classement</h3>
+              <p>Consultez les résultats</p>
+              <button onclick="showTab('resultats')" class="btn btn-secondary" style="margin-top: 1rem;">Voir</button>
+            </div>
+          </div>
+          <button onclick="logout()" class="btn btn-danger" style="margin-top: 2rem; max-width: 300px; margin-left: auto; margin-right: auto;">
+            Déconnexion
+          </button>
+        </div>
+      `;
+    }
+
+    // ========== RENDU JOUEURS ==========
+    function renderJoueurs() {
+      document.getElementById("app").innerHTML = `
+        <div style="padding: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h2>👥 Joueurs (${joueurs.length})</h2>
+            <button onclick="addJoueur()" class="btn btn-primary" style="width: auto; margin: 0;">+ Nouveau</button>
+          </div>
+          <div id="add-joueur-form" class="card" style="display: none; margin-bottom: 1rem;">
+            <h3 style="margin-bottom: 0.5rem;">Nouveau joueur</h3>
+            <input type="text" id="newJoueurNom" placeholder="Nom du joueur" />
+            <button onclick="confirmAddJoueur()" class="btn btn-primary" style="margin-top: 0.5rem;">Ajouter</button>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+            ${joueurs.map((j, index) => `
+              <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                  <h3 style="margin: 0; font-size: 1rem;">${j.nom}</h3>
+                  <button onclick="toggleDispo(${index})"
+                    style="background: ${j.disponible ? 'var(--accent1)' : 'var(--border)'};
+                    color: white; border: none; border-radius: 0.25rem;
+                    padding: 0.25rem 0.5rem; cursor: pointer;">
+                    ${j.disponible ? '✅' : '❌'}
+                  </button>
+                </div>
+                <button onclick="deleteJoueur(${index})"
+                  style="background: var(--accent2); color: white; border: none;
+                  border-radius: 0.25rem; padding: 0.25rem 0.5rem; margin-top: 0.5rem;
+                  cursor: pointer; width: 100%;">
+                  Supprimer
+                </button>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+    function addJoueur() {
+      document.getElementById("add-joueur-form").style.display = "block";
+      document.getElementById("newJoueurNom").focus();
+    }
+    function confirmAddJoueur() {
+      const nom = document.getElementById("newJoueurNom").value;
+      if (nom && nom.trim()) {
+        joueurs.push({ id: Date.now(), nom: nom.trim(), disponible: true });
+        saveData();
+        renderJoueurs();
+      }
+    }
+    function toggleDispo(index) {
+      joueurs[index].disponible = !joueurs[index].disponible;
+      saveData();
+      renderJoueurs();
+    }
+    function deleteJoueur(index) {
+      joueurs.splice(index, 1);
+      saveData();
+      renderJoueurs();
+    }
+
+    // ========== RENDU TABLES ==========
+    function renderTables() {
+      document.getElementById("app").innerHTML = `
+        <div style="padding: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h2>🎲 Tables (${tables.length})</h2>
+            <button onclick="createTable()" class="btn btn-primary" style="width: auto; margin: 0;">+ Nouvelle table</button>
+          </div>
+          <div id="create-table-form" class="card" style="display: none; margin-bottom: 1rem;">
+            <h3 style="margin-bottom: 0.5rem;">Nouvelle table</h3>
+            <input type="number" id="newTableNb" placeholder="Nombre de joueurs (4-7)" min="4" max="7" />
+            <button onclick="confirmCreateTable()" class="btn btn-primary" style="margin-top: 0.5rem;">Créer</button>
+          </div>
+          ${tables.length === 0 ? `
+            <div style="text-align: center; color: var(--text-muted);">
+              <p>Aucune table créée.</p>
+            </div>
+          ` : tables.map((t, index) => `
+            <div class="card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <h3 style="margin: 0;">Table n°${t.numero} (${t.nbJoueurs} joueurs)</h3>
+                <button onclick="deleteTable(${index})"
+                  style="background: var(--accent2); color: white; border: none;
+                  border-radius: 0.25rem; padding: 0.25rem 0.5rem; cursor: pointer;">×</button>
+              </div>
+              <p style="margin: 0 0 0.5rem 0; color: var(--text-muted);">
+                Joueurs affectés: ${t.joueursAffectes ? t.joueursAffectes.length : 0}/${t.nbJoueurs}
+              </p>
+              ${t.joueursAffectes && t.joueursAffectes.length > 0 ? `
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+                  ${t.joueursAffectes.map((joueurId, jIndex) => {
+                    const joueur = joueurs.find(j => j.id === joueurId);
+                    return joueur ? `
+                      <span style="background: var(--bg); padding: 0.25rem 0.5rem;
+                        border-radius: 0.5rem; font-size: 0.85rem; display: flex;
+                        align-items: center; gap: 0.25rem;">
+                        ${joueur.nom}
+                        <button onclick="retirerJoueurTable(${index}, ${jIndex})"
+                          style="background: var(--accent2); color: white; border: none;
+                          border-radius: 50%; width: 1.2rem; height: 1.2rem; padding: 0;
+                          cursor: pointer; font-size: 0.7rem; display: flex;
+                          align-items: center; justify-content: center;">×</button>
+                      </span>
+                    ` : '';
+                  }).join('')}
+                </div>
+              ` : ''}
+              <button onclick="toggleAffectation(${index})" class="btn btn-primary" style="margin-top: 0.75rem; width: 100%;">
+                ${t.joueursAffectes && t.joueursAffectes.length === t.nbJoueurs ? '✅ Table complète' : '+ Affecter joueurs'}
+              </button>
+              <div id="affectation-form-${index}" class="card" style="display: none; margin-top: 1rem; background: var(--bg);">
+                <h4 style="margin-bottom: 0.5rem;">Joueurs disponibles :</h4>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                  ${joueurs.filter(j => j.disponible && !t.joueursAffectes.includes(j.id)).length === 0
+                    ? '<p style="color: var(--text-muted); font-size: 0.9rem;">Aucun joueur disponible</p>'
+                    : joueurs.filter(j => j.disponible && !t.joueursAffectes.includes(j.id)).map(j => `
+                      <button onclick="affecterJoueur(${index}, ${j.id})"
+                        style="background: var(--card-bg); color: var(--text);
+                        border: 1px solid var(--border); padding: 0.5rem; cursor: pointer;
+                        text-align: left; border-radius: 0.5rem;">
+                        + ${j.nom}
+                      </button>
+                    `).join('')}
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+    function createTable() {
+      document.getElementById("create-table-form").style.display = "block";
+      document.getElementById("newTableNb").focus();
+    }
+    function confirmCreateTable() {
+      const nb = parseInt(document.getElementById("newTableNb").value);
+      if (nb && [4,5,6,7].includes(nb)) {
+        tables.push({ id: Date.now(), numero: tables.length + 1, nbJoueurs: nb, joueursAffectes: [] });
+        saveData();
+        renderTables();
+      } else {
+        alert("Veuillez entrer un nombre entre 4 et 7.");
+      }
+    }
+    function deleteTable(index) {
+      tables.splice(index, 1);
+      saveData();
+      renderTables();
+    }
+    function toggleAffectation(index) {
+      const form = document.getElementById(`affectation-form-${index}`);
+      form.style.display = form.style.display === "none" ? "block" : "none";
+    }
+    function affecterJoueur(tableIndex, joueurId) {
+      const table = tables[tableIndex];
+      if (!table.joueursAffectes) table.joueursAffectes = [];
+      if (table.joueursAffectes.length >= table.nbJoueurs) {
+        alert("Table complète !");
+        return;
+      }
+      table.joueursAffectes.push(joueurId);
+      saveData();
+      renderTables();
+    }
+    function retirerJoueurTable(tableIndex, joueurIndex) {
+      tables[tableIndex].joueursAffectes.splice(joueurIndex, 1);
+      saveData();
+      renderTables();
+    }
+
+    // ========== RENDU SAISIE (nouveau module FFTarot) ==========
+    function renderSaisie() {
+      const tablesPleines = tables.filter(t =>
+        t.joueursAffectes && t.joueursAffectes.length === t.nbJoueurs
+      );
+      if (tablesPleines.length === 0) {
+        document.getElementById("app").innerHTML = `
+          <div style="text-align: center; padding: 2rem;">
+            <h2>✏️ Saisie des résultats</h2>
+            <p>Aucune table complète.</p>
+            <button onclick="showTab('tables')" class="btn btn-primary"
+              style="max-width: 300px; margin: 1rem auto 0;">
+              Aller aux tables
+            </button>
+          </div>
+        `;
+        return;
+      }
+      document.getElementById("app").innerHTML = `
+        <div style="padding: 1rem;">
+          <h2>✏️ Saisie des résultats</h2>
+          <p style="color: var(--text-muted); margin-bottom: 1rem;">
+            Sélectionnez une table pour commencer la saisie.
+          </p>
+          ${tablesPleines.map(t => `
+            <div class="card">
+              <h3 style="margin: 0 0 0.5rem 0;">Table n°${t.numero}</h3>
+              <p style="margin: 0 0 0.5rem 0; color: var(--text-muted);">
+                Joueurs : ${t.joueursAffectes.map(id =>
+                  joueurs.find(j => j.id === id)?.nom || '?'
+                ).join(', ')}
+              </p>
+              <button onclick="ouvrirSaisie(${t.id})" class="btn btn-primary" style="width: auto;">
+                Saisir les scores
+              </button>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    // ===== Modale de saisie plein écran =====
+    function ouvrirSaisie(tableId) {
+      const table = tables.find(t => t.id === tableId);
+      if (!table) return;
+      saisieEnCours = {
+        tableId: tableId,
+        menes: [],
+        cumuls: {}
+      };
+      table.joueursAffectes.forEach(jid => {
+        saisieEnCours.cumuls[jid] = 0;
+      });
+      // Charger mènes déjà validées aujourd'hui
+      const aujourd = new Date().toDateString();
+      menes.forEach(m => {
+        if (m.tableId === tableId && new Date(m.date).toDateString() === aujourd) {
+          saisieEnCours.menes.push(m);
+          m.joueurs.forEach((jid, i) => {
+            saisieEnCours.cumuls[jid] = (saisieEnCours.cumuls[jid] || 0) + m.scores[i];
+          });
+        }
+      });
+      document.getElementById("saisie-modal").classList.add("active");
+      document.getElementById("modal-title").textContent = `Saisie - Table n°${table.numero}`;
+      renderModalContent();
+    }
+
+    function fermerSaisie() {
+      document.getElementById("saisie-modal").classList.remove("active");
+      saisieEnCours = null;
+      renderSaisie();
+    }
+
+    function renderModalContent() {
+      const table = tables.find(t => t.id === saisieEnCours.tableId);
+      const content = document.getElementById("modal-content");
+
+      // Banner cumul
+      let cumulHtml = `
+        <div class="cumul-banner">
+          <h3 style="margin: 0 0 0.5rem 0;">📊 Cumul du jour</h3>
+          <div class="cumul-grid">
+      `;
+      table.joueursAffectes.forEach(jid => {
+        const joueur = joueurs.find(j => j.id === jid);
+        const score = saisieEnCours.cumuls[jid] || 0;
+        const cls = score > 0 ? 'score-positif' : (score < 0 ? 'score-negatif' : 'score-zero');
+        cumulHtml += `
+          <div class="cumul-item">
+            <div class="nom">${joueur ? joueur.nom : '?'}</div>
+            <div class="${cls}">${score > 0 ? '+' : ''}${score}</div>
+          </div>
+        `;
+      });
+      cumulHtml += `</div></div>`;
+
+      // Mènes validées (antéchronologique)
+      let menesHtml = `
+        <h3 style="margin: 1rem 0 0.5rem 0;">
+          📜 Mènes validées (${saisieEnCours.menes.length})
+        </h3>
+      `;
+      const menesInverse = [...saisieEnCours.menes].reverse();
+      if (menesInverse.length === 0) {
+        menesHtml += `<p style="color: var(--text-muted);">Aucune mène validée.</p>`;
+      } else {
+        menesInverse.forEach((mene, idx) => {
+          const reelIndex = saisieEnCours.menes.length - 1 - idx;
+          const meneNum = reelIndex + 1;
+          menesHtml += `
+            <div class="mene-list-item">
+              <div class="mene-list-header">
+                <strong>Mène n°${meneNum}</strong>
+                <span style="color: var(--text-muted); font-size: 0.8rem;">
+                  ${CONTRATS[mene.contrat]?.label || mene.contrat}
+                </span>
+              </div>
+              <div class="mene-scores">
+                ${mene.joueurs.map((jid, i) => {
+                  const j = joueurs.find(jj => jj.id === jid);
+                  const sc = mene.scores[i];
+                  const cls = sc > 0 ? 'score-positif'
+                    : (sc < 0 ? 'score-negatif' : 'score-zero');
+                  return `
+                    <div class="mene-score-item">
+                      <div>${j ? j.nom : '?'}</div>
+                      <div class="${cls}">${sc > 0 ? '+' : ''}${sc}</div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      // Formulaire nouvelle mène
+      const appelantHtml = table.nbJoueurs >= 5 ? `
+        <div class="form-group">
+          <label>Appelé</label>
+          <select id="appele">
+            <option value="0">Aucun</option>
+            ${table.joueursAffectes.map(jid => {
+              const j = joueurs.find(jj => jj.id === jid);
+              return `<option value="${jid}">${j ? j.nom : '?'}</option>`;
+            }).join('')}
+          </select>
+        </div>
+      ` : '';
+
+      const nonJoueurHtml = table.nbJoueurs === 6 ? `
+        <div class="form-group">
+          <label>Non joueur</label>
+          <select id="nonJoueur1">
+            <option value="0">Aucun</option>
+            ${table.joueursAffectes.map(jid => {
+              const j = joueurs.find(jj => jj.id === jid);
+              return `<option value="${jid}">${j ? j.nom : '?'}</option>`;
+            }).join('')}
+          </select>
+        </div>
+      ` : table.nbJoueurs === 7 ? `
+        <div class="form-row">
+          <div class="form-group">
+            <label>Non joueur 1</label>
+            <select id="nonJoueur1">
+              <option value="0">Aucun</option>
+              ${table.joueursAffectes.map(jid => {
+                const j = jugadores.find(jj => jj.id === jid);
+                return `<option value="${jid}">${j ? j.nom : '?'}</option>`;
+              }).join('')}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Non joueur 2</label>
+            <select id="nonJoueur2">
+              <option value="0">Aucun</option>
+              ${table.joueursAffectes.map(jid => {
+                const j = joueurs.find(jj => jj.id === jid);
+                return `<option value="${jid}">${j ? j.nom : '?'}</option>`;
+              }).join('')}
+            </select>
+          </div>
+        </div>
+      ` : '';
+
+      const formHtml = `
+        <div class="mene-form">
+          <h3 style="margin-bottom: 1rem;">➕ Nouvelle mène</h3>
+          <div class="form-group">
+            <label>Preneur</label>
+            <select id="preneur">
+              ${table.joueursAffectes.map(jid => {
+                const j = joueurs.find(jj => jj.id === jid);
+                return `<option value="${jid}">${j ? j.nom : '?'}</option>`;
+              }).join('')}
+            </select>
+          </div>
+          ${appelantHtml}
+          <div class="form-group">
+            <label>Contrat</label>
+            <div class="radio-group" id="contrat-group">
+              ${Object.entries(CONTRATS).map(([key, c]) => {
+                let disabled = '';
+                if (key === 'petite' && table.nbJoueurs !== 4) {
+                  disabled = 'disabled';
+                }
+                return `
+                  <div class="radio-btn ${key === 'petite' ? 'active' : ''}"
+                    data-value="${key}" onclick="selectContrat('${key}')" ${disabled}>
+                    ${c.label}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre de bouts</label>
+              <select id="bouts">
+                <option value="0">0 bout</option>
+                <option value="1">1 bout</option>
+                <option value="2">2 bouts</option>
+                <option value="3" selected>3 bouts</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Points réalisés</label>
+              <input type="number" id="points" placeholder="ex: 45" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Petit au bout</label>
+              <select id="petitBout">
+                <option value="0">Aucun</option>
+                <option value="preneur">Pour le preneur (+10)</option>
+                <option value="defense">Pour la défense (-10)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Poignée</label>
+              <select id="poignee">
+                <option value="0">Aucune</option>
+                <option value="20">Simple (+20)</option>
+                <option value="30">Double (+30)</option>
+                <option value="40">Triple (+40)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Chelem</label>
+            <select id="chelem">
+              <option value="0">Aucun</option>
+              <option value="200">Réussi non demandé (+200)</option>
+              <option value="400">Réussi demandé (+400)</option>
+              <option value="-400">Demandé et échoué (-400)</option>
+            </select>
+          </div>
+          ${nonJoueurHtml}
+          <div id="score-preview" style="margin: 1rem 0; padding: 1rem;
+            background: var(--bg); border-radius: 0.5rem; display: none;">
+            <p id="score-resultat"></p>
+          </div>
+          <button onclick="previsualiserScore()" class="btn btn-secondary"
+            style="width: auto; margin-right: 0.5rem;">
+            Calculer le score
+          </button>
+          <button onclick="validerMene()" class="btn btn-success" style="width: auto;">
+            ✅ Valider la mène
+          </button>
+        </div>
+      `;
+
+      const validPartieHtml = `
+        <div style="margin-top: 1.5rem; text-align: center;">
+          <button onclick="validerPartie()" class="btn btn-primary"
+            style="max-width: 400px;">
+            🏁 Valider la partie et fermer
+          </button>
+          <p class="info-text">
+            Vous pouvez ajouter des mènes puis revalider.
+            La fenêtre ne se ferme qu'au clic sur ce bouton.
+          </p>
+        </div>
+      `;
+
+      content.innerHTML = cumulHtml + formHtml + menesHtml + validPartieHtml;
+    }
+
+    function selectContrat(key) {
+      document.querySelectorAll('#contrat-group .radio-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.querySelector(`#contrat-group [data-value="${key}"]`)
+        .classList.add('active');
+    }
+
+    // Arrondi à la dizaine la plus proche (règle FFTarot)
+    function arrondiDizaine(n) {
+      return Math.round(n / 10) * 10;
+    }
+
+    function calculerScoreMene() {
+      const preneurId = parseInt(document.getElementById("preneur").value);
+      const contrat = document.querySelector('#contrat-group .radio-btn.active')
+        ?.dataset.value;
+      const bouts = parseInt(document.getElementById("bouts").value);
+      const points = parseFloat(document.getElementById("points").value);
+      const petitBout = document.getElementById("petitBout").value;
+      const poignee = parseInt(document.getElementById("poignee").value);
+      const chelem = parseInt(document.getElementById("chelem").value);
+      const table = tables.find(t => t.id === saisieEnCours.tableId);
+      const appeleId = table.nbJoueurs >= 5
+        ? parseInt(document.getElementById("appele").value) : 0;
+
+      if (isNaN(points)) return null;
+
+      const nbJoueurs = table.nbJoueurs;
+      const multContrat = CONTRATS[contrat].mult;
+      const ptsRequis = BOUTS_REQUIS[bouts];
+
+      // Calcul de la base : (25 + écart) arrondi à la dizaine, × multiplicateur
+      let ecart = points - ptsRequis;
+      // Petit au bout (modifie l'écart avant arrondi)
+      let petitAuBoutPts = 0;
+      if (petitBout === 'preneur') {
+        ecart += 10;
+        petitAuBoutPts = 10;
+      } else if (petitBout === 'defense') {
+        ecart -= 10;
+        petitAuBoutPts = -10;
+      }
+      let base = arrondiDizaine(25 + Math.abs(ecart)) * multContrat;
+
+      const partieGagnee = ecart >= 0;
+
+      // Poignée (prime fixe, non multipliée par le contrat selon vos règles)
+      let poigneePts = poignee;
+
+      // Chelem
+      let chelemPts = chelem;
+
+      // Calcul des scores
+      let scorePreneur, scoreAppele, scoreDefense;
+
+      if (nbJoueurs === 4) {
+        // Preneur ×3, 3 défenseurs ×1
+        let total = base + poigneePts + chelemPts;
+        if (partieGagnee) {
+          scorePreneur = total;
+          scoreDefense = -total;
+        } else {
+          scorePreneur = -total;
+          scoreDefense = total;
+        }
+        // Preneur paie/reçoit ×3, défenseurs ×1
+        scorePreneur = scorePreneur * 3;
+      } else if (nbJoueurs === 5) {
+        // Preneur ×2, appelé ×1, 3 défenseurs ×1
+        let total = base + poigneePts + chelemPts;
+        if (partieGagnee) {
+          scorePreneur = total;
+          scoreAppele = total;
+          scoreDefense = -total;
+        } else {
+          scorePreneur = -total;
+          scoreAppele = -total;
+          scoreDefense = total;
+        }
+        scorePreneur = scorePreneur * 2;
+      } else {
+        // 6/7 joueurs : preneur ×2, défenseurs se partagent
+        let total = base + poigneePts + chelemPts;
+        if (partieGagnee) {
+          scorePreneur = total;
+          scoreDefense = -total;
+        } else {
+          scorePreneur = -total;
+          scoreDefense = total;
+        }
+        scorePreneur = scorePreneur * 2;
+      }
+
+      return {
+        preneurId, appeleId, contrat, bouts, points,
+        petitBout, poignee, chelem,
+        base, poigneePts, chelemPts, petitAuBoutPts,
+        scorePreneur, scoreAppele, scoreDefense,
+        partieGagnee
+      };
+    }
+
+    function previsualiserScore() {
+      const res = calculerScoreMene();
+      const preview = document.getElementById("score-preview");
+      const resultat = document.getElementById("score-resultat");
+      if (!res) {
+        preview.style.display = "block";
+        resultat.innerHTML =
+          '<span style="color: var(--accent2);">Veuillez saisir les points.</span>';
+        return;
+      }
+      const preneur = joueurs.find(j => j.id === res.preneurId);
+      const appele = res.appeleId
+        ? joueurs.find(j => j.id === res.appeleId) : null;
+      preview.style.display = "block";
+      const statut = res.partieGagnee ? '✅ Gagnée' : '❌ Perdue';
+      const couleur = res.partieGagnee ? 'var(--success)' : 'var(--accent2)';
+      let html = `<strong style="color: ${couleur};">${statut}</strong><br>`;
+      html += `${preneur ? preneur.nom : '?'} : <span class="${res.scorePreneur >= 0 ? 'score-positif' : 'score-negatif'}">
+        ${res.scorePreneur > 0 ? '+' : ''}${res.scorePreneur}</span><br>`;
+      if (appele) {
+        html += `${appele.nom} (appelé) : <span class="${res.scoreAppele >= 0 ? 'score-positif' : 'score-negatif'}">
+          ${res.scoreAppele > 0 ? '+' : ''}${res.scoreAppele}</span><br>`;
+      }
+      html += `Défense : <span class="${res.scoreDefense >= 0 ? 'score-positif' : 'score-negatif'}">
+        ${res.scoreDefense > 0 ? '+' : ''}${res.scoreDefense}</span>`;
+      resultat.innerHTML = html;
+    }
+
+    function validerMene() {
+      const res = calculerScoreMene();
+      if (!res) {
+        alert("Veuillez saisir les points réalisés.");
+        return;
+      }
+      const table = tables.find(t => t.id === saisieEnCours.tableId);
+      // Gestion non-joueurs (6/7)
+      const nonJoueur1 = document.getElementById("nonJoueur1")?.value
+        ? parseInt(document.getElementById("nonJoueur1").value) : 0;
+      const nonJoueur2 = document.getElementById("nonJoueur2")?.value
+        ? parseInt(document.getElementById("nonJoueur2").value) : 0;
+
+      const scores = [];
+      table.joueursAffectes.forEach(jid => {
+        if (jid === nonJoueur1 || jid === nonJoueur2) {
+          scores.push(0); // non-joueur
+        } else if (jid === res.preneurId) {
+          scores.push(res.scorePreneur);
+        } else if (jid === res.appeleId) {
+          scores.push(res.scoreAppele);
+        } else {
+          scores.push(res.scoreDefense);
+        }
+      });
+
+      const mene = {
+        id: Date.now(),
+        tableId: table.id,
+        joueurs: [...table.joueursAffectes],
+        scores: scores,
+        date: new Date().toISOString(),
+        contrat: res.contrat,
+        bouts: res.bouts,
+        points: res.points,
+        petitBout: res.petitBout,
+        poignee: res.poignee,
+        chelem: res.chelem,
+        appele: res.appeleId,
+        nonJoueur1: nonJoueur1,
+        nonJoueur2: nonJoueur2
+      };
+      saisieEnCours.menes.push(mene);
+      // Maj cumuls
+      table.joueursAffectes.forEach((jid, i) => {
+        saisieEnCours.cumuls[jid] = (saisieEnCours.cumuls[jid] || 0) + scores[i];
+      });
+      renderModalContent();
+    }
+
+    function validerPartie() {
+      if (saisieEnCours.menes.length === 0) {
+        alert("Aucune mène à valider.");
+        return;
+      }
+      const aujourd = new Date().toDateString();
+      const tableId = saisieEnCours.tableId;
+      menes = menes.filter(m =>
+        !(m.tableId === tableId && new Date(m.date).toDateString() === aujourd)
+      );
+      menes.push(...saisieEnCours.menes);
+      saveData();
+      fermerSaisie();
+      alert("✅ Partie validée !");
+    }
+
+    // ========== RENDU RÉSULTATS ==========
+    function renderResultats() {
+      if (menes.length === 0) {
+        document.getElementById("app").innerHTML = `
+          <div style="text-align: center; padding: 2rem;">
+            <h2>🏆 Résultats</h2>
+            <p>Aucune mène enregistrée.</p>
+          </div>
+        `;
+        return;
+      }
+      const scoresJoueurs = {};
+      menes.forEach(mene => {
+        mene.joueurs.forEach((joueurId, index) => {
+          const joueur = joueurs.find(j => j.id === joueurId);
+          if (joueur) {
+            if (!scoresJoueurs[joueur.id]) {
+              scoresJoueurs[joueur.id] = { nom: joueur.nom, total: 0, menes: 0 };
+            }
+            scoresJoueurs[joueur.id].total += mene.scores[index];
+            scoresJoueurs[joueur.id].menes += 1;
+          }
+        });
+      });
+      const classement = Object.values(scoresJoueurs).sort((a, b) => b.total - a.total);
+      let html = `
+        <div style="padding: 1rem;">
+          <h2>🏆 Classement général</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Position</th>
+                <th>Joueur</th>
+                <th style="text-align: right;">Total</th>
+                <th style="text-align: right;">Mènes</th>
+                <th style="text-align: right;">Moyenne</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+      classement.forEach((j, index) => {
+        html += `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${j.nom}</td>
+            <td style="text-align: right;" class="${j.total >= 0 ? 'score-positif' : 'score-negatif'}">
+              ${j.total >= 0 ? '+' : ''}${j.total}
+            </td>
+            <td style="text-align: right;">${j.menes}</td>
+            <td style="text-align: right;">${(j.total / j.menes).toFixed(1)}</td>
+          </tr>
+        `;
+      });
+      html += `</tbody></table></div>`;
+      document.getElementById("app").innerHTML = html;
+    }
+
+    // ========== FONCTIONS PRINCIPALES ==========
+    function renderApp() {
+      if (!user) {
+        renderLogin();
+      } else {
+        document.getElementById("nav-tabs").style.display = "flex";
+        document.getElementById("logout-btn").style.display = "block";
+        document.getElementById("logout-btn").onclick = logout;
+        showTab('accueil');
+      }
+    }
+    function logout() {
+      user = null;
+      saveData();
+      renderLogin();
+    }
+    document.addEventListener('DOMContentLoaded', renderApp);
+  </script>
+</body>
+</html>
