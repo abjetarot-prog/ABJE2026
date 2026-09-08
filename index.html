@@ -130,102 +130,89 @@
   <main id="app"></main>
 
   <script>
-    // ========== CONSTANTES ==========
-    const ADMIN_PASSWORD = "Tass6gny";
-    const ABJE_PASSWORD = "0309";
-    const APP_URL = "https://abjetarot-prog.github.io/ABJE2026/";
+  // ========== CONSTANTES ==========
+  const ADMIN_PASSWORD = "Tass6gny";
+  const ABJE_PASSWORD = "0309";
+  const APP_URL = "https://abjetarot-prog.github.io/ABJE2026/";
 
-    // ========== DONNÉES ==========
-    let user = JSON.parse(localStorage.getItem("abje_user")) || null;
+  // ========== DONNÉES ==========
+  let user = JSON.parse(localStorage.getItem("abje_user")) || null;
 
-    // ========== SAUVEGARDE ==========
-    function saveData() {
-      localStorage.setItem("abje_user", JSON.stringify(user));
-    }
+  // ========== SAUVEGARDE ==========
+  function saveData() {
+    localStorage.setItem("abje_user", JSON.stringify(user));
+  }
 
-    // ========== RENDU ==========
-    function renderLogin() {
-      document.getElementById("app").innerHTML = `
-        <div class="login-container">
-          <div class="login-icon">🃏</div>
-          <h1>ABJE Tarot</h1>
-          <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Gestion de club de Tarot</p>
-
-          <form id="loginForm">
-            <input type="text" id="login" placeholder="Login (admin/abje)" required autocomplete="username">
-            <input type="password" id="password" placeholder="Mot de passe" required autocomplete="current-password">
-            <div id="loginError" class="error"></div>
-            <button type="submit" class="btn-primary">Se connecter</button>
-          </form>
-
-          <div class="qr-section">
-            <p style="margin-bottom: 0.75rem; color: var(--text-muted);">Accès mobile :</p>
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(APP_URL)}&bgcolor=1e293b&color=f8fafc"
-                 alt="QR Code ABJE Tarot" width="150" style="border-radius: 0.5rem; border: 2px solid var(--border); margin: 0 auto; display: block;">
-            <p style="margin-top: 0.75rem; font-size: 0.8rem;">
-              <a href="${APP_URL}" style="color: var(--accent1);" target="_blank">${APP_URL.replace('https://', '')}</a>
-            </p>
-          </div>
-        </div>
-      `;
-
-      document.getElementById("loginForm").onsubmit = function(e) {
-        e.preventDefault();
-        const login = document.getElementById("login").value.trim().toLowerCase();
-        const password = document.getElementById("password").value;
-        const errorEl = document.getElementById("loginError");
-
-        if ((login === "admin" && password === ADMIN_PASSWORD) || (login === "abje" && password === ABJE_PASSWORD)) {
-          user = { role: login };
-          errorEl.textContent = "";
-          saveData();
-          function renderApp() {
-  if (!user) {
-    renderLogin();
-    document.getElementById("logout-btn").style.display = "none";
-  } else {
+  // ========== RENDU ==========
+  function renderLogin() {
     document.getElementById("app").innerHTML = `
-      <div class="app-content">
-        <h2>Bienvenue, ${user.role} !</h2>
-        <p>Vous êtes connecté à l'application ABJE Tarot.</p>
-        <button onclick="logout()" class="btn-primary" style="margin-top: 1rem;">Déconnexion</button>
+      <div class="login-container">
+        <div class="login-icon">🃏</div>
+        <h1>ABJE Tarot</h1>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Gestion de club de Tarot</p>
+
+        <form id="loginForm">
+          <input type="text" id="login" placeholder="Login (admin/abje)" required autocomplete="username">
+          <input type="password" id="password" placeholder="Mot de passe" required autocomplete="current-password">
+          <div id="loginError" class="error"></div>
+          <button type="submit" class="btn-primary">Se connecter</button>
+        </form>
+
+        <div class="qr-section">
+          <p style="margin-bottom: 0.75rem; color: var(--text-muted);">Accès mobile :</p>
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(APP_URL)}&bgcolor=1e293b&color=f8fafc"
+               alt="QR Code ABJE Tarot" width="150" style="border-radius: 0.5rem; border: 2px solid var(--border); margin: 0 auto; display: block;">
+          <p style="margin-top: 0.75rem; font-size: 0.8rem;">
+            <a href="${APP_URL}" style="color: var(--accent1);" target="_blank">${APP_URL.replace('https://', '')}</a>
+          </p>
+        </div>
       </div>
     `;
-    document.getElementById("logout-btn").style.display = "block";
-    document.getElementById("logout-btn").onclick = logout;
-  }
-}; 
-          // Passe à l'app après connexion
-        } else {
-          errorEl.textContent = "Login ou mot de passe incorrect";
-        }
-      };
-    }
 
-    function renderApp() {
-      if (!user) {
-        renderLogin();
-        document.getElementById("logout-btn").style.display = "none";
+    document.getElementById("loginForm").onsubmit = function(e) {
+      e.preventDefault();
+      const login = document.getElementById("login").value.trim().toLowerCase();
+      const password = document.getElementById("password").value;
+      const errorEl = document.getElementById("loginError");
+
+      if ((login === "admin" && password === ADMIN_PASSWORD) || (login === "abje" && password === ABJE_PASSWORD)) {
+        user = { role: login };
+        errorEl.textContent = "";
+        saveData();
+        renderApp(); // <-- Appel à renderApp() pour afficher l'application
       } else {
-        document.getElementById("app").innerHTML = `
-          <div class="app-content">
-            <h2>Bienvenue, ${user.role} !</h2>
-            <p>Vous êtes connecté à l'application ABJE Tarot.</p>
-          </div>
-        `;
-        document.getElementById("logout-btn").style.display = "block";
-        document.getElementById("logout-btn").onclick = logout;
+        errorEl.textContent = "Login ou mot de passe incorrect";
       }
-    }
+    };
+  }
 
-    function logout() {
-      user = null;
-      saveData();
-      renderApp();
+  function renderApp() {
+    if (!user) {
+      renderLogin();
+      document.getElementById("logout-btn").style.display = "none";
+    } else {
+      // Affiche le contenu de l'application
+      document.getElementById("app").innerHTML = `
+        <div class="app-content">
+          <h2>Bienvenue, ${user.role} !</h2>
+          <p>Vous êtes connecté à l'application ABJE Tarot.</p>
+          <button onclick="logout()" class="btn-primary" style="margin-top: 1rem;">Déconnexion</button>
+        </div>
+      `;
+      document.getElementById("logout-btn").style.display = "block";
+      document.getElementById("logout-btn").onclick = logout;
     }
+  }
 
-    // ========== INITIALISATION ==========
-    document.addEventListener('DOMContentLoaded', renderApp);
-  </script>
+  function logout() {
+    user = null;
+    saveData();
+    renderApp(); // Retour à la page de login
+  }
+
+  // ========== INITIALISATION ==========
+  document.addEventListener('DOMContentLoaded', renderApp);
+</script>
+  
 </body>
 </html>
