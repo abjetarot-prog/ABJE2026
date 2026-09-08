@@ -267,7 +267,7 @@
       renderJoueurs();
     }
 
-    // ========== RENDU TABLES ==========
+        // ========== RENDU TABLES ==========
     function renderTables() {
       document.getElementById("app").innerHTML = `
         <div style="padding: 1rem;">
@@ -295,19 +295,81 @@
               </p>
               ${t.joueursAffectes && t.joueursAffectes.length > 0 ? `
                 <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
-                  ${t.joueursAffectes.map(joueurId => {
+                  ${t.joueursAffectes.map((joueurId, jIndex) => {
                     const joueur = joueurs.find(j => j.id === joueurId);
-                    return joueur ? `<span style="background: var(--bg); padding: 0.25rem 0.5rem; border-radius: 0.5rem; font-size: 0.85rem;">${joueur.nom}</span>` : '';
+                    return joueur ? `
+                      <span style="background: var(--bg); padding: 0.25rem 0.5rem; border-radius: 0.5rem; font-size: 0.85rem; display: flex; align-items: center; gap: 0.25rem;">
+                        ${joueur.nom}
+                        <button onclick="retirerJoueurTable(${index}, ${jIndex})" style="background: var(--accent2); color: white; border: none; border-radius: 50%; width: 1.2rem; height: 1.2rem; padding: 0; cursor: pointer; font-size: 0.7rem; display: flex; align-items: center; justify-content: center;">×</button>
+                      </span>
+                    ` : '';
                   }).join('')}
                 </div>
               ` : ''}
-              <button onclick="affecterJoueursATable(${index})" class="btn-primary" style="margin-top: 0.75rem; width: 100%;">
+              <button onclick="toggleAffectation(${index})" class="btn-primary" style="margin-top: 0.75rem; width: 100%;">
                 ${t.joueursAffectes && t.joueursAffectes.length === t.nbJoueurs ? '✅ Table complète' : '+ Affecter joueurs'}
               </button>
+              <div id="affectation-form-${index}" class="card" style="display: none; margin-top: 1rem; background: var(--bg);">
+                <h4 style="margin-bottom: 0.5rem;">Joueurs disponibles :</h4>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                  ${joueurs.filter(j => j.disponible && !t.joueursAffectes.includes(j.id)).length === 0 
+                    ? '<p style="color: var(--text-muted); font-size: 0.9rem;">Aucun joueur disponible</p>'
+                    : joueurs.filter(j => j.disponible && !t.joueursAffectes.includes(j.id)).map(j => `
+                      <button onclick="affecterJoueur(${index}, ${j.id})" style="background: var(--card-bg); color: var(--text); border: 1px solid var(--border); padding: 0.5rem; cursor: pointer; text-align: left; border-radius: 0.5rem;">
+                        + ${j.nom}
+                      </button>
+                    `).join('')}
+                </div>
+              </div>
             </div>
           `).join('')}
         </div>
       `;
+    }
+
+    function createTable() {
+      document.getElementById("create-table-form").style.display = "block";
+      document.getElementById("newTableNb").focus();
+    }
+
+    function confirmCreateTable() {
+      const nb = parseInt(document.getElementById("newTableNb").value);
+      if (nb && [4,5,6,7].includes(nb)) {
+        tables.push({ id: Date.now(), numero: tables.length + 1, nbJoueurs: nb, joueursAffectes: [] });
+        saveData();
+        renderTables();
+      } else {
+        alert("Veuillez entrer un nombre entre 4 et 7.");
+      }
+    }
+
+    function deleteTable(index) {
+      tables.splice(index, 1);
+      saveData();
+      renderTables();
+    }
+
+    function toggleAffectation(index) {
+      const form = document.getElementById(`affectation-form-${index}`);
+      form.style.display = form.style.display === "none" ? "block" : "none";
+    }
+
+    function affecterJoueur(tableIndex, joueurId) {
+      const table = tables[tableIndex];
+      if (!table.joueursAffectes) table.joueursAffectes = [];
+      if (table.joueursAffectes.length >= table.nbJoueurs) {
+        alert("Table complète !");
+        return;
+      }
+      table.joueursAffectes.push(joueurId);
+      saveData();
+      renderTables();
+    }
+
+    function retirerJoueurTable(tableIndex, joueurIndex) {
+      tables[tableIndex].joueursAffectes.splice(joueurIndex, 1);
+      saveData();
+      renderTables();
     }
 
     function createTable() {
