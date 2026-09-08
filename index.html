@@ -123,7 +123,7 @@
   transform: translateY(-2px);
 }
   </style>
-</head>/
+</head>
 <body>
   <header>
     <div class="logo">
@@ -138,6 +138,7 @@
     <button class="nav-tab" data-tab="tables" onclick="showTab('tables')">🎲 Tables</button>
     <button class="nav-tab" data-tab="saisie" onclick="showTab('saisie')">✏️ Saisie</button>
     <button class="nav-tab" data-tab="resultats" onclick="showTab('resultats')">🏆 Résultats</button>
+    
   </nav>
 
   <main id="app"></main>
@@ -157,12 +158,14 @@
       { id: "4", nom: "Joueur 4", disponible: false }
     ];
     let tables = JSON.parse(localStorage.getItem("abje_tables")) || [];
-
+let menes = JSON.parse(localStorage.getItem("abje_menes")) || []; 
+    
     // ========== SAUVEGARDE ==========
     function saveData() {
       localStorage.setItem("abje_user", JSON.stringify(user));
       localStorage.setItem("abje_joueurs", JSON.stringify(joueurs));
       localStorage.setItem("abje_tables", JSON.stringify(tables)); 
+      localStorage.setItem("abje_menes", JSON.stringify(menes));
             }
 
     // ========== RENDU ==========
@@ -680,48 +683,9 @@ function annulerAffectation() {
   if (modal) modal.remove();
 }
 
-  const choix = prompt(message + "\nEntrez le numéro du joueur à affecter (ou 'annuler') :");
-  if (choix === null || choix === "annuler") return;
-
-  const joueurIndex = parseInt(choix) - 1;
-  if (joueurIndex >= 0 && joueurIndex < joueursDisponibles.length) {
-    // Initialiser le tableau si nécessaire
-    if (!table.joueursAffectes) {
-      table.joueursAffectes = [];
-    }
-
-    // Ajouter le joueur à la table
-    table.joueursAffectes.push(joueursDisponibles[joueurIndex].id);
-    saveData();
-    renderTables();
-  } else {
-    alert("Numéro invalide !");
-  }
-}
+ 
     // Fonction pour affecter des joueurs à une table
-function affecterJoueursATable(tableId) {
-  const table = tables.find(t => t.id === tableId);
-  if (!table) return;
 
-  // Initialiser joueursAffectes si vide
-  if (!table.joueursAffectes) {
-    table.joueursAffectes = [];
-  }
-
-  // Vérifier si la table est pleine
-  if (table.joueursAffectes.length >= table.nbJoueurs) {
-    alert(`Cette table est déjà complète (${table.nbJoueurs} joueurs max).`);
-    return;
-  }
-
-  // Filtrer les joueurs disponibles et non déjà affectés
-  const joueursDisponibles = joueurs.filter(j =>
-    j.disponible && !table.joueursAffectes.includes(j.id)
-  );
-
-  if (joueursDisponibles.length === 0) {
-    alert("Aucun joueur disponible à affecter !");
-    return;
   }
 
   // Créer une liste de choix
