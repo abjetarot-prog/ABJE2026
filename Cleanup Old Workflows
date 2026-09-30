@@ -1,0 +1,54 @@
+name: Cleanup Old Workflows
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Keep only the 5 most recent workflow files
+        shell: bash
+        run: |
+          set -e
+
+          if [ ! -d ".github/workflows" ]; then
+            echo "Dossier .github/workflows absent"
+            exit 0
+          fi
+
+          # Garder uniquement les 5 workflows les plus récents
+          files=$(find .github/workflows -type f -name "*.yml" -printf "%T@ %p\n" | sort -nr | tail -n +6 | cut -d' ' -f2-)
+
+          if [ -z "$files" ]; then
+            echo "Moins de 6 workflows présents, rien à supprimer."
+            exit 0
+          fi
+
+          echo "$files" | while IFS= read -r file; do
+            if [ -n "$file" ]; then
+              echo "Suppression: $file"
+              rm -f "$file"
+            fi
+          done
+
+      - name: Commit and push changes
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet; then
+            echo "Aucun changement à committer."
+            exit 0
+          fi
+
+          git add .github/workflows
+          git commit -m "Cleanup: garder les 5 derniers workflows"
+          git push
