@@ -1,16 +1,16 @@
 {
   "version": 2,
-  "dateExport": "2026-10-05T13:12:30.198Z",
+  "dateExport": "2026-10-07T08:44:48.786Z",
   "joueurs": [
     {
       "id": 1788880075333,
       "nom": "Jean Jacques Trouilh",
-      "disponible": false
+      "disponible": true
     },
     {
       "id": 1788880086541,
       "nom": "Jacky Gendry",
-      "disponible": false
+      "disponible": true
     },
     {
       "id": 1788880095949,
@@ -30,7 +30,7 @@
     {
       "id": 1788880146589,
       "nom": "Guy Hadjouel",
-      "disponible": false
+      "disponible": true
     },
     {
       "id": 1788899283872,
@@ -45,7 +45,7 @@
     {
       "id": 1788974473058,
       "nom": "Marie France Cassel",
-      "disponible": false
+      "disponible": true
     },
     {
       "id": 1789127897444,
@@ -65,7 +65,7 @@
     {
       "id": 1789127935744,
       "nom": "Pascal Le Troquer",
-      "disponible": false
+      "disponible": true
     },
     {
       "id": 1789127951498,
@@ -194,6 +194,20 @@
         1788880086541
       ],
       "date": "Tue Sep 29 2026"
+    },
+    {
+      "id": 1791281329591,
+      "tour": 1,
+      "numero": 7,
+      "nbJoueurs": 5,
+      "joueursAffectes": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "date": "Tue Oct 06 2026"
     }
   ],
   "menes": [
@@ -3942,6 +3956,1146 @@
       "nonJoueur1": 1788880086541,
       "nonJoueur2": 0,
       "preneur": 1788880120341,
+      "gagnee": true
+    },
+    {
+      "id": 1791290131908,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        60,
+        60,
+        -120,
+        60,
+        -60
+      ],
+      "date": "2026-10-06T12:35:31.908Z",
+      "contrat": "garde",
+      "bouts": 0,
+      "points": 50,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1789127935744,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788880086541,
+      "gagnee": false
+    },
+    {
+      "id": 1791290511902,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        200,
+        100,
+        -100,
+        -100,
+        -100
+      ],
+      "date": "2026-10-06T12:41:51.902Z",
+      "contrat": "garde",
+      "bouts": 2,
+      "points": 26,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1788880146589,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788974473058,
+      "gagnee": true
+    },
+    {
+      "id": 1791290967166,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -410,
+        820,
+        -410,
+        410,
+        -410
+      ],
+      "date": "2026-10-06T12:49:27.166Z",
+      "contrat": "garde_contre",
+      "bouts": 2,
+      "points": 17,
+      "petitBout": "preneur",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1788880075333,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788880146589,
+      "gagnee": true
+    },
+    {
+      "id": 1791291138475,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -110,
+        110,
+        220,
+        -110,
+        -110
+      ],
+      "date": "2026-10-06T12:52:18.475Z",
+      "contrat": "garde",
+      "bouts": 3,
+      "points": 26,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1788880146589,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788880086541,
+      "gagnee": true
+    },
+    {
+      "id": 1791291461354,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -60,
+        60,
+        120,
+        -60,
+        -60
+      ],
+      "date": "2026-10-06T12:57:41.354Z",
+      "contrat": "garde",
+      "bouts": 1,
+      "points": 34,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1788880146589,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788880086541,
+      "gagnee": true
+    },
+    {
+      "id": 1791291825774,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        80,
+        -80,
+        -80,
+        -80,
+        160
+      ],
+      "date": "2026-10-06T13:03:45.774Z",
+      "contrat": "garde",
+      "bouts": 2,
+      "points": 37,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1788974473058,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1789127935744,
+      "gagnee": true
+    },
+    {
+      "id": 1791292142072,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        160,
+        -80,
+        -80,
+        -80,
+        80
+      ],
+      "date": "2026-10-06T13:09:02.072Z",
+      "contrat": "garde",
+      "bouts": 2,
+      "points": 45,
+      "petitBout": "preneur",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1789127935744,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788974473058,
+      "gagnee": true
+    },
+    {
+      "id": 1791292471870,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -240,
+        -240,
+        -240,
+        -240,
+        960
+      ],
+      "date": "2026-10-06T13:14:31.870Z",
+      "contrat": "garde_contre",
+      "bouts": 2,
+      "points": 42,
+      "petitBout": "preneur",
+      "poignee": 20,
+      "chelem": 0,
+      "appele": 0,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1789127935744,
+      "gagnee": true
+    },
+    {
+      "id": 1791292873282,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -70,
+        70,
+        -70,
+        140,
+        -70
+      ],
+      "date": "2026-10-06T13:21:13.282Z",
+      "contrat": "garde",
+      "bouts": 1,
+      "points": 28,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1788880146589,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788880075333,
+      "gagnee": true
+    },
+    {
+      "id": 1791293219097,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -70,
+        70,
+        -70,
+        140,
+        -70
+      ],
+      "date": "2026-10-06T13:26:59.098Z",
+      "contrat": "garde",
+      "bouts": 3,
+      "points": 44,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1788880146589,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788880075333,
+      "gagnee": true
+    },
+    {
+      "id": 1791293520018,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        50,
+        -50,
+        100,
+        -50,
+        -50
+      ],
+      "date": "2026-10-06T13:32:00.018Z",
+      "contrat": "garde",
+      "bouts": 1,
+      "points": 38,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1788974473058,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788880086541,
+      "gagnee": true
+    },
+    {
+      "id": 1791293844469,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -180,
+        -180,
+        180,
+        -180,
+        360
+      ],
+      "date": "2026-10-06T13:37:24.469Z",
+      "contrat": "garde_sans",
+      "bouts": 2,
+      "points": 60,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1788880086541,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1789127935744,
+      "gagnee": true
+    },
+    {
+      "id": 1791294304343,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -70,
+        -70,
+        140,
+        -70,
+        70
+      ],
+      "date": "2026-10-06T13:45:04.343Z",
+      "contrat": "garde",
+      "bouts": 2,
+      "points": 50,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1789127935744,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788880086541,
+      "gagnee": true
+    },
+    {
+      "id": 1791294618996,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -60,
+        60,
+        120,
+        -60,
+        -60
+      ],
+      "date": "2026-10-06T13:50:18.996Z",
+      "contrat": "garde",
+      "bouts": 2,
+      "points": 46,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1788880146589,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788880086541,
+      "gagnee": true
+    },
+    {
+      "id": 1791294978549,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -60,
+        -60,
+        -60,
+        120,
+        60
+      ],
+      "date": "2026-10-06T13:56:18.549Z",
+      "contrat": "garde",
+      "bouts": 1,
+      "points": 34,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1789127935744,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788880075333,
+      "gagnee": true
+    },
+    {
+      "id": 1791295259985,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -60,
+        -60,
+        120,
+        60,
+        -60
+      ],
+      "date": "2026-10-06T14:00:59.985Z",
+      "contrat": "garde",
+      "bouts": 2,
+      "points": 57,
+      "petitBout": "defense",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1788880075333,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788880086541,
+      "gagnee": true
+    },
+    {
+      "id": 1791295583017,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -60,
+        60,
+        60,
+        60,
+        -120
+      ],
+      "date": "2026-10-06T14:06:23.017Z",
+      "contrat": "garde",
+      "bouts": 1,
+      "points": 44,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1788974473058,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1789127935744,
+      "gagnee": false
+    },
+    {
+      "id": 1791295891617,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -140,
+        70,
+        70,
+        70,
+        -70
+      ],
+      "date": "2026-10-06T14:11:31.617Z",
+      "contrat": "garde",
+      "bouts": 1,
+      "points": 42,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1789127935744,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788974473058,
+      "gagnee": false
+    },
+    {
+      "id": 1791296226172,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -80,
+        80,
+        -80,
+        -80,
+        160
+      ],
+      "date": "2026-10-06T14:17:06.172Z",
+      "contrat": "garde_sans",
+      "bouts": 2,
+      "points": 45,
+      "petitBout": "defense",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1788880146589,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1789127935744,
+      "gagnee": true
+    },
+    {
+      "id": 1791296573165,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -80,
+        80,
+        80,
+        -160,
+        80
+      ],
+      "date": "2026-10-06T14:22:53.165Z",
+      "contrat": "garde",
+      "bouts": 2,
+      "points": 25,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1788974473058,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788880075333,
+      "gagnee": false
+    },
+    {
+      "id": 1791296964691,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -340,
+        340,
+        -340,
+        -340,
+        680
+      ],
+      "date": "2026-10-06T14:29:24.691Z",
+      "contrat": "garde_contre",
+      "bouts": 3,
+      "points": 33,
+      "petitBout": "preneur",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1788880146589,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1789127935744,
+      "gagnee": true
+    },
+    {
+      "id": 1791297344266,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -90,
+        90,
+        -90,
+        180,
+        -90
+      ],
+      "date": "2026-10-06T14:35:44.266Z",
+      "contrat": "garde",
+      "bouts": 2,
+      "points": 28,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1788880146589,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788880075333,
+      "gagnee": true
+    },
+    {
+      "id": 1791297625061,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        80,
+        160,
+        -80,
+        -80,
+        -80
+      ],
+      "date": "2026-10-06T14:40:25.061Z",
+      "contrat": "garde",
+      "bouts": 2,
+      "points": 33,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1788974473058,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788880146589,
+      "gagnee": true
+    },
+    {
+      "id": 1791297965276,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -80,
+        -80,
+        80,
+        -80,
+        160
+      ],
+      "date": "2026-10-06T14:46:05.276Z",
+      "contrat": "garde",
+      "bouts": 2,
+      "points": 54,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1788880086541,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1789127935744,
+      "gagnee": true
+    },
+    {
+      "id": 1791298273611,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        80,
+        -80,
+        160,
+        -80,
+        -80
+      ],
+      "date": "2026-10-06T14:51:13.611Z",
+      "contrat": "garde",
+      "bouts": 2,
+      "points": 35,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1788974473058,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788880086541,
+      "gagnee": true
+    },
+    {
+      "id": 1791298589718,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -90,
+        -90,
+        180,
+        -90,
+        90
+      ],
+      "date": "2026-10-06T14:56:29.718Z",
+      "contrat": "garde",
+      "bouts": 2,
+      "points": 30,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1789127935744,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788880086541,
+      "gagnee": true
+    },
+    {
+      "id": 1791298913625,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -120,
+        -60,
+        60,
+        60,
+        60
+      ],
+      "date": "2026-10-06T15:01:53.625Z",
+      "contrat": "garde",
+      "bouts": 1,
+      "points": 47,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1788880146589,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788974473058,
+      "gagnee": false
+    },
+    {
+      "id": 1791299203964,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        100,
+        100,
+        -200,
+        100,
+        -100
+      ],
+      "date": "2026-10-06T15:06:43.964Z",
+      "contrat": "garde",
+      "bouts": 1,
+      "points": 26,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1789127935744,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788880086541,
+      "gagnee": false
+    },
+    {
+      "id": 1791299586348,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -170,
+        170,
+        170,
+        170,
+        -340
+      ],
+      "date": "2026-10-06T15:13:06.348Z",
+      "contrat": "garde_contre",
+      "bouts": 2,
+      "points": 37,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1788974473058,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1789127935744,
+      "gagnee": false
+    },
+    {
+      "id": 1791299816386,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -100,
+        -100,
+        -100,
+        100,
+        200
+      ],
+      "date": "2026-10-06T15:16:56.386Z",
+      "contrat": "garde",
+      "bouts": 3,
+      "points": 31,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1788880075333,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1789127935744,
+      "gagnee": true
+    },
+    {
+      "id": 1791300126649,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        60,
+        60,
+        60,
+        -120,
+        -60
+      ],
+      "date": "2026-10-06T15:22:06.649Z",
+      "contrat": "garde",
+      "bouts": 2,
+      "points": 38,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1789127935744,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788880075333,
+      "gagnee": false
+    },
+    {
+      "id": 1791300437049,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -100,
+        100,
+        -100,
+        200,
+        -100
+      ],
+      "date": "2026-10-06T15:27:17.049Z",
+      "contrat": "garde",
+      "bouts": 3,
+      "points": 30,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1788880146589,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788880075333,
+      "gagnee": true
+    },
+    {
+      "id": 1791300747949,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -50,
+        -50,
+        100,
+        -50,
+        50
+      ],
+      "date": "2026-10-06T15:32:27.949Z",
+      "contrat": "garde",
+      "bouts": 1,
+      "points": 39,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1789127935744,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788880086541,
+      "gagnee": true
+    },
+    {
+      "id": 1791301043135,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -130,
+        -130,
+        260,
+        -130,
+        130
+      ],
+      "date": "2026-10-06T15:37:23.135Z",
+      "contrat": "garde",
+      "bouts": 3,
+      "points": 13,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1789127935744,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788880086541,
+      "gagnee": true
+    },
+    {
+      "id": 1791301392565,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -80,
+        160,
+        -80,
+        -80,
+        80
+      ],
+      "date": "2026-10-06T15:43:12.565Z",
+      "contrat": "garde",
+      "bouts": 3,
+      "points": 49,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1789127935744,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788880146589,
+      "gagnee": true
+    },
+    {
+      "id": 1791301738495,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -70,
+        140,
+        -70,
+        -70,
+        70
+      ],
+      "date": "2026-10-06T15:48:58.495Z",
+      "contrat": "garde",
+      "bouts": 2,
+      "points": 50,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1789127935744,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1788880146589,
+      "gagnee": true
+    },
+    {
+      "id": 1791302023916,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -70,
+        -70,
+        70,
+        -70,
+        140
+      ],
+      "date": "2026-10-06T15:53:43.916Z",
+      "contrat": "garde",
+      "bouts": 2,
+      "points": 52,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1788880086541,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1789127935744,
+      "gagnee": true
+    },
+    {
+      "id": 1791302590477,
+      "tableId": 1791281329591,
+      "joueurs": [
+        1788974473058,
+        1788880146589,
+        1788880086541,
+        1788880075333,
+        1789127935744
+      ],
+      "scores": [
+        -120,
+        120,
+        -120,
+        -120,
+        240
+      ],
+      "date": "2026-10-06T16:03:10.477Z",
+      "contrat": "garde_sans",
+      "bouts": 2,
+      "points": 45,
+      "petitBout": "0",
+      "poignee": 0,
+      "chelem": 0,
+      "appele": 1788880146589,
+      "nonJoueur1": 0,
+      "nonJoueur2": 0,
+      "preneur": 1789127935744,
       "gagnee": true
     }
   ],
